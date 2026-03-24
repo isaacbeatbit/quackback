@@ -1,12 +1,13 @@
 import { createFileRoute, Outlet, redirect, useLocation } from '@tanstack/react-router'
 import { getSetupState, isOnboardingComplete } from '@/lib/shared/db-types'
 import { CheckIcon } from '@heroicons/react/24/solid'
+import * as m from '@/paraglide/messages'
 
 const ONBOARDING_STEPS = [
-  { path: '/onboarding/account', label: 'Account' },
-  { path: '/onboarding/usecase', label: 'Use case' },
-  { path: '/onboarding/workspace', label: 'Workspace' },
-  { path: '/onboarding/boards', label: 'Boards' },
+  { path: '/onboarding/account', label: () => m.onboarding_step_account() },
+  { path: '/onboarding/usecase', label: () => m.onboarding_step_usecase() },
+  { path: '/onboarding/workspace', label: () => m.onboarding_step_workspace() },
+  { path: '/onboarding/boards', label: () => m.onboarding_step_boards() },
 ] as const
 
 /**
@@ -91,7 +92,7 @@ function OnboardingHeader() {
                           : 'text-muted-foreground/60'
                     }`}
                   >
-                    {step.label}
+                    {step.label()}
                   </span>
                 </div>
               )

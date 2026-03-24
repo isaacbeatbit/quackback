@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/solid'
 import { authClient } from '@/lib/server/auth/client'
 import type { PortalAuthMethods } from '@/lib/server/domains/settings'
+import * as m from '@/paraglide/messages'
 
 interface InvitationInfo {
   id: string
@@ -91,10 +92,10 @@ export function PortalAuthForm({
           setEmail(data.email)
         } else {
           const data = (await response.json()) as { error?: string }
-          setError(data.error || 'Invalid or expired invitation')
+          setError(data.error || m.auth_invalid_or_expired_invitation())
         }
       } catch {
-        setError('Failed to load invitation')
+        setError(m.auth_failed_load_invitation())
       } finally {
         setLoadingInvitation(false)
       }
@@ -124,15 +125,15 @@ export function PortalAuthForm({
     setError('')
 
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
     if (!password) {
-      setError('Password is required')
+      setError(m.auth_password_required())
       return
     }
     if (mode === 'signup' && password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(m.auth_password_min_length())
       return
     }
 
@@ -145,7 +146,7 @@ export function PortalAuthForm({
           password,
         })
         if (result.error) {
-          throw new Error(result.error.message || 'Failed to create account')
+          throw new Error(result.error.message || m.auth_failed_create_account())
         }
       } else {
         const result = await authClient.signIn.email({
@@ -153,12 +154,12 @@ export function PortalAuthForm({
           password,
         })
         if (result.error) {
-          throw new Error(result.error.message || 'Invalid email or password')
+          throw new Error(result.error.message || m.auth_invalid_email_or_password())
         }
       }
       window.location.href = callbackUrl
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed')
+      setError(err instanceof Error ? err.message : m.auth_authentication_failed())
     } finally {
       setLoading(false)
     }
@@ -176,13 +177,13 @@ export function PortalAuthForm({
       })
 
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to send code')
+        throw new Error(result.error.message || m.auth_failed_send_code())
       }
 
       setStep('code')
       setResendCooldown(60)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send code')
+      setError(err instanceof Error ? err.message : m.auth_failed_send_code())
     } finally {
       setLoading(false)
     }
@@ -199,12 +200,12 @@ export function PortalAuthForm({
       })
 
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to verify code')
+        throw new Error(result.error.message || m.auth_failed_verify_code())
       }
 
       window.location.href = callbackUrl
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify code')
+      setError(err instanceof Error ? err.message : m.auth_failed_verify_code())
     } finally {
       setLoading(false)
     }
@@ -216,7 +217,7 @@ export function PortalAuthForm({
     setError('')
 
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
 
@@ -227,11 +228,11 @@ export function PortalAuthForm({
         redirectTo: '/auth/reset-password',
       })
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to send reset link')
+        throw new Error(result.error.message || m.auth_failed_send_reset_link())
       }
       setStep('reset')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset link')
+      setError(err instanceof Error ? err.message : m.auth_failed_send_reset_link())
     } finally {
       setLoading(false)
     }
@@ -241,7 +242,7 @@ export function PortalAuthForm({
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
     sendCode()
@@ -250,7 +251,7 @@ export function PortalAuthForm({
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!code.trim() || code.length !== 6) {
-      setError('Please enter the 6-digit code')
+      setError(m.auth_enter_6_digit_code())
       return
     }
     verifyCode()
@@ -301,11 +302,12 @@ export function PortalAuthForm({
           <div className="flex items-start gap-3">
             <EnvelopeIcon className="h-5 w-5 text-primary mt-0.5" />
             <div>
-              <p className="font-medium text-foreground">You&apos;ve been invited!</p>
+              <p className="font-medium text-foreground">{m.auth_invited_title()}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Create your account to join{' '}
-                <span className="font-medium text-foreground">{invitation.workspaceName}</span>
-                {invitation.inviterName && <> (invited by {invitation.inviterName})</>}
+                {m.auth_create_account_join_workspace({ workspaceName: invitation.workspaceName })}
+                {invitation.inviterName && (
+                  <> ({m.auth_invited_by({ name: invitation.inviterName })})</>
+                )}
               </p>
             </div>
           </div>
@@ -324,7 +326,9 @@ export function PortalAuthForm({
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with {passwordEnabled ? 'email' : 'email code'}
+                  {passwordEnabled
+                    ? m.auth_or_continue_with_email()
+                    : m.auth_or_continue_with_email_code()}
                 </span>
               </div>
             </div>
@@ -340,12 +344,12 @@ export function PortalAuthForm({
           {mode === 'signup' && (
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
-                Name
+                {m.auth_name()}
               </label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Jane Doe"
+                placeholder={m.auth_jane_doe()}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
@@ -356,12 +360,12 @@ export function PortalAuthForm({
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!invitation || loading}
@@ -369,18 +373,18 @@ export function PortalAuthForm({
               autoComplete="email"
             />
             {invitation && (
-              <p className="text-xs text-muted-foreground">Email is set from your invitation</p>
+              <p className="text-xs text-muted-foreground">{m.auth_email_from_invitation()}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium">
-              Password
+              {m.auth_password()}
             </label>
             <Input
               id="password"
               type="password"
-              placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+              placeholder={mode === 'signup' ? m.auth_password_placeholder_signup() : '••••••••'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
@@ -398,7 +402,7 @@ export function PortalAuthForm({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Forgot password?
+                {m.auth_forgot_password()}
               </button>
             </div>
           )}
@@ -407,11 +411,11 @@ export function PortalAuthForm({
             {loading && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
             {loading
               ? mode === 'signup'
-                ? 'Creating account...'
-                : 'Signing in...'
+                ? m.auth_creating_account()
+                : m.auth_signing_in()
               : mode === 'signup'
-                ? 'Create account'
-                : 'Sign in'}
+                ? m.auth_create_account()
+                : m.auth_sign_in()}
           </Button>
 
           {/* Link to email OTP if also enabled */}
@@ -425,7 +429,7 @@ export function PortalAuthForm({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Use email code instead
+                {m.auth_use_email_code_instead()}
               </button>
             </div>
           )}
@@ -439,12 +443,12 @@ export function PortalAuthForm({
 
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!invitation || loading}
@@ -452,7 +456,7 @@ export function PortalAuthForm({
               autoComplete="email"
             />
             {invitation && (
-              <p className="text-xs text-muted-foreground">Email is set from your invitation</p>
+              <p className="text-xs text-muted-foreground">{m.auth_email_from_invitation()}</p>
             )}
           </div>
 
@@ -460,10 +464,10 @@ export function PortalAuthForm({
             {loading ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Sending code...
+                {m.auth_sending_code()}
               </>
             ) : (
-              'Continue with email'
+              m.auth_continue_with_email()
             )}
           </Button>
 
@@ -478,7 +482,7 @@ export function PortalAuthForm({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Use password instead
+                {m.auth_use_password_instead()}
               </button>
             </div>
           )}
@@ -494,20 +498,18 @@ export function PortalAuthForm({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="rounded-lg bg-muted/50 p-4">
-            <p className="text-sm text-center">
-              We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
-            </p>
+            <p className="text-sm text-center">{m.auth_sent_code_to({ email })}</p>
           </div>
 
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <label htmlFor="code" className="text-sm font-medium">
-              Verification code
+              {m.auth_verification_code()}
             </label>
             <Input
               ref={codeInputRef}
@@ -516,7 +518,7 @@ export function PortalAuthForm({
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
-              placeholder="000000"
+              placeholder={m.auth_code_placeholder()}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               disabled={loading}
@@ -529,10 +531,10 @@ export function PortalAuthForm({
             {loading ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                {m.auth_verifying()}
               </>
             ) : (
-              'Verify code'
+              m.auth_verify_code()
             )}
           </Button>
 
@@ -544,8 +546,8 @@ export function PortalAuthForm({
               className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resendCooldown > 0
-                ? `Resend code in ${resendCooldown}s`
-                : "Didn't receive a code? Resend"}
+                ? m.auth_resend_code_in({ seconds: resendCooldown })
+                : m.auth_resend_code()}
             </button>
           </div>
         </form>
@@ -560,26 +562,24 @@ export function PortalAuthForm({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="text-center">
-            <h2 className="text-lg font-semibold">Reset your password</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter your email and we&apos;ll send you a link to reset your password.
-            </p>
+            <h2 className="text-lg font-semibold">{m.auth_reset_password()}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{m.auth_reset_password_help()}</p>
           </div>
 
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <label htmlFor="forgot-email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="forgot-email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
@@ -591,10 +591,10 @@ export function PortalAuthForm({
             {loading ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Sending link...
+                {m.auth_sending_link()}
               </>
             ) : (
-              'Send reset link'
+              m.auth_send_reset_link()
             )}
           </Button>
         </form>
@@ -609,17 +609,13 @@ export function PortalAuthForm({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="text-center space-y-3">
             <EnvelopeIcon className="h-10 w-10 text-primary mx-auto" />
-            <h2 className="text-lg font-semibold">Check your email</h2>
-            <p className="text-sm text-muted-foreground">
-              We sent a password reset link to{' '}
-              <span className="font-medium text-foreground">{email}</span>. The link expires in 24
-              hours.
-            </p>
+            <h2 className="text-lg font-semibold">{m.auth_check_email()}</h2>
+            <p className="text-sm text-muted-foreground">{m.auth_reset_link_sent({ email })}</p>
           </div>
         </div>
       )}

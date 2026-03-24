@@ -16,24 +16,21 @@ import {
   getInviteBrandingFn,
   setPasswordFn,
 } from '@/lib/server/functions/invitations'
+import * as m from '@/paraglide/messages'
 
 const ERROR_MESSAGES: Record<string, string> = {
-  INVALID_TOKEN:
-    'This invitation link is invalid. It may have already been used. Please ask your administrator to resend the invitation.',
-  EXPIRED_TOKEN:
-    'This invitation link has expired. Please ask your administrator to resend the invitation.',
-  failed_to_create_user:
-    "We couldn't create your account. Please try again or contact your administrator.",
-  new_user_signup_disabled:
-    'New account creation is currently disabled. Please contact your administrator.',
-  failed_to_create_session: "We couldn't sign you in. Please try again.",
+  INVALID_TOKEN: m.invite_error_invalid_token(),
+  EXPIRED_TOKEN: m.invite_error_expired_token(),
+  failed_to_create_user: m.invite_error_failed_create_user(),
+  new_user_signup_disabled: m.invite_error_signup_disabled(),
+  failed_to_create_session: m.invite_error_failed_create_session(),
 }
 
 const FEATURES = [
-  { icon: ChatBubbleLeftRightIcon, label: 'Feedback & voting' },
-  { icon: SparklesIcon, label: 'AI-powered insights' },
-  { icon: BoltIcon, label: '24 integrations' },
-  { icon: MapIcon, label: 'Roadmap & changelog' },
+  { icon: ChatBubbleLeftRightIcon, label: m.invite_feature_feedback_voting() },
+  { icon: SparklesIcon, label: m.invite_feature_ai_insights() },
+  { icon: BoltIcon, label: m.invite_feature_integrations() },
+  { icon: MapIcon, label: m.invite_feature_roadmap_changelog() },
 ] as const
 
 export interface InviteBranding {
@@ -91,9 +88,7 @@ function AcceptInvitationPage() {
   // redirect attempt (e.g. Outlook Safe Links) should not override the valid invitation.
   if (errorCode && data.state !== 'welcome') {
     console.log(`[route:complete-signup] component: errorCode=${errorCode}, state=${data.state}`)
-    const message =
-      ERROR_MESSAGES[errorCode] ??
-      'Something went wrong with the invitation link. Please ask your administrator to resend the invitation.'
+    const message = ERROR_MESSAGES[errorCode] ?? m.invite_error_generic_link()
     return (
       <PageShell>
         <ErrorContent error={message} invitationId={id} errorKind="token" branding={branding} />
@@ -146,6 +141,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
         <div className="mb-8 flex items-center justify-center gap-2">
           <img src="/logo.png" alt="" className="h-6 w-6 rounded" />
           <span className="text-sm font-medium text-muted-foreground">Quackback</span>
+          <span className="text-sm font-medium text-muted-foreground">{m.common_quackback()}</span>
         </div>
         {children}
       </div>
@@ -205,21 +201,21 @@ function NotAuthenticatedContent({
     >
       <WorkspaceIdentity branding={branding} />
       <div className="mt-6 mb-6 h-px bg-border/50" />
-      <h1 className="text-2xl font-bold tracking-tight">You're invited!</h1>
+      <h1 className="text-2xl font-bold tracking-tight">{m.invite_you_are_invited()}</h1>
       <p className="mt-2 text-muted-foreground">
         {branding.inviterName
-          ? `${branding.inviterName} invited you to join the team. Sign in to get started.`
-          : 'Sign in to accept your invitation and get started with your team.'}
+          ? m.invite_sign_in_to_get_started({ inviterName: branding.inviterName })
+          : m.invite_sign_in_accept_invitation()}
       </p>
       <div className="mt-6 flex flex-col gap-3">
         <a href={`/admin/login?callbackUrl=/complete-signup/${invitationId}`}>
-          <Button className="w-full h-11">Sign in</Button>
+          <Button className="w-full h-11">{m.auth_sign_in()}</Button>
         </a>
         <a
           href="/"
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          Go to Home
+          {m.error_go_home()}
         </a>
       </div>
     </div>
@@ -255,7 +251,7 @@ function WelcomeContent({
     const trimmedName = name.trim()
 
     if (trimmedName.length < 2) {
-      setError('Please enter your name (at least 2 characters)')
+      setError(m.invite_name_validation())
       return
     }
     if (!skipPassword && password && password.length < 8) {
@@ -277,7 +273,7 @@ function WelcomeContent({
 
       window.location.href = '/admin'
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to accept invitation'
+      const message = err instanceof Error ? err.message : m.invite_failed_accept()
       if (message.includes('already been accepted')) {
         window.location.href = '/admin'
         return
@@ -299,11 +295,11 @@ function WelcomeContent({
         <WorkspaceIdentity branding={branding} />
         <div className="mt-6 mb-6 h-px bg-border/50" />
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Welcome!</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{m.invite_welcome()}</h1>
           <p className="mt-2 text-muted-foreground">
             {invite.inviterName
-              ? `Invited by ${invite.inviterName}`
-              : 'Complete your account setup to get started'}
+              ? m.invite_invited_by_name({ inviterName: invite.inviterName })
+              : m.invite_complete_setup()}
           </p>
         </div>
 
@@ -316,7 +312,7 @@ function WelcomeContent({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
-              Your name
+              {m.invite_your_name()}
             </label>
             <Input
               id="name"
@@ -324,7 +320,7 @@ function WelcomeContent({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              placeholder="Jane Doe"
+              placeholder={m.auth_jane_doe()}
               autoComplete="name"
               autoFocus
               disabled={isLoading}
@@ -335,14 +331,15 @@ function WelcomeContent({
           {passwordEnabled && (
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
-                Set a password <span className="text-muted-foreground font-normal">(optional)</span>
+                {m.invite_set_password_optional()}{' '}
+                <span className="text-muted-foreground font-normal">({m.invite_optional()})</span>
               </label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 8 characters"
+                placeholder={m.auth_password_placeholder_signup()}
                 autoComplete="new-password"
                 disabled={isLoading}
                 className="h-11"
@@ -355,7 +352,11 @@ function WelcomeContent({
             disabled={isLoading || name.trim().length < 2}
             className="w-full h-11"
           >
-            {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : 'Get started'}
+            {isLoading ? (
+              <ArrowPathIcon className="h-4 w-4 animate-spin" />
+            ) : (
+              m.invite_get_started()
+            )}
           </Button>
 
           {passwordEnabled && (
@@ -366,7 +367,7 @@ function WelcomeContent({
               disabled={isLoading}
               className="w-full text-muted-foreground"
             >
-              Skip password setup
+              {m.invite_skip_password_setup()}
             </Button>
           )}
         </form>
@@ -409,22 +410,22 @@ function ErrorContent({
       {retrying ? (
         <div>
           <Spinner size="xl" className="border-primary mx-auto" />
-          <p className="mt-4 text-muted-foreground">Retrying...</p>
+          <p className="mt-4 text-muted-foreground">{m.invite_retrying()}</p>
         </div>
       ) : (
         <div>
           <div className="text-destructive text-xl font-medium tracking-tight">
-            Unable to accept invitation
+            {m.invite_unable_accept()}
           </div>
           <p className="mt-2 text-muted-foreground">{error}</p>
           <div className="mt-6 flex flex-col gap-3">
             {kind === 'already-accepted' ? (
               <a href="/admin">
-                <Button className="w-full h-11">Go to Dashboard</Button>
+                <Button className="w-full h-11">{m.invite_go_dashboard()}</Button>
               </a>
             ) : kind === 'token' ? (
               <a href={`/admin/login?callbackUrl=/complete-signup/${invitationId}`}>
-                <Button className="w-full h-11">Sign in</Button>
+                <Button className="w-full h-11">{m.auth_sign_in()}</Button>
               </a>
             ) : (
               <Button
@@ -434,14 +435,14 @@ function ErrorContent({
                   window.location.reload()
                 }}
               >
-                Try Again
+                {m.error_try_again()}
               </Button>
             )}
             <a
               href="/"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Go to Home
+              {m.error_go_home()}
             </a>
           </div>
         </div>

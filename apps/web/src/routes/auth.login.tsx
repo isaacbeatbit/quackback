@@ -3,6 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { settingsQueries } from '@/lib/client/queries/settings'
 import { PortalAuthForm } from '@/components/auth/portal-auth-form'
 import { DEFAULT_PORTAL_CONFIG } from '@/lib/server/domains/settings'
+import * as m from '@/paraglide/messages'
 
 /**
  * Portal Login Page
@@ -37,8 +38,8 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="mt-2 text-muted-foreground">Sign in to your account</p>
+          <h1 className="text-2xl font-bold">{m.auth_welcome_back()}</h1>
+          <p className="mt-2 text-muted-foreground">{m.auth_sign_in_to_account()}</p>
         </div>
         <PortalAuthForm
           mode="login"
@@ -47,9 +48,9 @@ function LoginPage() {
           customProviderNames={portalConfig.customProviderNames}
         />
         <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{' '}
+          {m.auth_dont_have_account()}{' '}
           <Link to="/auth/signup" className="font-medium text-primary hover:underline">
-            Sign up
+            {m.auth_sign_up()}
           </Link>
         </p>
       </div>

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/shared/page-header'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
 
 export interface OnboardingTask {
   id: string
@@ -48,39 +49,39 @@ function GettingStartedPage() {
   const tasks: OnboardingTask[] = [
     {
       id: 'create-board',
-      title: 'Create your first board',
-      description: 'Set up a feedback board where users can submit and vote on ideas',
+      title: m.getting_started_create_board_title(),
+      description: m.getting_started_create_board_description(),
       isCompleted: status.hasBoards,
       href: '/admin/settings/boards',
-      actionLabel: 'Create Board',
-      completedLabel: 'View Boards',
+      actionLabel: m.getting_started_create_board_action(),
+      completedLabel: m.getting_started_create_board_completed(),
     },
     {
       id: 'invite-team',
-      title: 'Invite team members',
-      description: 'Add your team to collaborate on feedback management',
+      title: m.getting_started_invite_team_title(),
+      description: m.getting_started_invite_team_description(),
       isCompleted: status.memberCount > 1,
       href: '/admin/settings/team',
-      actionLabel: 'Invite Members',
-      completedLabel: 'Manage Team',
+      actionLabel: m.getting_started_invite_team_action(),
+      completedLabel: m.getting_started_invite_team_completed(),
     },
     {
       id: 'customize-branding',
-      title: 'Customize branding',
-      description: 'Add your logo and brand colors to match your product',
+      title: m.getting_started_branding_title(),
+      description: m.getting_started_branding_description(),
       isCompleted: false,
       href: '/admin/settings',
-      actionLabel: 'Customize',
-      completedLabel: 'Edit Branding',
+      actionLabel: m.getting_started_branding_action(),
+      completedLabel: m.getting_started_branding_completed(),
     },
     {
       id: 'connect-integrations',
-      title: 'Connect integrations',
-      description: 'Connect GitHub, Slack, or Discord to streamline your workflow',
+      title: m.getting_started_integrations_title(),
+      description: m.getting_started_integrations_description(),
       isCompleted: false,
       href: '/admin/settings',
-      actionLabel: 'Connect',
-      completedLabel: 'Manage Integrations',
+      actionLabel: m.getting_started_integrations_action(),
+      completedLabel: m.getting_started_integrations_completed(),
     },
   ]
 
@@ -91,8 +92,8 @@ function GettingStartedPage() {
     <div className="mx-auto max-w-3xl space-y-6 px-6 py-8">
       <PageHeader
         icon={RocketLaunchIcon}
-        title="Getting Started"
-        description={`Complete these steps to set up ${settings!.name}`}
+        title={m.getting_started_title()}
+        description={m.getting_started_description({ workspaceName: settings!.name })}
         animate
       />
 
@@ -110,7 +111,7 @@ function GettingStartedPage() {
           ))}
         </div>
         <span className="text-xs font-medium tabular-nums text-muted-foreground">
-          {completedCount} of {tasks.length}
+          {m.getting_started_progress({ completed: completedCount, total: tasks.length })}
         </span>
       </div>
 
@@ -192,9 +193,10 @@ function GettingStartedPage() {
             <CheckIcon className="h-3 w-3 text-primary" />
           </div>
           <p className="text-sm text-muted-foreground">
-            Setup complete —{' '}
+            {m.getting_started_complete_prefix()}
+            {' — '}
             <Link to="/admin/feedback" className="text-primary hover:underline underline-offset-2">
-              go to your feedback inbox
+              {m.getting_started_complete_link()}
             </Link>
           </p>
         </div>

@@ -17,6 +17,7 @@ import {
 } from '@/components/auth/oauth-buttons'
 import { openAuthPopup, usePopupTracker } from '@/lib/client/hooks/use-auth-broadcast'
 import { authClient } from '@/lib/server/auth/client'
+import * as m from '@/paraglide/messages'
 
 interface OrgAuthConfig {
   found: boolean
@@ -37,7 +38,6 @@ interface PortalAuthFormInlineProps {
   mode: 'login' | 'signup'
   authConfig?: OrgAuthConfig | null
   invitationId?: string | null
-  /** Called to switch between login/signup modes */
   onModeSwitch?: (mode: 'login' | 'signup') => void
 }
 
@@ -52,14 +52,7 @@ interface OAuthButtonProps {
   onClick: () => void
 }
 
-function OAuthButton({
-  icon,
-  label,
-  mode,
-  loading,
-  disabled,
-  onClick,
-}: OAuthButtonProps): React.ReactElement {
+function OAuthButton({ icon, label, mode, loading, disabled, onClick }: OAuthButtonProps) {
   return (
     <Button
       type="button"
@@ -69,21 +62,13 @@ function OAuthButton({
       disabled={disabled}
     >
       {loading ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : icon}
-      {mode === 'login' ? 'Sign in' : 'Sign up'} with {label}
+      {mode === 'login'
+        ? m.auth_sign_in_with_provider({ provider: label })
+        : m.auth_sign_up_with_provider({ provider: label })}
     </Button>
   )
 }
 
-/**
- * Inline Portal Auth Form for use in dialogs/popovers
- *
- * Supports password, email OTP, and OAuth authentication.
- *
- * Unlike the full-page PortalAuthForm, this version:
- * - Opens OAuth in popup windows instead of redirecting
- * - Signals success via BroadcastChannel to parent
- * - Better-auth automatically creates users if they don't exist
- */
 export function PortalAuthFormInline({
   mode,
   authConfig,
@@ -108,7 +93,6 @@ export function PortalAuthFormInline({
 
   const codeInputRef = useRef<HTMLInputElement>(null)
 
-  // Track popup windows
   const { trackPopup, clearPopup, hasPopup, focusPopup } = usePopupTracker({
     onPopupClosed: () => {
       setLoadingAction(null)
@@ -116,7 +100,6 @@ export function PortalAuthFormInline({
     },
   })
 
-  // Fetch invitation details if invitationId is provided
   useEffect(() => {
     if (!invitationId) {
       setLoadingInvitation(false)
@@ -132,10 +115,10 @@ export function PortalAuthFormInline({
           setEmail(data.email)
         } else {
           const data = (await response.json()) as { error?: string }
-          setError(data.error || 'Invalid or expired invitation')
+          setError(data.error || m.auth_invalid_or_expired_invitation())
         }
       } catch {
-        setError('Failed to load invitation')
+        setError(m.auth_failed_load_invitation())
       } finally {
         setLoadingInvitation(false)
       }
@@ -144,7 +127,6 @@ export function PortalAuthFormInline({
     fetchInvitation()
   }, [invitationId])
 
-  // Resend cooldown timer
   useEffect(() => {
     if (resendCooldown > 0) {
       const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000)
@@ -152,35 +134,32 @@ export function PortalAuthFormInline({
     }
   }, [resendCooldown])
 
-  // Focus code input when entering code/reset steps
   useEffect(() => {
     if ((step === 'code' || step === 'reset') && codeInputRef.current) {
       codeInputRef.current.focus()
     }
   }, [step])
 
-  // Clear popup tracking on unmount
   useEffect(() => {
     return () => {
       clearPopup()
     }
   }, [clearPopup])
 
-  // --- Password auth handlers ---
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
     if (!password) {
-      setError('Password is required')
+      setError(m.auth_password_required())
       return
     }
     if (mode === 'signup' && password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(m.auth_password_min_length())
       return
     }
 
@@ -193,26 +172,23 @@ export function PortalAuthFormInline({
           password,
         })
         if (result.error) {
-          throw new Error(result.error.message || 'Failed to create account')
+          throw new Error(result.error.message || m.auth_failed_create_account())
         }
       } else {
-        const result = await authClient.signIn.email({
-          email,
-          password,
-        })
+        const result = await authClient.signIn.email({ email, password })
         if (result.error) {
-          throw new Error(result.error.message || 'Invalid email or password')
+          throw new Error(result.error.message || m.auth_invalid_email_or_password())
         }
       }
+
       const { postAuthSuccess } = await import('@/lib/client/hooks/use-auth-broadcast')
       postAuthSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed')
+      setError(err instanceof Error ? err.message : m.auth_authentication_failed())
       setLoadingAction(null)
     }
   }
 
-  // --- Email OTP handlers ---
   const sendCode = async () => {
     setError('')
     setLoadingAction('email')
@@ -224,13 +200,13 @@ export function PortalAuthFormInline({
       })
 
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to send code')
+        throw new Error(result.error.message || m.auth_failed_send_code())
       }
 
       setStep('code')
       setResendCooldown(60)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send code')
+      setError(err instanceof Error ? err.message : m.auth_failed_send_code())
     } finally {
       setLoadingAction(null)
     }
@@ -241,30 +217,26 @@ export function PortalAuthFormInline({
     setLoadingAction('code')
 
     try {
-      const result = await authClient.signIn.emailOtp({
-        email,
-        otp: code,
-      })
+      const result = await authClient.signIn.emailOtp({ email, otp: code })
 
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to verify code')
+        throw new Error(result.error.message || m.auth_failed_verify_code())
       }
 
       const { postAuthSuccess } = await import('@/lib/client/hooks/use-auth-broadcast')
       postAuthSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify code')
+      setError(err instanceof Error ? err.message : m.auth_failed_verify_code())
       setLoadingAction(null)
     }
   }
 
-  // --- Forgot password handler ---
   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
 
@@ -275,21 +247,20 @@ export function PortalAuthFormInline({
         redirectTo: '/auth/reset-password',
       })
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to send reset link')
+        throw new Error(result.error.message || m.auth_failed_send_reset_link())
       }
       setStep('reset')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset link')
+      setError(err instanceof Error ? err.message : m.auth_failed_send_reset_link())
     } finally {
       setLoadingAction(null)
     }
   }
 
-  // --- Form submit handlers ---
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) {
-      setError('Email is required')
+      setError(m.auth_email_required())
       return
     }
     sendCode()
@@ -298,7 +269,7 @@ export function PortalAuthFormInline({
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!code.trim() || code.length !== 6) {
-      setError('Please enter the 6-digit code')
+      setError(m.auth_enter_6_digit_code())
       return
     }
     verifyCode()
@@ -316,9 +287,6 @@ export function PortalAuthFormInline({
     setStep(defaultStep)
   }
 
-  /**
-   * Initiate OAuth login using Better Auth's socialProviders or genericOAuth plugin.
-   */
   const initiateOAuth = async (provider: OAuthProviderEntry) => {
     setError('')
 
@@ -344,24 +312,22 @@ export function PortalAuthFormInline({
         popup.location.href = url
       } else {
         popup.close()
-        setError('Failed to initiate sign in')
+        setError(m.auth_failed_initiate_sign_in())
         setLoadingAction(null)
       }
     } catch (err) {
       popup.close()
-      setError(err instanceof Error ? err.message : 'Failed to initiate sign in')
+      setError(err instanceof Error ? err.message : m.auth_failed_initiate_sign_in())
       setLoadingAction(null)
     }
   }
 
-  // Derive which auth methods are enabled
   const enabledProviders = getEnabledOAuthProviders(
     authConfig?.oauth ?? {},
     authConfig?.customProviderNames
   )
   const showOAuth = enabledProviders.length > 0
 
-  // Loading invitation
   if (loadingInvitation) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -370,7 +336,6 @@ export function PortalAuthFormInline({
     )
   }
 
-  // If we tried to load an invitation but it failed, show the error
   if (invitationId && !invitation && error) {
     return (
       <Alert variant="destructive">
@@ -380,18 +345,15 @@ export function PortalAuthFormInline({
     )
   }
 
-  // Popup blocked warning
   if (popupBlocked) {
     return (
       <div className="space-y-4">
         <Alert variant="destructive">
           <InformationCircleIcon className="h-4 w-4" />
-          <AlertDescription>
-            Popup was blocked by your browser. Please allow popups for this site and try again.
-          </AlertDescription>
+          <AlertDescription>{m.auth_popup_blocked()}</AlertDescription>
         </Alert>
         <Button onClick={() => setPopupBlocked(false)} variant="outline" className="w-full">
-          Try again
+          {m.error_try_again()}
         </Button>
       </div>
     )
@@ -404,24 +366,23 @@ export function PortalAuthFormInline({
 
   return (
     <div className="space-y-6">
-      {/* Invitation Banner */}
       {invitation && (
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
           <div className="flex items-start gap-3">
             <EnvelopeIcon className="h-5 w-5 text-primary mt-0.5" />
             <div>
-              <p className="font-medium text-foreground">You&apos;ve been invited!</p>
+              <p className="font-medium text-foreground">{m.auth_invited_title()}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Create your account to join{' '}
-                <span className="font-medium text-foreground">{invitation.workspaceName}</span>
-                {invitation.inviterName && <> (invited by {invitation.inviterName})</>}
+                {m.auth_create_account_join_workspace({ workspaceName: invitation.workspaceName })}
+                {invitation.inviterName && (
+                  <> ({m.auth_invited_by({ name: invitation.inviterName })})</>
+                )}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {/* OAuth Buttons - only show on default step for non-invitation flow */}
       {showOAuthOnDefault && (
         <>
           <div className="space-y-3">
@@ -440,7 +401,7 @@ export function PortalAuthFormInline({
               )
             })}
           </div>
-          {/* Divider - only show when another method is also enabled */}
+
           {(passwordEnabled || emailOtpEnabled) && (
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -448,7 +409,9 @@ export function PortalAuthFormInline({
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with {passwordEnabled ? 'email' : 'email code'}
+                  {passwordEnabled
+                    ? m.auth_or_continue_with_email()
+                    : m.auth_or_continue_with_email_code()}
                 </span>
               </div>
             </div>
@@ -456,7 +419,6 @@ export function PortalAuthFormInline({
         </>
       )}
 
-      {/* Password credentials form */}
       {hasCredentialForm && (
         <form onSubmit={handlePasswordSubmit} className="space-y-4">
           {error && <FormError message={error} />}
@@ -464,12 +426,12 @@ export function PortalAuthFormInline({
           {mode === 'signup' && (
             <div className="space-y-2">
               <label htmlFor="inline-name" className="text-sm font-medium">
-                Name
+                {m.auth_name()}
               </label>
               <Input
                 id="inline-name"
                 type="text"
-                placeholder="Jane Doe"
+                placeholder={m.auth_jane_doe()}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loadingAction !== null}
@@ -480,12 +442,12 @@ export function PortalAuthFormInline({
 
           <div className="space-y-2">
             <label htmlFor="inline-email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="inline-email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!invitation || loadingAction !== null}
@@ -493,18 +455,18 @@ export function PortalAuthFormInline({
               autoComplete="email"
             />
             {invitation && (
-              <p className="text-xs text-muted-foreground">Email is set from your invitation</p>
+              <p className="text-xs text-muted-foreground">{m.auth_email_from_invitation()}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <label htmlFor="inline-password" className="text-sm font-medium">
-              Password
+              {m.auth_password()}
             </label>
             <Input
               id="inline-password"
               type="password"
-              placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+              placeholder={mode === 'signup' ? m.auth_password_placeholder_signup() : '••••••••'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loadingAction !== null}
@@ -522,7 +484,7 @@ export function PortalAuthFormInline({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Forgot password?
+                {m.auth_forgot_password()}
               </button>
             </div>
           )}
@@ -533,14 +495,13 @@ export function PortalAuthFormInline({
             )}
             {loadingAction === 'password'
               ? mode === 'signup'
-                ? 'Creating account...'
-                : 'Signing in...'
+                ? m.auth_creating_account()
+                : m.auth_signing_in()
               : mode === 'signup'
-                ? 'Create account'
-                : 'Sign in'}
+                ? m.auth_create_account()
+                : m.auth_sign_in()}
           </Button>
 
-          {/* Link to email OTP if also enabled */}
           {emailOtpEnabled && (
             <div className="text-center">
               <button
@@ -551,34 +512,33 @@ export function PortalAuthFormInline({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Use email code instead
+                {m.auth_use_email_code_instead()}
               </button>
             </div>
           )}
 
-          {/* Mode switch */}
           {onModeSwitch && (
             <p className="text-center text-sm text-muted-foreground">
               {mode === 'login' ? (
                 <>
-                  Don&apos;t have an account?{' '}
+                  {m.auth_dont_have_account()}{' '}
                   <button
                     type="button"
                     onClick={() => onModeSwitch('signup')}
                     className="text-primary hover:underline font-medium"
                   >
-                    Sign up
+                    {m.auth_sign_up()}
                   </button>
                 </>
               ) : (
                 <>
-                  Already have an account?{' '}
+                  {m.auth_already_have_account()}{' '}
                   <button
                     type="button"
                     onClick={() => onModeSwitch('login')}
                     className="text-primary hover:underline font-medium"
                   >
-                    Sign in
+                    {m.auth_sign_in()}
                   </button>
                 </>
               )}
@@ -587,19 +547,18 @@ export function PortalAuthFormInline({
         </form>
       )}
 
-      {/* Email OTP: email input step */}
       {hasEmailForm && (
         <form onSubmit={handleEmailSubmit} className="space-y-4">
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <label htmlFor="inline-otp-email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="inline-otp-email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!!invitation || loadingAction !== null}
@@ -607,7 +566,7 @@ export function PortalAuthFormInline({
               autoComplete="email"
             />
             {invitation && (
-              <p className="text-xs text-muted-foreground">Email is set from your invitation</p>
+              <p className="text-xs text-muted-foreground">{m.auth_email_from_invitation()}</p>
             )}
           </div>
 
@@ -615,14 +574,13 @@ export function PortalAuthFormInline({
             {loadingAction === 'email' ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Sending code...
+                {m.auth_sending_code()}
               </>
             ) : (
-              'Continue with email'
+              m.auth_continue_with_email()
             )}
           </Button>
 
-          {/* Link back to password if also enabled */}
           {passwordEnabled && (
             <div className="text-center">
               <button
@@ -633,34 +591,33 @@ export function PortalAuthFormInline({
                 }}
                 className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Use password instead
+                {m.auth_use_password_instead()}
               </button>
             </div>
           )}
 
-          {/* Mode switch */}
           {onModeSwitch && (
             <p className="text-center text-sm text-muted-foreground">
               {mode === 'login' ? (
                 <>
-                  Don&apos;t have an account?{' '}
+                  {m.auth_dont_have_account()}{' '}
                   <button
                     type="button"
                     onClick={() => onModeSwitch('signup')}
                     className="text-primary hover:underline font-medium"
                   >
-                    Sign up
+                    {m.auth_sign_up()}
                   </button>
                 </>
               ) : (
                 <>
-                  Already have an account?{' '}
+                  {m.auth_already_have_account()}{' '}
                   <button
                     type="button"
                     onClick={() => onModeSwitch('login')}
                     className="text-primary hover:underline font-medium"
                   >
-                    Sign in
+                    {m.auth_sign_in()}
                   </button>
                 </>
               )}
@@ -669,7 +626,6 @@ export function PortalAuthFormInline({
         </form>
       )}
 
-      {/* Email OTP: code verification step */}
       {step === 'code' && (
         <form onSubmit={handleCodeSubmit} className="space-y-4">
           <button
@@ -678,20 +634,18 @@ export function PortalAuthFormInline({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="rounded-lg bg-muted/50 p-4">
-            <p className="text-sm text-center">
-              We sent a 6-digit code to <span className="font-medium text-foreground">{email}</span>
-            </p>
+            <p className="text-sm text-center">{m.auth_sent_code_to({ email })}</p>
           </div>
 
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <label htmlFor="inline-code" className="text-sm font-medium">
-              Verification code
+              {m.auth_verification_code()}
             </label>
             <Input
               ref={codeInputRef}
@@ -700,7 +654,7 @@ export function PortalAuthFormInline({
               inputMode="numeric"
               pattern="[0-9]*"
               maxLength={6}
-              placeholder="000000"
+              placeholder={m.auth_code_placeholder()}
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               disabled={loadingAction !== null}
@@ -717,10 +671,10 @@ export function PortalAuthFormInline({
             {loadingAction === 'code' ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Verifying...
+                {m.auth_verifying()}
               </>
             ) : (
-              'Verify code'
+              m.auth_verify_code()
             )}
           </Button>
 
@@ -732,14 +686,13 @@ export function PortalAuthFormInline({
               className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {resendCooldown > 0
-                ? `Resend code in ${resendCooldown}s`
-                : "Didn't receive a code? Resend"}
+                ? m.auth_resend_code_in({ seconds: resendCooldown })
+                : m.auth_resend_code()}
             </button>
           </div>
         </form>
       )}
 
-      {/* Forgot password: enter email */}
       {step === 'forgot' && (
         <form onSubmit={handleForgotSubmit} className="space-y-4">
           <button
@@ -748,26 +701,24 @@ export function PortalAuthFormInline({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="text-center">
-            <h2 className="text-lg font-semibold">Reset your password</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Enter your email and we&apos;ll send you a link to reset your password.
-            </p>
+            <h2 className="text-lg font-semibold">{m.auth_reset_password()}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{m.auth_reset_password_help()}</p>
           </div>
 
           {error && <FormError message={error} />}
 
           <div className="space-y-2">
             <label htmlFor="inline-forgot-email" className="text-sm font-medium">
-              Email
+              {m.auth_email()}
             </label>
             <Input
               id="inline-forgot-email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={m.auth_email_placeholder()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loadingAction !== null}
@@ -783,16 +734,15 @@ export function PortalAuthFormInline({
             {loadingAction === 'forgot' ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Sending link...
+                {m.auth_sending_link()}
               </>
             ) : (
-              'Send reset link'
+              m.auth_send_reset_link()
             )}
           </Button>
         </form>
       )}
 
-      {/* Reset password: check email confirmation */}
       {step === 'reset' && (
         <div className="space-y-4">
           <button
@@ -801,17 +751,13 @@ export function PortalAuthFormInline({
             className="flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeftIcon className="mr-1 h-4 w-4" />
-            Back
+            {m.auth_back()}
           </button>
 
           <div className="text-center space-y-3">
             <EnvelopeIcon className="h-10 w-10 text-primary mx-auto" />
-            <h2 className="text-lg font-semibold">Check your email</h2>
-            <p className="text-sm text-muted-foreground">
-              We sent a password reset link to{' '}
-              <span className="font-medium text-foreground">{email}</span>. The link expires in 24
-              hours.
-            </p>
+            <h2 className="text-lg font-semibold">{m.auth_check_email()}</h2>
+            <p className="text-sm text-muted-foreground">{m.auth_reset_link_sent({ email })}</p>
           </div>
         </div>
       )}

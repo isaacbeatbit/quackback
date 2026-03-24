@@ -1,3 +1,4 @@
+import { paraglideVitePlugin } from '@inlang/paraglide-js'
 import { defineConfig, loadEnv, type PluginOption } from 'vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import { nitro } from 'nitro/vite'
@@ -51,6 +52,21 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
+      paraglideVitePlugin({
+        project: './project.inlang',
+        outdir: './src/paraglide',
+        cookieName: 'PARAGLIDE_LOCALE',
+        strategy: ['url', 'cookie', 'preferredLanguage', 'baseLocale'],
+        urlPatterns: [
+          {
+            pattern: '/:path(.*)?',
+            localized: [
+              ['en', '/en/:path(.*)?'],
+              ['es', '/es/:path(.*)?'],
+            ],
+          },
+        ],
+      }),
       tailwindcss(),
       tsconfigPaths({
         projects: ['./tsconfig.json'],

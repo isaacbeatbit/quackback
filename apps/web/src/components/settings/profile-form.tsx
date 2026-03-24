@@ -13,6 +13,7 @@ import { updateProfileNameFn } from '@/lib/server/functions/user'
 import { useUploadAvatar, useDeleteAvatar } from '@/lib/client/mutations/avatar'
 import { settingsQueries } from '@/lib/client/queries/settings'
 import { PasswordForm } from '@/components/settings/password-form'
+import * as m from '@/paraglide/messages'
 
 interface ProfileFormProps {
   user: {
@@ -62,13 +63,13 @@ export function ProfileForm({ user }: ProfileFormProps) {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Allowed: JPEG, PNG, GIF, WebP')
+      toast.error(m.settings_profile_avatar_invalid_file_type())
       return
     }
 
     // Validate file size (5MB) - basic check before cropping
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('File too large. Maximum size is 5MB')
+      toast.error(m.settings_profile_avatar_file_too_large())
       return
     }
 
@@ -92,10 +93,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
     uploadMutation.mutate(croppedBlob, {
       onSuccess: () => {
         router.invalidate()
-        toast.success('Avatar updated')
+        toast.success(m.settings_profile_avatar_updated())
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to upload avatar')
+        toast.error(
+          error instanceof Error ? error.message : m.settings_profile_avatar_upload_failed()
+        )
       },
     })
   }
@@ -112,10 +115,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
         router.invalidate()
-        toast.success('Avatar removed')
+        toast.success(m.settings_profile_avatar_removed())
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to remove avatar')
+        toast.error(
+          error instanceof Error ? error.message : m.settings_profile_avatar_remove_failed()
+        )
       },
     })
   }
@@ -124,12 +129,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
     e.preventDefault()
 
     if (name.trim().length < 2) {
-      toast.error('Name must be at least 2 characters')
+      toast.error(m.settings_profile_name_min_length())
       return
     }
 
     if (name === user.name) {
-      toast.info('No changes to save')
+      toast.info(m.settings_profile_no_changes())
       return
     }
 
@@ -147,9 +152,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
           },
         }
       )
-      toast.success('Profile updated')
+      toast.success(m.settings_profile_updated())
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update profile')
+      toast.error(error instanceof Error ? error.message : m.settings_profile_update_failed())
     } finally {
       setIsSubmitting(false)
     }
@@ -162,8 +167,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
     <div className="space-y-6">
       {/* Avatar Section */}
       <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
-        <h2 className="font-medium mb-1">Avatar</h2>
-        <p className="text-sm text-muted-foreground mb-4">Your profile picture</p>
+        <h2 className="font-medium mb-1">{m.settings_profile_avatar_title()}</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          {m.settings_profile_avatar_description()}
+        </p>
         <div className="flex items-center gap-4">
           <div className="relative group">
             <Avatar className="h-16 w-16">
@@ -186,12 +193,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
               {isUploadingAvatar ? (
                 <>
                   <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
-                  Uploading...
+                  {m.settings_profile_avatar_uploading()}
                 </>
               ) : (
                 <>
                   <CameraIcon className="h-4 w-4 mr-2" />
-                  Change avatar
+                  {m.settings_profile_avatar_change()}
                 </>
               )}
             </Button>
@@ -224,13 +231,15 @@ export function ProfileForm({ user }: ProfileFormProps) {
       {/* Personal Information */}
       <form onSubmit={handleSubmit}>
         <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
-          <h2 className="font-medium mb-1">Personal Information</h2>
-          <p className="text-sm text-muted-foreground mb-4">Update your personal details</p>
+          <h2 className="font-medium mb-1">{m.settings_profile_info_title()}</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {m.settings_profile_info_description()}
+          </p>
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">
-                  Full name
+                  {m.settings_profile_full_name()}
                 </label>
                 <Input
                   id="name"
@@ -248,7 +257,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                   type="email"
                   defaultValue={user.email ?? ''}
                   disabled
-                  placeholder="No email"
+                  placeholder={m.settings_profile_no_email()}
                 />
               </div>
             </div>
@@ -257,10 +266,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
                 {isSubmitting ? (
                   <>
                     <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
-                    Saving...
+                    {m.settings_profile_saving()}
                   </>
                 ) : (
-                  'Save changes'
+                  m.settings_profile_save_changes()
                 )}
               </Button>
             </div>

@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline'
 import type { UseCaseType } from '@/lib/shared/db-types'
 import type { ComponentType } from 'react'
+import * as m from '@/paraglide/messages'
 
 interface UseCaseOption {
   id: UseCaseType
@@ -16,33 +17,6 @@ interface UseCaseOption {
   icon: ComponentType<{ className?: string }>
 }
 
-const USE_CASE_OPTIONS: UseCaseOption[] = [
-  {
-    id: 'saas',
-    label: 'SaaS product',
-    description: 'Feature requests from business customers',
-    icon: ComputerDesktopIcon,
-  },
-  {
-    id: 'consumer',
-    label: 'Consumer app',
-    description: 'Feedback from your users',
-    icon: DevicePhoneMobileIcon,
-  },
-  {
-    id: 'marketplace',
-    label: 'Marketplace',
-    description: 'Feedback from buyers and sellers',
-    icon: BuildingStorefrontIcon,
-  },
-  {
-    id: 'internal',
-    label: 'Internal team',
-    description: 'Ideas and improvements',
-    icon: UserGroupIcon,
-  },
-]
-
 interface UseCaseSelectorProps {
   value: UseCaseType | undefined
   onChange: (value: UseCaseType) => void
@@ -50,9 +24,36 @@ interface UseCaseSelectorProps {
 }
 
 export function UseCaseSelector({ value, onChange, disabled }: UseCaseSelectorProps) {
+  const useCaseOptions: UseCaseOption[] = [
+    {
+      id: 'saas',
+      label: m.onboarding_usecase_option_saas_label(),
+      description: m.onboarding_usecase_option_saas_description(),
+      icon: ComputerDesktopIcon,
+    },
+    {
+      id: 'consumer',
+      label: m.onboarding_usecase_option_consumer_label(),
+      description: m.onboarding_usecase_option_consumer_description(),
+      icon: DevicePhoneMobileIcon,
+    },
+    {
+      id: 'marketplace',
+      label: m.onboarding_usecase_option_marketplace_label(),
+      description: m.onboarding_usecase_option_marketplace_description(),
+      icon: BuildingStorefrontIcon,
+    },
+    {
+      id: 'internal',
+      label: m.onboarding_usecase_option_internal_label(),
+      description: m.onboarding_usecase_option_internal_description(),
+      icon: UserGroupIcon,
+    },
+  ]
+
   return (
     <div className="space-y-2 max-w-sm mx-auto">
-      {USE_CASE_OPTIONS.map((option) => {
+      {useCaseOptions.map((option) => {
         const isSelected = value === option.id
         const Icon = option.icon
         return (

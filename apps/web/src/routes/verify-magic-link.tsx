@@ -9,6 +9,7 @@ import {
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 import { getInviteBrandingFn } from '@/lib/server/functions/invitations'
+import * as m from '@/paraglide/messages'
 
 interface InviteBranding {
   workspaceName: string
@@ -17,10 +18,10 @@ interface InviteBranding {
 }
 
 const FEATURES = [
-  { icon: ChatBubbleLeftRightIcon, label: 'Feedback & voting' },
-  { icon: SparklesIcon, label: 'AI-powered insights' },
-  { icon: BoltIcon, label: '24 integrations' },
-  { icon: MapIcon, label: 'Roadmap & changelog' },
+  { icon: ChatBubbleLeftRightIcon, label: m.invite_feature_feedback_voting() },
+  { icon: SparklesIcon, label: m.invite_feature_ai_insights() },
+  { icon: BoltIcon, label: m.invite_feature_integrations() },
+  { icon: MapIcon, label: m.invite_feature_roadmap_changelog() },
 ] as const
 
 /** Extract an invitation ID (invite_...) from a callback URL path */
@@ -51,14 +52,13 @@ function VerifyMagicLinkPage() {
     return (
       <PageShell>
         <Card>
-          <div className="text-destructive text-xl font-medium tracking-tight">Invalid link</div>
-          <p className="mt-2 text-muted-foreground">
-            This verification link is invalid or incomplete. Please check the link in your email and
-            try again.
-          </p>
+          <div className="text-destructive text-xl font-medium tracking-tight">
+            {m.magic_invalid_link()}
+          </div>
+          <p className="mt-2 text-muted-foreground">{m.magic_invalid_link_description()}</p>
           <a href="/" className="mt-6 block">
             <Button variant="outline" className="w-full h-11">
-              Go to Home
+              {m.error_go_home()}
             </Button>
           </a>
         </Card>
@@ -124,28 +124,31 @@ function InvitationVerifyPage({
           <>
             <WorkspaceIdentity branding={branding} />
             <div className="mt-6 mb-6 h-px bg-border/50" />
-            <h1 className="text-2xl font-bold tracking-tight">You're invited!</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{m.invite_you_are_invited()}</h1>
             <p className="mt-2 text-muted-foreground">
               {branding.inviterName
-                ? `${branding.inviterName} invited you to join ${branding.workspaceName}.`
-                : `You've been invited to join ${branding.workspaceName}.`}
+                ? m.magic_invited_to_join({
+                    inviterName: branding.inviterName,
+                    workspaceName: branding.workspaceName,
+                  })
+                : m.magic_you_have_been_invited({ workspaceName: branding.workspaceName })}
             </p>
           </>
         ) : (
           <>
             <div className="h-8" />
-            <h1 className="text-2xl font-bold tracking-tight">You're invited!</h1>
-            <p className="mt-2 text-muted-foreground">Loading invitation details...</p>
+            <h1 className="text-2xl font-bold tracking-tight">{m.invite_you_are_invited()}</h1>
+            <p className="mt-2 text-muted-foreground">{m.magic_loading_invitation()}</p>
           </>
         )}
         <Button onClick={handleAccept} disabled={isLoading} className="mt-6 w-full h-11">
           {isLoading ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Setting up...
+              {m.magic_setting_up()}
             </>
           ) : (
-            'Accept invitation'
+            m.magic_accept_invitation()
           )}
         </Button>
       </Card>
@@ -174,10 +177,10 @@ function GenericVerifyPage({
   return (
     <PageShell>
       <Card>
-        <h1 className="text-2xl font-bold tracking-tight">Confirm sign-in</h1>
-        <p className="mt-2 text-muted-foreground">Click the button below to complete signing in.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{m.magic_confirm_sign_in()}</h1>
+        <p className="mt-2 text-muted-foreground">{m.magic_complete_sign_in()}</p>
         <Button onClick={handleContinue} className="mt-6 w-full h-11">
-          Continue
+          {m.magic_continue()}
         </Button>
       </Card>
     </PageShell>
@@ -234,7 +237,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
       <div className="relative w-full max-w-md py-12">
         <div className="mb-8 flex items-center justify-center gap-2">
           <img src="/logo.png" alt="" className="h-6 w-6 rounded" />
-          <span className="text-sm font-medium text-muted-foreground">Quackback</span>
+          <span className="text-sm font-medium text-muted-foreground">{m.common_quackback()}</span>
         </div>
         {children}
       </div>

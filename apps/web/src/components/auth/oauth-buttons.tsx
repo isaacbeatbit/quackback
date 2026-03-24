@@ -8,6 +8,7 @@ import {
   usePopupTracker,
 } from '@/lib/client/hooks/use-auth-broadcast'
 import { authClient } from '@/lib/server/auth/client'
+import * as m from '@/paraglide/messages'
 
 export type OAuthProviderEntry = {
   id: string
@@ -113,9 +114,7 @@ export function OAuthButtons({ callbackUrl = '/', providers, onSuccess }: OAuthB
   return (
     <div className="space-y-3">
       {popupBlocked && (
-        <p className="text-sm text-destructive text-center">
-          Popup blocked. Please allow popups for this site.
-        </p>
+        <p className="text-sm text-destructive text-center">{m.auth_popup_blocked()}</p>
       )}
       {providers.map((provider) => {
         const IconComponent = AUTH_PROVIDER_ICON_MAP[provider.id]
@@ -129,7 +128,9 @@ export function OAuthButtons({ callbackUrl = '/', providers, onSuccess }: OAuthB
             disabled={loadingProvider !== null}
           >
             {IconComponent && <IconComponent className="mr-2 h-4 w-4" />}
-            {loadingProvider === provider.id ? 'Signing in...' : `Continue with ${provider.name}`}
+            {loadingProvider === provider.id
+              ? m.auth_signing_in()
+              : m.auth_continue_with_provider({ provider: provider.name })}
           </Button>
         )
       })}

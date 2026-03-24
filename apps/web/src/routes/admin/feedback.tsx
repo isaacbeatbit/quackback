@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { feedbackQueries } from '@/lib/client/queries/feedback'
 import { TabStrip, type TabStripItem } from '@/components/admin/tab-strip'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   board: z.array(z.string()).optional(),
@@ -40,8 +41,8 @@ function FeedbackLayout() {
   const incomingCount = incomingStats?.count ?? 0
 
   const tabs: TabStripItem[] = [
-    { label: 'Posts', to: '/admin/feedback', exact: true },
-    { label: 'Incoming', to: '/admin/feedback/incoming', badge: incomingCount },
+    { label: m.feedback_tab_posts(), to: '/admin/feedback', exact: true },
+    { label: m.feedback_tab_incoming(), to: '/admin/feedback/incoming', badge: incomingCount },
   ]
 
   return (

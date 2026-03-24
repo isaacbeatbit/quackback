@@ -26,6 +26,8 @@ import { useAuthPopoverSafe } from '@/components/auth/auth-popover-context'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthBroadcast } from '@/lib/client/hooks/use-auth-broadcast'
 import { NotificationBell } from '@/components/notifications'
+import * as m from '@/paraglide/messages'
+import { LanguageSwitcher } from '@/components/shared/language-switcher'
 
 interface PortalHeaderProps {
   orgName: string
@@ -41,12 +43,6 @@ interface PortalHeaderProps {
   /** Whether to show the theme toggle (hidden when admin forces a specific theme) */
   showThemeToggle?: boolean
 }
-
-const navItems = [
-  { to: '/', label: 'Feedback' },
-  { to: '/roadmap', label: 'Roadmap' },
-  { to: '/changelog', label: 'Changelog' },
-]
 
 export function PortalHeader({
   orgName,
@@ -91,6 +87,11 @@ export function PortalHeader({
 
   // Team members (admin, member) can access admin dashboard
   const canAccessAdmin = isLoggedIn && isTeamMember(userRole)
+  const navItems = [
+    { to: '/', label: m.nav_feedback() },
+    { to: '/roadmap', label: m.nav_roadmap() },
+    { to: '/changelog', label: m.nav_changelog() },
+  ]
 
   const handleSignOut = async () => {
     await signOut()
@@ -133,9 +134,9 @@ export function PortalHeader({
     if (!showThemeToggle || !mounted) return null
 
     const themeOptions = [
-      { value: 'system', label: 'System', icon: ComputerDesktopIcon },
-      { value: 'light', label: 'Light', icon: SunIcon },
-      { value: 'dark', label: 'Dark', icon: MoonIcon },
+      { value: 'system', label: m.theme_system(), icon: ComputerDesktopIcon },
+      { value: 'light', label: m.theme_light(), icon: SunIcon },
+      { value: 'dark', label: m.theme_dark(), icon: MoonIcon },
     ] as const
 
     const currentTheme = themeOptions.find((t) => t.value === theme) ?? themeOptions[0]
@@ -146,7 +147,7 @@ export function PortalHeader({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <CurrentIcon className="h-4 w-4" />
-            <span className="sr-only">Toggle theme</span>
+            <span className="sr-only">{m.theme_toggle()}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -168,6 +169,8 @@ export function PortalHeader({
   // Auth/admin buttons component (reused in both layouts)
   const AuthButtons = () => (
     <div className="flex items-center">
+      <LanguageSwitcher className="mr-1" />
+
       {/* Theme Toggle (when admin allows user choice) */}
       <ThemeToggle />
 
@@ -176,7 +179,7 @@ export function PortalHeader({
         <Button variant="outline" size="sm" asChild className="ml-1 mr-2">
           <Link to="/admin">
             <ShieldCheckIcon className="mr-2 h-4 w-4" />
-            Admin
+            {m.nav_admin()}
           </Link>
         </Button>
       )}
@@ -204,12 +207,12 @@ export function PortalHeader({
             <DropdownMenuItem asChild>
               <Link to="/settings">
                 <Cog6ToothIcon className="mr-2 h-4 w-4" />
-                Settings
+                {m.nav_settings()}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>
               <ArrowRightStartOnRectangleIcon className="mr-2 h-4 w-4" />
-              Sign out
+              {m.auth_sign_out()}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -217,10 +220,10 @@ export function PortalHeader({
         // Anonymous user with auth popover available - show login/signup buttons
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => openAuthPopover({ mode: 'login' })}>
-            Log in
+            {m.auth_log_in()}
           </Button>
           <Button size="sm" onClick={() => openAuthPopover({ mode: 'signup' })}>
-            Sign up
+            {m.auth_sign_up()}
           </Button>
         </div>
       ) : null}

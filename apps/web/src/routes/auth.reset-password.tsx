@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { FormError } from '@/components/shared/form-error'
 import { ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/solid'
 import { authClient } from '@/lib/server/auth/client'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/auth/reset-password')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -19,7 +20,7 @@ function ResetPasswordPage() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState(
-    urlError === 'INVALID_TOKEN' ? 'This reset link is invalid or has expired.' : ''
+    urlError === 'INVALID_TOKEN' ? m.auth_invalid_reset_link() : ''
   )
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -29,15 +30,15 @@ function ResetPasswordPage() {
     setError('')
 
     if (!token) {
-      setError('Missing reset token. Please use the link from your email.')
+      setError(m.auth_missing_reset_token())
       return
     }
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(m.auth_password_min_length())
       return
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(m.auth_passwords_do_not_match())
       return
     }
 
@@ -48,11 +49,11 @@ function ResetPasswordPage() {
         token,
       })
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to reset password')
+        throw new Error(result.error.message || m.auth_failed_reset_password())
       }
       setSuccess(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset password')
+      setError(err instanceof Error ? err.message : m.auth_failed_reset_password())
     } finally {
       setLoading(false)
     }
@@ -63,10 +64,10 @@ function ResetPasswordPage() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="w-full max-w-md space-y-8 px-4 text-center">
           <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto" />
-          <h1 className="text-2xl font-bold">Password reset</h1>
-          <p className="text-muted-foreground">Your password has been updated successfully.</p>
+          <h1 className="text-2xl font-bold">{m.auth_password_reset()}</h1>
+          <p className="text-muted-foreground">{m.auth_password_updated_success()}</p>
           <Link to="/auth/login">
-            <Button className="w-full">Sign in</Button>
+            <Button className="w-full">{m.auth_sign_in()}</Button>
           </Link>
         </div>
       </div>
@@ -77,8 +78,8 @@ function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Set a new password</h1>
-          <p className="mt-2 text-muted-foreground">Enter your new password below.</p>
+          <h1 className="text-2xl font-bold">{m.auth_set_new_password()}</h1>
+          <p className="mt-2 text-muted-foreground">{m.auth_enter_new_password()}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,12 +87,12 @@ function ResetPasswordPage() {
 
           <div className="space-y-2">
             <label htmlFor="new-password" className="text-sm font-medium">
-              New password
+              {m.auth_new_password()}
             </label>
             <Input
               id="new-password"
               type="password"
-              placeholder="At least 8 characters"
+              placeholder={m.auth_password_placeholder_signup()}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               disabled={loading || !token}
@@ -102,12 +103,12 @@ function ResetPasswordPage() {
 
           <div className="space-y-2">
             <label htmlFor="confirm-password" className="text-sm font-medium">
-              Confirm password
+              {m.auth_confirm_password()}
             </label>
             <Input
               id="confirm-password"
               type="password"
-              placeholder="Re-enter your password"
+              placeholder={m.auth_confirm_password_placeholder()}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading || !token}
@@ -125,17 +126,17 @@ function ResetPasswordPage() {
             {loading ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Resetting password...
+                {m.auth_resetting_password()}
               </>
             ) : (
-              'Reset password'
+              m.auth_reset_password_button()
             )}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
           <Link to="/auth/login" className="font-medium text-primary hover:underline">
-            Back to sign in
+            {m.auth_back_to_sign_in()}
           </Link>
         </p>
       </div>

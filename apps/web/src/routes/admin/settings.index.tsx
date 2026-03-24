@@ -5,6 +5,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { SettingsNav } from '@/components/admin/settings/settings-nav'
 import { Cog6ToothIcon } from '@heroicons/react/24/solid'
 import { useMediaQuery } from '@/lib/client/hooks/use-media-query'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/')({
   component: SettingsIndexPage,
@@ -27,7 +28,7 @@ function SettingsIndexPage() {
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
           <Cog6ToothIcon className="h-5 w-5 text-primary" />
         </div>
-        <h1 className="text-xl font-semibold text-foreground">Settings</h1>
+        <h1 className="text-xl font-semibold text-foreground">{m.nav_settings()}</h1>
       </div>
       <SettingsNav />
     </div>

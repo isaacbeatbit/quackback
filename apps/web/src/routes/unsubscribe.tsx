@@ -5,6 +5,7 @@ import {
   processUnsubscribeTokenFn,
   type UnsubscribeResult,
 } from '@/lib/server/functions/subscriptions'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   token: z.string().optional(),
@@ -56,7 +57,7 @@ function SuccessView({ result }: { result: UnsubscribeResult }) {
           <p className="text-sm text-muted-foreground">{actionText.message}</p>
           {result.postTitle && (
             <p className="text-sm text-muted-foreground mt-2">
-              Post: <span className="font-medium">{result.postTitle}</span>
+              {m.unsubscribe_post_label({ title: result.postTitle })}
             </p>
           )}
         </div>
@@ -68,14 +69,14 @@ function SuccessView({ result }: { result: UnsubscribeResult }) {
               params={{ slug: result.boardSlug, postId: result.postId }}
               className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              View Post
+              {m.unsubscribe_view_post()}
             </Link>
           ) : (
             <Link
               to="/"
               className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              Go to Home
+              {m.error_go_home()}
             </Link>
           )}
         </div>
@@ -106,7 +107,7 @@ function ErrorView({ error }: { error: string }) {
             to="/"
             className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
-            Go to Home
+            {m.error_go_home()}
           </Link>
         </div>
       </div>
@@ -118,26 +119,23 @@ function getActionText(action?: string): { title: string; message: string } {
   switch (action) {
     case 'unsubscribe_post':
       return {
-        title: 'Unsubscribed',
-        message:
-          "You've been unsubscribed from this post. You won't receive any more email updates about it.",
+        title: m.unsubscribe_unsubscribed_title(),
+        message: m.unsubscribe_unsubscribed_message(),
       }
     case 'mute_post':
       return {
-        title: 'Notifications Muted',
-        message:
-          "You've muted notifications for this post. You can unmute anytime from the post page.",
+        title: m.unsubscribe_muted_title(),
+        message: m.unsubscribe_muted_message(),
       }
     case 'unsubscribe_all':
       return {
-        title: 'All Emails Disabled',
-        message:
-          "You've disabled all email notifications. You can re-enable them from your settings.",
+        title: m.unsubscribe_all_disabled_title(),
+        message: m.unsubscribe_all_disabled_message(),
       }
     default:
       return {
-        title: 'Success',
-        message: 'Your preferences have been updated.',
+        title: m.unsubscribe_success_title(),
+        message: m.unsubscribe_success_message(),
       }
   }
 }
@@ -146,25 +144,25 @@ function getErrorContent(error: string): { title: string; message: string } {
   switch (error) {
     case 'missing':
       return {
-        title: 'Missing Token',
-        message: 'No unsubscribe token was provided. Please use the link from your email.',
+        title: m.unsubscribe_missing_title(),
+        message: m.unsubscribe_missing_message(),
       }
     case 'invalid':
     case 'expired':
     case 'used':
       return {
-        title: 'Link Expired',
-        message: 'This unsubscribe link has already been used or has expired.',
+        title: m.unsubscribe_expired_title(),
+        message: m.unsubscribe_expired_message(),
       }
     case 'failed':
       return {
-        title: 'Something Went Wrong',
-        message: "We couldn't process your request. Please try again later.",
+        title: m.unsubscribe_failed_title(),
+        message: m.unsubscribe_failed_message(),
       }
     default:
       return {
-        title: 'Invalid Link',
-        message: 'This unsubscribe link is not valid. Please use the link from your email.',
+        title: m.unsubscribe_invalid_title(),
+        message: m.unsubscribe_invalid_message(),
       }
   }
 }

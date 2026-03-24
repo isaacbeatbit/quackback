@@ -6,6 +6,7 @@ import { checkOnboardingState } from '@/lib/server/functions/admin'
 import { saveUseCaseFn } from '@/lib/server/functions/onboarding'
 import { UseCaseSelector } from '@/components/onboarding/use-case-selector'
 import type { UseCaseType } from '@/lib/shared/db-types'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/onboarding/_layout/usecase')({
   loader: async ({ context }) => {
@@ -43,7 +44,7 @@ function UseCaseStep() {
 
   async function handleContinue() {
     if (!useCase) {
-      setError('Please select how you plan to use Quackback')
+      setError(m.onboarding_usecase_required())
       return
     }
 
@@ -54,7 +55,7 @@ function UseCaseStep() {
       await saveUseCaseFn({ data: { useCase } })
       navigate({ to: '/onboarding/workspace' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : m.error_something_went_wrong())
     } finally {
       setIsLoading(false)
     }
@@ -64,8 +65,8 @@ function UseCaseStep() {
     <div className="w-full max-w-2xl mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-2">How are you planning to use Quackback?</h1>
-        <p className="text-muted-foreground">We'll tailor your setup experience accordingly.</p>
+        <h1 className="text-2xl font-bold mb-2">{m.onboarding_usecase_title()}</h1>
+        <p className="text-muted-foreground">{m.onboarding_usecase_description()}</p>
       </div>
 
       {error && (
@@ -82,7 +83,7 @@ function UseCaseStep() {
       {/* Continue button */}
       <div className="max-w-xs mx-auto">
         <Button onClick={handleContinue} disabled={isLoading || !useCase} className="w-full h-11">
-          {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : 'Continue'}
+          {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : m.common_continue()}
         </Button>
       </div>
     </div>

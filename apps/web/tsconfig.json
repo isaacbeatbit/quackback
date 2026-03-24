@@ -23,6 +23,6 @@
     "resolvePackageJsonImports": true,
     "customConditions": ["import", "module"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js"],
   "exclude": ["node_modules", "dist", ".tanstack", "build"]
 }

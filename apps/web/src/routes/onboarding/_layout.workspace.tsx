@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { setupWorkspaceFn } from '@/lib/server/functions/onboarding'
 import { checkOnboardingState } from '@/lib/server/functions/admin'
 import { getSettings } from '@/lib/server/functions/workspace'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/onboarding/_layout/workspace')({
   loader: async ({ context }) => {
@@ -46,7 +47,7 @@ function WorkspaceStep() {
 
   async function handleSubmit() {
     if (!workspaceName.trim() || workspaceName.trim().length < 2) {
-      setError('Please enter a workspace name')
+      setError(m.onboarding_workspace_name_required())
       return
     }
 
@@ -63,7 +64,7 @@ function WorkspaceStep() {
 
       navigate({ to: '/onboarding/boards' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : m.error_something_went_wrong())
     } finally {
       setIsLoading(false)
     }
@@ -73,8 +74,8 @@ function WorkspaceStep() {
     <div className="w-full max-w-md mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-2">Name your workspace</h1>
-        <p className="text-muted-foreground">This will be shown on your public feedback portal.</p>
+        <h1 className="text-2xl font-bold mb-2">{m.onboarding_workspace_title()}</h1>
+        <p className="text-muted-foreground">{m.onboarding_workspace_description()}</p>
       </div>
 
       {/* Form card */}
@@ -94,14 +95,14 @@ function WorkspaceStep() {
 
           <div className="space-y-2">
             <label htmlFor="workspaceName" className="text-sm font-medium">
-              Workspace name
+              {m.onboarding_workspace_name_label()}
             </label>
             <Input
               id="workspaceName"
               type="text"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
-              placeholder="Acme Corp"
+              placeholder={m.onboarding_workspace_name_placeholder()}
               autoFocus
               disabled={isLoading}
               className="h-11"
@@ -113,7 +114,7 @@ function WorkspaceStep() {
             disabled={isLoading || !workspaceName.trim()}
             className="w-full h-11"
           >
-            {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : 'Continue'}
+            {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : m.common_continue()}
           </Button>
         </form>
       </div>

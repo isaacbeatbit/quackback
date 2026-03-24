@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { FormError } from '@/components/shared/form-error'
 import { authClient } from '@/lib/server/auth/client'
 import { setPasswordFn } from '@/lib/server/functions/invitations'
+import * as m from '@/paraglide/messages'
 
 export function PasswordForm() {
   const [hasPassword, setHasPassword] = useState<boolean | null>(null)
@@ -31,11 +32,11 @@ export function PasswordForm() {
     setError('')
 
     if (newPassword.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(m.auth_password_min_length())
       return
     }
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match')
+      setError(m.auth_passwords_do_not_match())
       return
     }
 
@@ -43,7 +44,7 @@ export function PasswordForm() {
     try {
       if (hasPassword) {
         if (!currentPassword) {
-          setError('Current password is required')
+          setError(m.settings_password_current_required())
           setLoading(false)
           return
         }
@@ -53,19 +54,19 @@ export function PasswordForm() {
           revokeOtherSessions: false,
         })
         if (result.error) {
-          throw new Error(result.error.message || 'Failed to change password')
+          throw new Error(result.error.message || m.settings_password_change_failed())
         }
-        toast.success('Password changed')
+        toast.success(m.settings_password_changed_success())
       } else {
         await setPasswordFn({ data: { newPassword } })
         setHasPassword(true)
-        toast.success('Password set')
+        toast.success(m.settings_password_set_success())
       }
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update password')
+      setError(err instanceof Error ? err.message : m.settings_password_update_failed())
     } finally {
       setLoading(false)
     }
@@ -75,8 +76,8 @@ export function PasswordForm() {
   if (hasPassword === null) {
     return (
       <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
-        <h2 className="font-medium mb-1">Password</h2>
-        <p className="text-sm text-muted-foreground mb-4">Loading...</p>
+        <h2 className="font-medium mb-1">{m.settings_password_title()}</h2>
+        <p className="text-sm text-muted-foreground mb-4">{m.settings_password_loading()}</p>
       </div>
     )
   }
@@ -84,11 +85,13 @@ export function PasswordForm() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="rounded-xl border border-border/50 bg-card p-6 shadow-sm">
-        <h2 className="font-medium mb-1">{hasPassword ? 'Change password' : 'Set password'}</h2>
+        <h2 className="font-medium mb-1">
+          {hasPassword ? m.settings_password_change_title() : m.settings_password_set_title()}
+        </h2>
         <p className="text-sm text-muted-foreground mb-4">
           {hasPassword
-            ? 'Update your current password'
-            : 'Add a password to sign in with email and password'}
+            ? m.settings_password_change_description()
+            : m.settings_password_set_description()}
         </p>
 
         <div className="space-y-4">
@@ -97,7 +100,7 @@ export function PasswordForm() {
           {hasPassword && (
             <div className="space-y-2">
               <label htmlFor="current-password" className="text-sm font-medium">
-                Current password
+                {m.settings_password_current_label()}
               </label>
               <Input
                 id="current-password"
@@ -113,12 +116,12 @@ export function PasswordForm() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <label htmlFor="new-password" className="text-sm font-medium">
-                New password
+                {m.auth_new_password()}
               </label>
               <Input
                 id="new-password"
                 type="password"
-                placeholder="At least 8 characters"
+                placeholder={m.auth_password_placeholder_signup()}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={loading}
@@ -127,12 +130,12 @@ export function PasswordForm() {
             </div>
             <div className="space-y-2">
               <label htmlFor="confirm-password" className="text-sm font-medium">
-                Confirm password
+                {m.auth_confirm_password()}
               </label>
               <Input
                 id="confirm-password"
                 type="password"
-                placeholder="Re-enter your password"
+                placeholder={m.auth_confirm_password_placeholder()}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={loading}
@@ -154,12 +157,12 @@ export function PasswordForm() {
               {loading ? (
                 <>
                   <ArrowPathIcon className="h-4 w-4 animate-spin mr-2" />
-                  {hasPassword ? 'Changing...' : 'Setting...'}
+                  {hasPassword ? m.settings_password_changing() : m.settings_password_setting()}
                 </>
               ) : hasPassword ? (
-                'Change password'
+                m.settings_password_change_title()
               ) : (
-                'Set password'
+                m.settings_password_set_title()
               )}
             </Button>
           </div>

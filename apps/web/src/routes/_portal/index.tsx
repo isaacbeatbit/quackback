@@ -8,6 +8,7 @@ import { FeedbackContainer } from '@/components/public/feedback/feedback-contain
 import { portalQueries } from '@/lib/client/queries/portal'
 import { votedPostsKeys } from '@/lib/client/hooks/use-portal-posts-query'
 import { DEFAULT_PORTAL_CONFIG } from '@/lib/server/domains/settings'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   board: z.string().optional(),
@@ -67,8 +68,8 @@ export const Route = createFileRoute('/_portal/')({
     if (!loaderData) return {}
     const workspaceName = loaderData.org.name
     const { baseUrl } = loaderData
-    const title = `Feedback - ${workspaceName}`
-    const description = `Submit and vote on feature requests for ${workspaceName}. Help shape what gets built next.`
+    const title = m.portal_feedback_title({ workspaceName })
+    const description = m.portal_feedback_description({ workspaceName })
     return {
       meta: [
         { title },
@@ -117,8 +118,8 @@ function PublicPortalPage() {
       <div className="py-6">
         <EmptyState
           icon={ChatBubbleOvalLeftEllipsisIcon}
-          title="Coming Soon"
-          description={`${org.name} is setting up their feedback portal. Check back soon to share your ideas and suggestions.`}
+          title={m.portal_coming_soon()}
+          description={m.portal_coming_soon_description({ workspaceName: org.name })}
           className="py-24"
         />
       </div>

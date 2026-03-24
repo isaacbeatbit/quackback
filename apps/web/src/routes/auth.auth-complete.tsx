@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { postAuthSuccess } from '@/lib/client/hooks/use-auth-broadcast'
 import { ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/solid'
+import * as m from '@/paraglide/messages'
 
 /**
  * Auth Complete Page
@@ -36,13 +37,13 @@ function AuthCompletePage() {
         {status === 'broadcasting' ? (
           <>
             <ArrowPathIcon className="h-12 w-12 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Completing sign in...</p>
+            <p className="text-muted-foreground">{m.auth_completing_sign_in()}</p>
           </>
         ) : (
           <>
             <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto" />
-            <p className="text-foreground font-medium">Signed in successfully!</p>
-            <p className="text-sm text-muted-foreground">This window will close automatically.</p>
+            <p className="text-foreground font-medium">{m.auth_signed_in_successfully()}</p>
+            <p className="text-sm text-muted-foreground">{m.auth_window_closes_automatically()}</p>
           </>
         )}
       </div>

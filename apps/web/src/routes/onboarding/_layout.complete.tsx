@@ -3,6 +3,7 @@ import { CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 import { checkOnboardingState } from '@/lib/server/functions/admin'
 import { getSettings } from '@/lib/server/functions/workspace'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/onboarding/_layout/complete')({
   loader: async ({ context }) => {
@@ -28,7 +29,7 @@ export const Route = createFileRoute('/onboarding/_layout/complete')({
     const settings = await getSettings()
 
     return {
-      workspaceName: settings?.name ?? 'Your workspace',
+      workspaceName: settings?.name ?? m.onboarding_complete_workspace_fallback(),
     }
   },
   component: CompleteStep,
@@ -49,18 +50,20 @@ function CompleteStep() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-2">You're all set!</h1>
-        <p className="text-muted-foreground">{workspaceName} is ready to collect feedback.</p>
+        <h1 className="text-2xl font-bold mb-2">{m.onboarding_complete_title()}</h1>
+        <p className="text-muted-foreground">
+          {m.onboarding_complete_description({ workspaceName })}
+        </p>
       </div>
 
       {/* Actions */}
       <div className="space-y-3 max-w-xs mx-auto">
         <Button onClick={() => navigate({ to: '/admin' })} className="w-full h-11">
-          Go to dashboard
+          {m.onboarding_complete_go_dashboard()}
           <ArrowRightIcon className="ml-2 h-4 w-4" />
         </Button>
         <Button variant="ghost" onClick={() => navigate({ to: '/' })} className="w-full h-11">
-          View your feedback portal
+          {m.onboarding_complete_view_portal()}
         </Button>
       </div>
     </div>

@@ -30,6 +30,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { sendInvitationFn } from '@/lib/server/functions/admin'
+import * as m from '@/paraglide/messages'
 
 function InviteLinkView({
   inviteLink,
@@ -45,8 +46,7 @@ function InviteLinkView({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Email delivery is not configured. Copy the invitation link below and share it with{' '}
-        <span className="font-medium text-foreground">{email}</span>.
+        {m.invite_member_no_email_delivery({ email })}
       </p>
 
       <div className="rounded-lg border bg-muted/50 p-3">
@@ -60,17 +60,17 @@ function InviteLinkView({
           {copied ? (
             <>
               <CheckIcon className="h-4 w-4" />
-              Copied!
+              {m.invite_member_copied()}
             </>
           ) : (
             <>
               <ClipboardDocumentIcon className="h-4 w-4" />
-              Copy invitation link
+              {m.invite_member_copy_link()}
             </>
           )}
         </Button>
         <Button variant="outline" onClick={onClose}>
-          Done
+          {m.invite_member_done()}
         </Button>
       </div>
     </div>
@@ -116,7 +116,7 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
         }, 2000)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send invitation')
+      setError(err instanceof Error ? err.message : m.invite_member_failed())
     }
   }
 
@@ -134,7 +134,7 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogTitle>{m.invite_member_title()}</DialogTitle>
         </DialogHeader>
 
         {success ? (
@@ -149,9 +149,9 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
                 <CheckCircleIcon className="h-6 w-6 text-primary" />
               </div>
-              <div className="text-lg font-semibold text-foreground">Invitation sent!</div>
+              <div className="text-lg font-semibold text-foreground">{m.invite_member_sent()}</div>
               <p className="mt-2 text-sm text-muted-foreground text-center">
-                {form.getValues('email')} will receive an email with instructions to join.
+                {m.invite_member_sent_description({ email: form.getValues('email') })}
               </p>
             </div>
           )
@@ -165,11 +165,11 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{m.invite_member_name_label()}</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
-                        placeholder="John Doe"
+                        placeholder={m.invite_member_name_placeholder()}
                         {...field}
                         value={field.value ?? ''}
                       />
@@ -184,9 +184,13 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email Address</FormLabel>
+                    <FormLabel>{m.invite_member_email_label()}</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="colleague@example.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder={m.invite_member_email_placeholder()}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -198,7 +202,7 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role</FormLabel>
+                    <FormLabel>{m.invite_member_role_label()}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -206,12 +210,8 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="member">
-                          Member - Can view and create feedback
-                        </SelectItem>
-                        <SelectItem value="admin">
-                          Admin - Can manage settings and members
-                        </SelectItem>
+                        <SelectItem value="member">{m.invite_member_role_member()}</SelectItem>
+                        <SelectItem value="admin">{m.invite_member_role_admin()}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -221,10 +221,10 @@ export function InviteMemberDialog({ open, onClose, onSuccess }: InviteMemberDia
 
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  {m.invite_member_cancel()}
                 </Button>
                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Sending...' : 'Send Invitation'}
+                  {form.formState.isSubmitting ? m.invite_member_sending() : m.invite_member_send()}
                 </Button>
               </DialogFooter>
             </form>

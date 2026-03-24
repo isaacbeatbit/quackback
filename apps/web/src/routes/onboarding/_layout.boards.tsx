@@ -12,6 +12,7 @@ import {
   getUseCaseLabel,
 } from '@/components/onboarding/default-boards'
 import type { UseCaseType } from '@/lib/shared/db-types'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/onboarding/_layout/boards')({
   loader: async ({ context }) => {
@@ -96,7 +97,7 @@ function BoardsStep() {
       await createBoardsBatchFn({ data: { boards: [] } })
       navigate({ to: '/onboarding/complete' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : m.error_something_went_wrong())
     } finally {
       setIsLoading(false)
     }
@@ -122,7 +123,7 @@ function BoardsStep() {
 
       navigate({ to: '/onboarding/complete' })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
+      setError(err instanceof Error ? err.message : m.error_something_went_wrong())
     } finally {
       setIsLoading(false)
     }
@@ -137,10 +138,13 @@ function BoardsStep() {
     <div className="w-full max-w-xl mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold mb-2">Create your first boards</h1>
+        <h1 className="text-2xl font-bold mb-2">{m.onboarding_boards_title()}</h1>
         <p className="text-muted-foreground">
-          Boards help organize feedback by topic.
-          {useCase && ` Here are some suggestions for ${getUseCaseLabel(useCase)}.`}
+          {useCase
+            ? m.onboarding_boards_description_with_usecase({
+                useCaseLabel: getUseCaseLabel(useCase),
+              })
+            : m.onboarding_boards_description()}
         </p>
       </div>
 
@@ -224,7 +228,7 @@ function BoardsStep() {
               type="text"
               value={newCustomBoard.name}
               onChange={(e) => setNewCustomBoard((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="Board name"
+              placeholder={m.onboarding_board_name_placeholder()}
               autoFocus
               disabled={isLoading}
               className="h-10"
@@ -235,7 +239,7 @@ function BoardsStep() {
               onChange={(e) =>
                 setNewCustomBoard((prev) => ({ ...prev, description: e.target.value }))
               }
-              placeholder="Description (optional)"
+              placeholder={m.onboarding_board_description_placeholder()}
               disabled={isLoading}
               className="h-10"
             />
@@ -250,7 +254,7 @@ function BoardsStep() {
                 }}
                 disabled={isLoading}
               >
-                Cancel
+                {m.common_cancel()}
               </Button>
               <Button
                 type="button"
@@ -258,7 +262,7 @@ function BoardsStep() {
                 onClick={addCustomBoard}
                 disabled={isLoading || !newCustomBoard.name.trim()}
               >
-                Add
+                {m.common_add()}
               </Button>
             </div>
           </div>
@@ -270,7 +274,7 @@ function BoardsStep() {
             className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/50 transition-all disabled:opacity-50"
           >
             <PlusIcon className="h-4 w-4" />
-            <span className="text-sm">Add custom board</span>
+            <span className="text-sm">{m.onboarding_add_custom_board()}</span>
           </button>
         )}
       </div>
@@ -284,15 +288,17 @@ function BoardsStep() {
           disabled={isLoading}
           className="flex-1 h-11"
         >
-          Skip
+          {m.common_skip()}
         </Button>
         <Button type="button" onClick={handleContinue} disabled={isLoading} className="flex-1 h-11">
           {isLoading ? (
             <ArrowPathIcon className="h-4 w-4 animate-spin" />
           ) : newBoardsCount === 0 ? (
-            'Continue'
+            m.common_continue()
+          ) : newBoardsCount === 1 ? (
+            m.onboarding_create_boards_count_one({ count: newBoardsCount })
           ) : (
-            `Create ${newBoardsCount} board${newBoardsCount !== 1 ? 's' : ''}`
+            m.onboarding_create_boards_count_other({ count: newBoardsCount })
           )}
         </Button>
       </div>

@@ -5,12 +5,14 @@ import { getThemeCookie, type Theme } from '@/lib/shared/theme'
 import { auth } from '@/lib/server/auth/index'
 import { db, principal, eq } from '@/lib/server/db'
 import { config } from '@/lib/server/config'
+import { getLocale, type Locale } from '@/paraglide/runtime'
 import type { Session } from './auth'
 import type { TenantSettings } from '@/lib/server/domains/settings'
 import type { SessionId, UserId } from '@quackback/ids'
 
 export interface BootstrapData {
   baseUrl: string
+  locale: Locale
   session: Session | null
   settings: TenantSettings | null
   userRole: 'admin' | 'member' | 'user' | null
@@ -91,7 +93,9 @@ export const getBootstrapData = createServerFn({ method: 'GET' }).handler(
 
       const themeCookie = getThemeCookie(getRequestHeaders().get('cookie') ?? null)
 
-      return { baseUrl: config.baseUrl, session, settings, userRole, themeCookie }
+      const locale = getLocale()
+
+      return { baseUrl: config.baseUrl, locale, session, settings, userRole, themeCookie }
     } catch (error) {
       console.error(`[fn:bootstrap] getBootstrapData failed:`, error)
       throw error

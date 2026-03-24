@@ -28,6 +28,8 @@ import { signOut } from '@/lib/server/auth/client'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { NotificationBell } from '@/components/notifications'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
+import { LanguageSwitcher } from '../shared/language-switcher'
 
 interface AdminSidebarProps {
   initialUserData?: {
@@ -36,13 +38,6 @@ interface AdminSidebarProps {
     avatarUrl: string | null
   }
 }
-
-const navItems = [
-  { label: 'Feedback', href: '/admin/feedback', icon: ChatBubbleLeftIcon, hasBadge: true },
-  { label: 'Roadmap', href: '/admin/roadmap', icon: MapIcon },
-  { label: 'Changelog', href: '/admin/changelog', icon: DocumentTextIcon },
-  { label: 'Users', href: '/admin/users', icon: UsersIcon },
-]
 
 function isNavActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/')
@@ -105,6 +100,12 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
   // Incoming badge count — pending create_post suggestions
   const { data: incomingStats } = useQuery(feedbackQueries.incomingCount())
   const incomingCount = incomingStats?.count ?? 0
+  const navItems = [
+    { label: m.nav_feedback(), href: '/admin/feedback', icon: ChatBubbleLeftIcon, hasBadge: true },
+    { label: m.nav_roadmap(), href: '/admin/roadmap', icon: MapIcon },
+    { label: m.nav_changelog(), href: '/admin/changelog', icon: DocumentTextIcon },
+    { label: m.nav_users(), href: '/admin/users', icon: UsersIcon },
+  ]
 
   const handleSignOut = async () => {
     await signOut()
@@ -148,9 +149,11 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
             <NavItem
               href="/admin/settings"
               icon={Cog6ToothIcon}
-              label="Settings"
+              label={m.nav_settings()}
               isActive={isNavActive(pathname, '/admin/settings')}
             />
+
+            <LanguageSwitcher compact />
 
             {/* Notifications */}
             <NotificationBell />
@@ -163,11 +166,11 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                   className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 transition-all duration-200"
                 >
                   <GlobeAltIcon className="h-5 w-5" />
-                  <span className="sr-only">View Portal</span>
+                  <span className="sr-only">{m.nav_view_portal()}</span>
                 </Link>
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
-                View Portal
+                {m.nav_view_portal()}
               </TooltipContent>
             </Tooltip>
 
@@ -182,7 +185,7 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={8}>
-                  Account
+                  {m.common_account()}
                 </TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="start" side="right" sideOffset={8} className="w-56">
@@ -196,13 +199,13 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                 <DropdownMenuItem asChild>
                   <Link to="/settings">
                     <Cog6ToothIcon className="mr-2 h-4 w-4" />
-                    Settings
+                    {m.nav_settings()}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <ArrowRightOnRectangleIcon className="mr-2 h-4 w-4" />
-                  Sign out
+                  {m.auth_sign_out()}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -214,7 +217,12 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
       <header className="sm:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-4 border-b border-border/60 bg-card/95 backdrop-blur-sm">
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Open menu">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              aria-label={m.common_open_menu()}
+            >
               <Bars3Icon className="h-5 w-5" />
             </Button>
           </SheetTrigger>
@@ -224,7 +232,7 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                 <Link to="/admin/feedback" onClick={() => setMobileMenuOpen(false)}>
                   <img src="/logo.png" alt="Quackback" width={28} height={28} className="rounded" />
                 </Link>
-                <span className="text-base font-semibold">Quackback</span>
+                <span className="text-base font-semibold">{m.common_quackback()}</span>
               </SheetTitle>
             </SheetHeader>
             <nav className="flex flex-col gap-1.5 px-4 py-3">
@@ -265,7 +273,7 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                 )}
               >
                 <Cog6ToothIcon className="h-5 w-5" />
-                Settings
+                {m.nav_settings()}
               </Link>
               <Link
                 to="/"
@@ -273,7 +281,7 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-muted-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
               >
                 <GlobeAltIcon className="h-5 w-5" />
-                View Portal
+                {m.nav_view_portal()}
               </Link>
             </nav>
           </SheetContent>
@@ -284,6 +292,8 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
         </Link>
 
         <div className="flex items-center gap-1">
+          <LanguageSwitcher compact />
+
           <NotificationBell className="h-9 w-9" />
 
           <DropdownMenu>
@@ -303,13 +313,13 @@ export function AdminSidebar({ initialUserData }: AdminSidebarProps) {
               <DropdownMenuItem asChild>
                 <Link to="/settings">
                   <Cog6ToothIcon className="mr-2 h-4 w-4" />
-                  Settings
+                  {m.nav_settings()}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
                 <ArrowRightOnRectangleIcon className="mr-2 h-4 w-4" />
-                Sign out
+                {m.auth_sign_out()}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

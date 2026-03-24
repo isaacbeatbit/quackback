@@ -3,15 +3,15 @@ import { z } from 'zod'
 import { PortalAuthForm } from '@/components/auth/portal-auth-form'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid'
+import * as m from '@/paraglide/messages'
 
 // Error messages for login failures
 const errorMessages: Record<string, string> = {
-  invalid_token: 'Your login link is invalid or has been tampered with. Please try again.',
-  token_expired: 'Your login link has expired. Please request a new one.',
-  not_team_member:
-    "This account doesn't have team access. Team membership is by invitation only. Please contact your administrator.",
-  oauth_method_not_allowed: 'This sign-in method is not enabled for team members.',
-  password_method_not_allowed: 'Password sign-in is not enabled. Please use another method.',
+  invalid_token: m.admin_error_invalid_token(),
+  token_expired: m.admin_error_token_expired(),
+  not_team_member: m.admin_error_not_team_member(),
+  oauth_method_not_allowed: m.admin_error_oauth_not_allowed(),
+  password_method_not_allowed: m.admin_error_password_not_allowed(),
 }
 
 const searchSchema = z.object({
@@ -67,8 +67,8 @@ function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Team Sign In</h1>
-          <p className="mt-2 text-muted-foreground">Sign in to access the admin dashboard</p>
+          <h1 className="text-2xl font-bold">{m.admin_team_sign_in()}</h1>
+          <p className="mt-2 text-muted-foreground">{m.admin_sign_in_dashboard()}</p>
         </div>
         {errorMessage && (
           <Alert variant="destructive">

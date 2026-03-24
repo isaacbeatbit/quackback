@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/solid'
 import type { ComponentType } from 'react'
 import type { UseCaseType } from '@/lib/shared/db-types'
+import * as m from '@/paraglide/messages'
 
 export interface DefaultBoardOption {
   id: string
@@ -29,68 +30,68 @@ export const DEFAULT_BOARD_OPTIONS: DefaultBoardOption[] = [
   // Common boards (most use cases)
   {
     id: 'feature-requests',
-    name: 'Feature Requests',
-    description: 'Collect ideas and suggestions for new features',
+    name: m.onboarding_board_feature_requests_name(),
+    description: m.onboarding_board_feature_requests_description(),
     icon: LightBulbIcon,
     useCases: ['saas', 'consumer', 'marketplace'],
   },
   {
     id: 'bug-reports',
-    name: 'Bug Reports',
-    description: 'Track issues and problems reported by users',
+    name: m.onboarding_board_bug_reports_name(),
+    description: m.onboarding_board_bug_reports_description(),
     icon: BugAntIcon,
     useCases: ['saas', 'consumer', 'marketplace'],
   },
   // SaaS-specific
   {
     id: 'integrations',
-    name: 'Integrations',
-    description: 'Requests for new integrations and connections',
+    name: m.onboarding_board_integrations_name(),
+    description: m.onboarding_board_integrations_description(),
     icon: PuzzlePieceIcon,
     useCases: ['saas'],
   },
   // Consumer-specific
   {
     id: 'ux-feedback',
-    name: 'UX Feedback',
-    description: 'Feedback on usability and user experience',
+    name: m.onboarding_board_ux_feedback_name(),
+    description: m.onboarding_board_ux_feedback_description(),
     icon: SparklesIcon,
     useCases: ['consumer'],
   },
   // Platform-specific
   {
     id: 'seller-feedback',
-    name: 'Seller Feedback',
-    description: 'Feedback from sellers and vendors',
+    name: m.onboarding_board_seller_feedback_name(),
+    description: m.onboarding_board_seller_feedback_description(),
     icon: BuildingStorefrontIcon,
     useCases: ['marketplace'],
   },
   {
     id: 'buyer-feedback',
-    name: 'Buyer Feedback',
-    description: 'Feedback from buyers and customers',
+    name: m.onboarding_board_buyer_feedback_name(),
+    description: m.onboarding_board_buyer_feedback_description(),
     icon: UserGroupIcon,
     useCases: ['marketplace'],
   },
   // Internal-specific
   {
     id: 'product-ideas',
-    name: 'Product Ideas',
-    description: 'Ideas for new products or features',
+    name: m.onboarding_board_product_ideas_name(),
+    description: m.onboarding_board_product_ideas_description(),
     icon: LightBulbIcon,
     useCases: ['internal'],
   },
   {
     id: 'process-improvements',
-    name: 'Process Improvements',
-    description: 'Suggestions to improve workflows and processes',
+    name: m.onboarding_board_process_improvements_name(),
+    description: m.onboarding_board_process_improvements_description(),
     icon: WrenchScrewdriverIcon,
     useCases: ['internal'],
   },
   {
     id: 'general-feedback',
-    name: 'General Feedback',
-    description: 'Open feedback for any topic',
+    name: m.onboarding_board_general_feedback_name(),
+    description: m.onboarding_board_general_feedback_description(),
     icon: ChatBubbleOvalLeftEllipsisIcon,
     useCases: ['internal'],
   },
@@ -129,14 +130,14 @@ export function getBoardOptionsForUseCase(useCase?: UseCaseType): DefaultBoardOp
 export function getUseCaseLabel(useCase?: UseCaseType): string {
   switch (useCase) {
     case 'saas':
-      return 'SaaS products'
+      return m.onboarding_usecase_label_saas()
     case 'consumer':
-      return 'consumer apps'
+      return m.onboarding_usecase_label_consumer()
     case 'marketplace':
-      return 'marketplaces'
+      return m.onboarding_usecase_label_marketplace()
     case 'internal':
-      return 'teams'
+      return m.onboarding_usecase_label_internal()
     default:
-      return 'your product'
+      return m.onboarding_usecase_label_default()
   }
 }

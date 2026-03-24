@@ -16,6 +16,9 @@ import type { TenantSettings } from '@/lib/server/domains/settings'
 import { ThemeProvider } from '@/components/theme-provider'
 import { DefaultErrorPage } from '@/components/shared/error-page'
 import { OttHandler } from '@/components/shared/ott-handler'
+import { getLocale, type Locale } from '@/paraglide/runtime'
+import * as m from '@/paraglide/messages'
+import { localizeHref } from '@/paraglide/runtime'
 
 // Lazy load devtools in development only
 const TanStackRouterDevtools = import.meta.env.DEV
@@ -37,6 +40,7 @@ const ReactQueryDevtools = import.meta.env.DEV
 export interface RouterContext {
   queryClient: QueryClient
   baseUrl?: string
+  locale?: Locale
   session?: BootstrapData['session']
   settings?: TenantSettings | null
   userRole?: 'admin' | 'member' | 'user' | null
@@ -62,7 +66,7 @@ function isOnboardingExempt(pathname: string): boolean {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ location }) => {
-    const { baseUrl, session, settings, userRole, themeCookie } = await getBootstrapData()
+    const { baseUrl, locale, session, settings, userRole, themeCookie } = await getBootstrapData()
 
     if (!isOnboardingExempt(location.pathname)) {
       const setupState = getSetupState(settings?.settings?.setupState ?? null)
@@ -71,7 +75,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       }
     }
 
-    return { baseUrl, session, settings, userRole, themeCookie }
+    return { baseUrl, locale, session, settings, userRole, themeCookie }
   },
   head: () => ({
     meta: [
@@ -87,7 +91,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
       {
         name: 'description',
-        content: 'Open-source customer feedback platform',
+        content: m.meta_description(),
       },
       {
         property: 'og:type',
@@ -119,8 +123,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       {
         rel: 'alternate',
         type: 'application/rss+xml',
-        title: 'Changelog RSS Feed',
-        href: '/changelog/feed',
+        title: m.rss_changelog_title(),
+        href: localizeHref('/changelog/feed'),
       },
     ],
   }),
@@ -159,7 +163,7 @@ function DevtoolsWrapper() {
  */
 function MinimalDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={getLocale()} suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -190,7 +194,7 @@ class SafeRootDocument extends Component<{ children: ReactNode }, { hasError: bo
 const NON_PORTAL_PREFIXES = ['/admin', '/auth', '/onboarding', '/api', '/complete-signup']
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
-  const { settings, themeCookie } = Route.useRouteContext()
+  const { locale, settings, themeCookie } = Route.useRouteContext()
   const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   // Portal routes can force a specific theme (light/dark) via branding config.
@@ -205,7 +209,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   const defaultTheme = forcedTheme ?? themeCookie ?? 'system'
 
   return (
-    <html lang="en" className={defaultTheme} suppressHydrationWarning>
+    <html lang={locale ?? 'en'} className={defaultTheme} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

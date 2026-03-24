@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { authClient } from '@/lib/server/auth/client'
 import { checkOnboardingState } from '@/lib/server/functions/admin'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/onboarding/_layout/account')({
   loader: async ({ context }) => {
@@ -45,15 +46,15 @@ function AccountStep() {
     e.preventDefault()
 
     if (!name.trim() || name.trim().length < 2) {
-      setError('Please enter your name')
+      setError(m.onboarding_account_name_required())
       return
     }
     if (!email.trim()) {
-      setError('Please enter your email')
+      setError(m.onboarding_account_email_required())
       return
     }
     if (!password || password.length < 8) {
-      setError('Password must be at least 8 characters')
+      setError(m.auth_password_min_length())
       return
     }
 
@@ -68,12 +69,12 @@ function AccountStep() {
       })
 
       if (result.error) {
-        throw new Error(result.error.message || 'Failed to create account')
+        throw new Error(result.error.message || m.onboarding_account_failed_create())
       }
 
       window.location.href = '/onboarding/usecase'
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create account')
+      setError(err instanceof Error ? err.message : m.onboarding_account_failed_create())
     } finally {
       setIsLoading(false)
     }
@@ -85,8 +86,8 @@ function AccountStep() {
       <div className="overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-card/90 to-card/70 backdrop-blur-sm">
         <div className="p-8">
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold">Welcome to Quackback</h1>
-            <p className="mt-2 text-muted-foreground">Create your account to get started</p>
+            <h1 className="text-2xl font-bold">{m.onboarding_account_title()}</h1>
+            <p className="mt-2 text-muted-foreground">{m.onboarding_account_description()}</p>
           </div>
 
           {error && (
@@ -98,7 +99,7 @@ function AccountStep() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="name" className="text-sm font-medium">
-                Your name
+                {m.onboarding_account_name_label()}
               </label>
               <Input
                 id="name"
@@ -106,7 +107,7 @@ function AccountStep() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                placeholder="Jane Doe"
+                placeholder={m.auth_jane_doe()}
                 autoComplete="name"
                 autoFocus
                 disabled={isLoading}
@@ -116,7 +117,7 @@ function AccountStep() {
 
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
-                Email address
+                {m.onboarding_account_email_label()}
               </label>
               <Input
                 id="email"
@@ -124,7 +125,7 @@ function AccountStep() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="you@company.com"
+                placeholder={m.onboarding_account_email_placeholder()}
                 autoComplete="email"
                 disabled={isLoading}
                 className="h-11"
@@ -133,7 +134,7 @@ function AccountStep() {
 
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
-                Password
+                {m.auth_password()}
               </label>
               <Input
                 id="password"
@@ -141,7 +142,7 @@ function AccountStep() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="At least 8 characters"
+                placeholder={m.auth_password_placeholder_signup()}
                 autoComplete="new-password"
                 disabled={isLoading}
                 className="h-11"
@@ -153,7 +154,7 @@ function AccountStep() {
               disabled={isLoading || !email.trim() || !name.trim() || password.length < 8}
               className="w-full h-11"
             >
-              {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : 'Continue'}
+              {isLoading ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : m.common_continue()}
             </Button>
           </form>
         </div>

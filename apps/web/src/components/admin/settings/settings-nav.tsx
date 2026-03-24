@@ -17,6 +17,7 @@ import {
   ShieldCheckIcon,
 } from '@heroicons/react/24/solid'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
 
 interface NavItem {
   label: string
@@ -28,48 +29,6 @@ interface NavSection {
   label: string
   items: NavItem[]
 }
-
-const navSections: NavSection[] = [
-  {
-    label: 'Workspace',
-    items: [
-      { label: 'Team Members', to: '/admin/settings/team', icon: UsersIcon },
-      { label: 'Integrations', to: '/admin/settings/integrations', icon: PuzzlePieceIcon },
-    ],
-  },
-  {
-    label: 'Feedback',
-    items: [
-      { label: 'Boards', to: '/admin/settings/boards', icon: Squares2X2Icon },
-      { label: 'Statuses', to: '/admin/settings/statuses', icon: Cog6ToothIcon },
-      { label: 'Permissions', to: '/admin/settings/permissions', icon: ShieldCheckIcon },
-      { label: 'Widget', to: '/admin/settings/widget', icon: ChatBubbleLeftRightIcon },
-    ],
-  },
-  {
-    label: 'Appearance',
-    items: [{ label: 'Branding', to: '/admin/settings/branding', icon: PaintBrushIcon }],
-  },
-  {
-    label: 'Users',
-    items: [
-      { label: 'Authentication', to: '/admin/settings/portal-auth', icon: LockClosedIcon },
-      {
-        label: 'User Attributes',
-        to: '/admin/settings/user-attributes',
-        icon: AdjustmentsHorizontalIcon,
-      },
-    ],
-  },
-  {
-    label: 'Developers',
-    items: [
-      { label: 'API Keys', to: '/admin/settings/api-keys', icon: KeyIcon },
-      { label: 'Webhooks', to: '/admin/settings/webhooks', icon: BoltIcon },
-      { label: 'MCP Server', to: '/admin/settings/mcp', icon: CommandLineIcon },
-    ],
-  },
-]
 
 function NavSection({
   label,
@@ -99,6 +58,61 @@ function NavSection({
 
 export function SettingsNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const navSections: NavSection[] = [
+    {
+      label: m.settings_section_workspace(),
+      items: [
+        { label: m.settings_team_members(), to: '/admin/settings/team', icon: UsersIcon },
+        {
+          label: m.settings_integrations(),
+          to: '/admin/settings/integrations',
+          icon: PuzzlePieceIcon,
+        },
+      ],
+    },
+    {
+      label: m.settings_section_feedback(),
+      items: [
+        { label: m.settings_boards(), to: '/admin/settings/boards', icon: Squares2X2Icon },
+        { label: m.settings_statuses(), to: '/admin/settings/statuses', icon: Cog6ToothIcon },
+        {
+          label: m.settings_permissions(),
+          to: '/admin/settings/permissions',
+          icon: ShieldCheckIcon,
+        },
+        { label: m.settings_widget(), to: '/admin/settings/widget', icon: ChatBubbleLeftRightIcon },
+      ],
+    },
+    {
+      label: m.settings_section_appearance(),
+      items: [
+        { label: m.settings_branding(), to: '/admin/settings/branding', icon: PaintBrushIcon },
+      ],
+    },
+    {
+      label: m.settings_section_users(),
+      items: [
+        {
+          label: m.settings_authentication(),
+          to: '/admin/settings/portal-auth',
+          icon: LockClosedIcon,
+        },
+        {
+          label: m.settings_user_attributes(),
+          to: '/admin/settings/user-attributes',
+          icon: AdjustmentsHorizontalIcon,
+        },
+      ],
+    },
+    {
+      label: m.settings_section_developers(),
+      items: [
+        { label: m.settings_api_keys(), to: '/admin/settings/api-keys', icon: KeyIcon },
+        { label: m.settings_webhooks(), to: '/admin/settings/webhooks', icon: BoltIcon },
+        { label: m.settings_mcp_server(), to: '/admin/settings/mcp', icon: CommandLineIcon },
+      ],
+    },
+  ]
 
   return (
     <div className="space-y-1">

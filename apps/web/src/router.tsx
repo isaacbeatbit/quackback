@@ -3,6 +3,7 @@ import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { routeTree } from './routeTree.gen'
 import { DefaultErrorPage, NotFoundPage } from '@/components/shared/error-page'
+import { deLocalizeUrl, localizeUrl } from './paraglide/runtime'
 
 export function getRouter() {
   const queryClient = new QueryClient({
@@ -16,6 +17,10 @@ export function getRouter() {
 
   const router = createRouter({
     routeTree,
+    rewrite: {
+      input: ({ url }) => deLocalizeUrl(url),
+      output: ({ url }) => localizeUrl(url),
+    },
     defaultPreload: false,
     scrollRestoration: true,
     defaultPendingMs: 1000,

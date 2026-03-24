@@ -8,6 +8,7 @@ import {
 import { PortalAuthFormInline } from './portal-auth-form-inline'
 import { useAuthPopover } from './auth-popover-context'
 import { useAuthBroadcast } from '@/lib/client/hooks/use-auth-broadcast'
+import * as m from '@/paraglide/messages'
 
 interface OrgAuthConfig {
   found: boolean
@@ -41,11 +42,13 @@ export function AuthDialog({ authConfig }: AuthDialogProps) {
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeAuthPopover()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{mode === 'login' ? 'Welcome back' : 'Create an account'}</DialogTitle>
+          <DialogTitle>
+            {mode === 'login' ? m.auth_welcome_back() : m.auth_create_account()}
+          </DialogTitle>
           <DialogDescription>
             {mode === 'login'
-              ? 'Sign in to your account to vote and comment'
-              : 'Sign up to vote and comment on feedback'}
+              ? m.auth_sign_in_vote_comment()
+              : m.auth_sign_up_vote_comment_feedback()}
           </DialogDescription>
         </DialogHeader>
         <PortalAuthFormInline mode={mode} authConfig={authConfig} onModeSwitch={setMode} />

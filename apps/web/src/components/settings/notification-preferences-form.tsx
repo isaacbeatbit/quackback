@@ -5,6 +5,8 @@ import {
   getNotificationPreferencesFn,
   updateNotificationPreferencesFn,
 } from '@/lib/server/functions/user'
+import * as m from '@/paraglide/messages'
+
 interface Preferences {
   emailStatusChange: boolean
   emailNewComment: boolean
@@ -23,7 +25,7 @@ export function NotificationPreferencesForm() {
         const result = await getNotificationPreferencesFn()
         setPreferences(result as Preferences)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load preferences')
+        setError(err instanceof Error ? err.message : m.settings_notifications_load_failed())
       } finally {
         setLoading(false)
       }
@@ -53,7 +55,7 @@ export function NotificationPreferencesForm() {
       } catch (err) {
         // Revert on error
         setPreferences((prev) => (prev ? { ...prev, [key]: !value } : prev))
-        setError(err instanceof Error ? err.message : 'Failed to save preference')
+        setError(err instanceof Error ? err.message : m.settings_notifications_save_failed())
       } finally {
         setSaving(null)
       }
@@ -92,9 +94,9 @@ export function NotificationPreferencesForm() {
       {/* Status change emails */}
       <div className="flex items-center justify-between py-2">
         <div className="space-y-0.5">
-          <p className="text-sm font-medium">Status updates</p>
+          <p className="text-sm font-medium">{m.settings_notifications_status_updates()}</p>
           <p className="text-xs text-muted-foreground">
-            Get notified when feedback you&apos;re subscribed to changes status
+            {m.settings_notifications_status_updates_description()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -112,9 +114,9 @@ export function NotificationPreferencesForm() {
       {/* New comment emails */}
       <div className="flex items-center justify-between py-2">
         <div className="space-y-0.5">
-          <p className="text-sm font-medium">New comments</p>
+          <p className="text-sm font-medium">{m.settings_notifications_new_comments()}</p>
           <p className="text-xs text-muted-foreground">
-            Get notified when someone comments on feedback you&apos;re subscribed to
+            {m.settings_notifications_new_comments_description()}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -130,8 +132,7 @@ export function NotificationPreferencesForm() {
       </div>
 
       <p className="text-xs text-muted-foreground pt-2">
-        You automatically subscribe to posts you submit, vote on, or comment on. Use the bell icon
-        on each post to manage individual subscriptions.
+        {m.settings_notifications_subscription_hint()}
       </p>
     </div>
   )
