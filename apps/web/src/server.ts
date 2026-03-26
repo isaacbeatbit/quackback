@@ -6,8 +6,6 @@ logStartupBanner()
 
 export default createServerEntry({
   fetch(request) {
-    return paraglideMiddleware(request, ({ request: localizedRequest }) =>
-      handler.fetch(localizedRequest)
-    )
+    return paraglideMiddleware(request, () => handler.fetch(request))
   },
 })
