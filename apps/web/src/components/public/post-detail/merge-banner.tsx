@@ -1,6 +1,7 @@
 'use client'
 
 import { Link } from '@tanstack/react-router'
+import * as m from '@/paraglide/messages'
 
 interface PortalMergeBannerProps {
   canonicalPostTitle: string
@@ -23,7 +24,7 @@ export function PortalMergeBanner({
       style={{ animationDelay: '75ms' }}
     >
       <p className="text-sm text-amber-800 dark:text-amber-200">
-        This feedback has been merged into{' '}
+        {m.feedback_merged_into_prefix()}{' '}
         <Link
           to="/b/$slug/posts/$postId"
           params={{ slug: canonicalPostBoardSlug, postId: canonicalPostId }}
@@ -31,7 +32,7 @@ export function PortalMergeBanner({
         >
           {canonicalPostTitle}
         </Link>
-        . Votes and activity now count toward the linked item.
+        {m.feedback_merged_into_suffix()}
       </p>
     </div>
   )

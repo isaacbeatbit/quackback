@@ -14,6 +14,7 @@ import { FilterChip, type FilterOption } from '@/components/shared/filter-chip'
 import type { RoadmapFilters } from '@/lib/shared/types'
 import type { Tag } from '@/lib/shared/db-types'
 import type { SegmentListItem } from '@/lib/client/hooks/use-segments-queries'
+import * as m from '@/paraglide/messages'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -47,9 +48,9 @@ type RoadmapFilterType = 'board' | 'tags' | 'segment' | 'search'
 // ---------------------------------------------------------------------------
 
 const SORT_OPTIONS = [
-  { value: 'votes' as const, label: 'Votes' },
-  { value: 'newest' as const, label: 'Newest' },
-  { value: 'oldest' as const, label: 'Oldest' },
+  { value: 'votes' as const, label: () => m.roadmap_sort_votes() },
+  { value: 'newest' as const, label: () => m.roadmap_sort_newest() },
+  { value: 'oldest' as const, label: () => m.roadmap_sort_oldest() },
 ]
 
 const FILTER_ICON_MAP: Record<RoadmapFilterType, IconComponent> = {
@@ -60,9 +61,9 @@ const FILTER_ICON_MAP: Record<RoadmapFilterType, IconComponent> = {
 }
 
 const FILTER_CATEGORIES: { key: FilterCategory; label: string; icon: IconComponent }[] = [
-  { key: 'board', label: 'Board', icon: Squares2X2Icon },
-  { key: 'tags', label: 'Tag', icon: TagIcon },
-  { key: 'segment', label: 'Segment', icon: UserGroupIcon },
+  { key: 'board', label: m.common_board(), icon: Squares2X2Icon },
+  { key: 'tags', label: m.common_tag(), icon: TagIcon },
+  { key: 'segment', label: m.common_segment(), icon: UserGroupIcon },
 ]
 
 const MENU_BUTTON_STYLES =
@@ -109,7 +110,7 @@ function computeActiveFilters(
     result.push({
       key: 'search',
       type: 'search',
-      label: 'Search:',
+      label: `${m.common_search()}:`,
       value: filters.search,
       valueId: 'search',
       onRemove: () => onFiltersChange({ search: undefined }),
@@ -124,7 +125,7 @@ function computeActiveFilters(
       result.push({
         key: `board-${id}`,
         type: 'board',
-        label: 'Board:',
+        label: `${m.common_board()}:`,
         value: board.name,
         valueId: id,
         options: boardOptions,
@@ -148,7 +149,7 @@ function computeActiveFilters(
       result.push({
         key: `tag-${id}`,
         type: 'tags',
-        label: 'Tag:',
+        label: `${m.common_tag()}:`,
         value: tag.name,
         valueId: id,
         options: tagOptions,
@@ -176,7 +177,7 @@ function computeActiveFilters(
       result.push({
         key: `segment-${id}`,
         type: 'segment',
-        label: 'Segment:',
+        label: `${m.common_segment()}:`,
         value: segment.name,
         valueId: id,
         color: segment.color,
@@ -252,7 +253,7 @@ function AddFilterButton({
           )}
         >
           <PlusIcon className="h-3 w-3" />
-          Add filter
+          {m.common_add_filter()}
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-48 p-0">
@@ -288,7 +289,7 @@ function AddFilterButton({
               className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] text-muted-foreground hover:text-foreground border-b border-border/50"
             >
               <ChevronRightIcon className="h-2.5 w-2.5 rotate-180" />
-              Back
+              {m.common_back()}
             </button>
             <div className="max-h-[250px] overflow-y-auto py-1">
               {activeCategory === 'board' &&
@@ -391,7 +392,7 @@ export function RoadmapFiltersBar({
               )}
             >
               <MagnifyingGlassIcon className="h-3.5 w-3.5" />
-              {filters.search || 'Search'}
+              {filters.search || m.common_search()}
               {filters.search && (
                 <button
                   type="button"
@@ -417,7 +418,7 @@ export function RoadmapFiltersBar({
                 type="text"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                placeholder="Search posts..."
+                placeholder={m.feedback_search_posts_placeholder()}
                 className="w-full px-2 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-ring"
                 autoFocus
               />
@@ -440,7 +441,7 @@ export function RoadmapFiltersBar({
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               )}
             >
-              {opt.label}
+              {opt.label()}
             </button>
           ))}
         </div>
@@ -472,7 +473,7 @@ export function RoadmapFiltersBar({
               'transition-colors'
             )}
           >
-            Clear all
+            {m.common_clear_all()}
           </button>
         )}
       </div>

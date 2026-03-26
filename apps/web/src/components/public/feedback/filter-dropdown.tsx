@@ -3,6 +3,7 @@ import { FunnelIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { localizeStatusName } from '@/lib/i18n/status'
 import type { PostStatusEntity, Tag } from '@/lib/shared/db-types'
 import * as m from '@/paraglide/messages'
 
@@ -103,7 +104,7 @@ export function FilterDropdown({
                       aria-hidden="true"
                     />
                     <span className="text-foreground/80 group-hover:text-foreground transition-colors">
-                      {status.name}
+                      {localizeStatusName(status.name)}
                     </span>
                   </label>
                 ))}

@@ -8,6 +8,7 @@ import {
   usePublicRoadmapPosts,
   flattenRoadmapPostEntries,
 } from '@/lib/client/hooks/use-roadmap-posts-query'
+import { localizeStatusName } from '@/lib/i18n/status'
 import type { RoadmapId, StatusId } from '@quackback/ids'
 import type { RoadmapFilters } from '@/lib/shared/types'
 import * as m from '@/paraglide/messages'
@@ -31,6 +32,7 @@ export function RoadmapColumn({ roadmapId, statusId, title, color, filters }: Ro
 
   const posts = flattenRoadmapPostEntries(data)
   const total = data?.pages[0]?.total ?? 0
+  const localizedTitle = localizeStatusName(title)
 
   const sentinelRef = useInfiniteScroll({
     hasMore: hasNextPage,
@@ -44,7 +46,7 @@ export function RoadmapColumn({ roadmapId, statusId, title, color, filters }: Ro
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
-            <CardTitle className="text-base font-semibold">{title}</CardTitle>
+            <CardTitle className="text-base font-semibold">{localizedTitle}</CardTitle>
           </div>
           <Badge variant="secondary" className="text-xs">
             {total}

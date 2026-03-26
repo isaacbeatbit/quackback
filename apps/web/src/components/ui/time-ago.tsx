@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { formatDistanceToNow } from 'date-fns'
+import { formatRelativeTime } from '@/lib/i18n/date'
 
 interface TimeAgoProps {
   date: Date | string
@@ -7,11 +7,7 @@ interface TimeAgoProps {
 }
 
 function getTimeAgo(date: Date | string | null | undefined): string {
-  if (!date) return ''
-  const d = typeof date === 'string' ? new Date(date) : date
-  // Check for invalid date
-  if (isNaN(d.getTime())) return ''
-  return formatDistanceToNow(d, { addSuffix: true })
+  return formatRelativeTime(date)
 }
 
 export function TimeAgo({ date, className }: TimeAgoProps) {

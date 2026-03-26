@@ -5,6 +5,7 @@ import { AuthPopoverProvider } from '@/components/auth/auth-popover-context'
 import { AuthDialog } from '@/components/auth/auth-dialog'
 import { DEFAULT_PORTAL_CONFIG } from '@/lib/server/domains/settings'
 import { generateThemeCSS, getGoogleFontsUrl } from '@/lib/shared/theme'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/_portal')({
   loader: async ({ context }) => {
@@ -75,7 +76,7 @@ export const Route = createFileRoute('/_portal')({
       loaderData?.faviconData?.url || loaderData?.brandingData?.logoUrl || '/logo.png'
 
     const workspaceName = loaderData?.org?.name ?? 'Quackback'
-    const description = `Share feedback, vote on feature requests, and track the ${workspaceName} roadmap.`
+    const description = m.portal_feedback_description({ workspaceName })
     const logoUrl = loaderData?.brandingData?.logoUrl || '/logo.png'
 
     const meta: Array<Record<string, string>> = [

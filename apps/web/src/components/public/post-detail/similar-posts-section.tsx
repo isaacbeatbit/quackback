@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { ChevronUpIcon } from '@heroicons/react/24/solid'
 import { LinkIcon } from '@heroicons/react/16/solid'
+import { localizeStatusName } from '@/lib/i18n/status'
 import { cn } from '@/lib/shared/utils'
 import { findSimilarPostsFn, type SimilarPost } from '@/lib/server/functions/public-posts'
 import type { PostId } from '@quackback/ids'
@@ -27,7 +28,7 @@ function SimilarPostRow({ post }: { post: SimilarPost }) {
         <span
           className="h-1.5 w-1.5 shrink-0 rounded-full"
           style={{ backgroundColor: post.status.color }}
-          title={post.status.name}
+          title={localizeStatusName(post.status.name)}
         />
       )}
     </Link>

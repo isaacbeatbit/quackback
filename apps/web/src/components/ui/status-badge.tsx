@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 
+import { localizeStatusName } from '@/lib/i18n/status'
 import { cn } from '@/lib/shared/utils'
 
 interface StatusBadgeProps {
@@ -14,6 +15,7 @@ interface StatusBadgeProps {
  */
 export function StatusBadge({ name, color, className }: StatusBadgeProps): ReactElement {
   const dotStyles = color ? { backgroundColor: color } : undefined
+  const localizedName = localizeStatusName(name)
 
   return (
     <span
@@ -28,7 +30,7 @@ export function StatusBadge({ name, color, className }: StatusBadgeProps): React
         style={dotStyles}
         aria-hidden="true"
       />
-      {name}
+      {localizedName}
     </span>
   )
 }

@@ -19,6 +19,7 @@ import { CheckIcon, LockClosedIcon } from '@heroicons/react/24/solid'
 import { signOut } from '@/lib/server/auth/client'
 import { useRouter, useRouteContext } from '@tanstack/react-router'
 import { useAuthBroadcast } from '@/lib/client/hooks/use-auth-broadcast'
+import { localizeStatusName } from '@/lib/i18n/status'
 import { cn } from '@/lib/shared/utils'
 import type { PostId, CommentId } from '@quackback/ids'
 import * as m from '@/paraglide/messages'
@@ -218,7 +219,11 @@ export function CommentForm({
                           className="size-1.5 rounded-full shrink-0"
                           style={{ backgroundColor: currentStatus?.color ?? '#94a3b8' }}
                         />
-                        <span>{currentStatus?.name ?? m.comment_no_status()}</span>
+                        <span>
+                          {currentStatus
+                            ? localizeStatusName(currentStatus.name)
+                            : m.comment_no_status()}
+                        </span>
                       </>
                     )}
                   </button>
@@ -248,7 +253,7 @@ export function CommentForm({
                           className="size-2 rounded-full shrink-0"
                           style={{ backgroundColor: status.color }}
                         />
-                        <span className="flex-1 text-left">{status.name}</span>
+                        <span className="flex-1 text-left">{localizeStatusName(status.name)}</span>
                         {isCurrent && !isSelected && (
                           <span className="text-muted-foreground text-[10px]">
                             {m.common_current()}
@@ -317,7 +322,7 @@ export function CommentForm({
                 {isSubmitting
                   ? m.widget_posting()
                   : selectedStatus
-                    ? m.comment_post_and_mark({ status: selectedStatus.name })
+                    ? m.comment_post_and_mark({ status: localizeStatusName(selectedStatus.name) })
                     : m.comment_post_button()}
               </Button>
             </div>

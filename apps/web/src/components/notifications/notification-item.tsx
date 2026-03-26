@@ -1,7 +1,7 @@
 'use client'
 
 import { Link, useRouterState } from '@tanstack/react-router'
-import { formatDistanceToNow } from 'date-fns'
+import { formatRelativeTime } from '@/lib/i18n/date'
 import { cn } from '@/lib/shared/utils'
 import { getNotificationTypeConfig } from './notification-type-config'
 import type { SerializedNotification } from '@/lib/client/hooks/use-notifications-queries'
@@ -115,7 +115,7 @@ function CompactContent({ notification, icon: Icon, iconClass, bgClass, isUnread
           <p className="text-xs text-muted-foreground line-clamp-2">{notification.body}</p>
         )}
         <p className="text-xs text-muted-foreground/70">
-          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+          {formatRelativeTime(notification.createdAt)}
         </p>
       </div>
 
@@ -154,7 +154,7 @@ function FullContent({ notification, icon: Icon, iconClass, bgClass, isUnread }:
             )}
           </div>
           <span className="text-[11px] text-muted-foreground/60 whitespace-nowrap flex-shrink-0 mt-0.5">
-            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+            {formatRelativeTime(notification.createdAt)}
           </span>
         </div>
       </div>
