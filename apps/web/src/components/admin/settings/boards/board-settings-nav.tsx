@@ -6,16 +6,16 @@ import {
 } from '@heroicons/react/24/solid'
 import { cn } from '@/lib/shared/utils'
 import { useBoardSelection, type BoardTab } from './use-board-selection'
-
-const navItems: { label: string; tab: BoardTab; icon: typeof Cog6ToothIcon }[] = [
-  { label: 'General', tab: 'general', icon: Cog6ToothIcon },
-  { label: 'Access', tab: 'access', icon: LockClosedIcon },
-  { label: 'Import Data', tab: 'import', icon: ArrowUpTrayIcon },
-  { label: 'Export Data', tab: 'export', icon: ArrowDownTrayIcon },
-]
+import * as m from '@/paraglide/messages'
 
 export function BoardSettingsNav() {
   const { selectedTab, setSelectedTab } = useBoardSelection()
+  const navItems: { label: string; tab: BoardTab; icon: typeof Cog6ToothIcon }[] = [
+    { label: m.board_general_tab(), tab: 'general', icon: Cog6ToothIcon },
+    { label: m.board_access_tab(), tab: 'access', icon: LockClosedIcon },
+    { label: m.board_import_tab(), tab: 'import', icon: ArrowUpTrayIcon },
+    { label: m.board_export_tab(), tab: 'export', icon: ArrowDownTrayIcon },
+  ]
 
   return (
     <nav className="w-full lg:w-48 shrink-0">

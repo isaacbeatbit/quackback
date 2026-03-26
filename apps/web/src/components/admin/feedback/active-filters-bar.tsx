@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/shared/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { FilterChip, type FilterOption } from '@/components/shared/filter-chip'
+import { getLocale } from '@/paraglide/runtime'
 import type { InboxFilters } from './use-inbox-filters'
 import type { Board, Tag as TagType, PostStatusEntity } from '@/lib/shared/db-types'
 import type { TeamMember } from '@/lib/server/domains/principals'
@@ -407,7 +408,11 @@ function getFilterIcon(type: ActiveFilter['type']): IconComponent {
 function formatDate(dateStr: string): string {
   try {
     const date = new Date(dateStr)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return date.toLocaleDateString(getLocale() === 'es' ? 'es-ES' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
   } catch {
     return dateStr
   }

@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import type { BoardId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 interface Board {
   id: BoardId
@@ -62,12 +63,11 @@ export function DeleteBoardForm({ board }: DeleteBoardFormProps) {
 
   return (
     <div className="space-y-4">
-      <WarningBox
-        title="Delete this board"
-        description="Once you delete a board, there is no going back. All feedback, votes, and comments associated with this board will be permanently deleted."
-      />
+      <WarningBox title={m.board_delete_title()} description={m.board_delete_description()} />
 
-      {mutation.isError && <FormError message={mutation.error?.message ?? 'An error occurred'} />}
+      {mutation.isError && (
+        <FormError message={mutation.error?.message ?? m.common_something_went_wrong()} />
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -76,9 +76,7 @@ export function DeleteBoardForm({ board }: DeleteBoardFormProps) {
             name="confirmName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Type <span className="font-mono font-bold">{board.name}</span> to confirm
-                </FormLabel>
+                <FormLabel>{m.board_delete_confirm_label({ name: board.name })}</FormLabel>
                 <FormControl>
                   <Input placeholder={board.name} {...field} />
                 </FormControl>
@@ -88,7 +86,7 @@ export function DeleteBoardForm({ board }: DeleteBoardFormProps) {
           />
 
           <Button type="submit" variant="destructive" disabled={!canDelete || mutation.isPending}>
-            {mutation.isPending ? 'Deleting...' : 'Delete board'}
+            {mutation.isPending ? m.board_deleting() : m.board_delete_button()}
           </Button>
         </form>
       </Form>

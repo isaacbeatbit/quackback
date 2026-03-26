@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { updateMemberRoleFn, removeTeamMemberFn } from '@/lib/server/functions/admin'
+import * as m from '@/paraglide/messages'
 
 interface MemberActionsProps {
   principalId: string
@@ -75,7 +76,7 @@ export function MemberActions({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-8 w-8">
             <EllipsisVerticalIcon className="h-4 w-4" />
-            <span className="sr-only">Member actions</span>
+            <span className="sr-only">{m.team_member_actions_sr()}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -87,12 +88,12 @@ export function MemberActions({
             {newRole === 'admin' ? (
               <>
                 <ShieldCheckIcon className="h-4 w-4" />
-                Make admin
+                {m.team_make_admin()}
               </>
             ) : (
               <>
                 <UserIcon className="h-4 w-4" />
-                Make member
+                {m.team_make_member()}
               </>
             )}
           </DropdownMenuItem>
@@ -104,7 +105,7 @@ export function MemberActions({
             className="gap-2"
           >
             <UserMinusIcon className="h-4 w-4" />
-            Remove from team
+            {m.team_remove_from_team()}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -112,22 +113,24 @@ export function MemberActions({
       <ConfirmDialog
         open={roleDialogOpen}
         onOpenChange={setRoleDialogOpen}
-        title={newRole === 'admin' ? 'Make admin?' : 'Remove admin privileges?'}
+        title={newRole === 'admin' ? m.team_make_admin_title() : m.team_remove_admin_title()}
         description={
           newRole === 'admin' ? (
             <>
-              <strong>{memberName}</strong> will be able to manage team settings, members, and all
-              workspace configurations.
+              <strong>{memberName}</strong> {m.team_make_admin_description_suffix()}
             </>
           ) : (
             <>
-              <strong>{memberName}</strong> will no longer be able to manage team settings or
-              members.
+              <strong>{memberName}</strong> {m.team_remove_admin_description_suffix()}
             </>
           )
         }
         confirmLabel={
-          isLoading ? 'Updating...' : newRole === 'admin' ? 'Make admin' : 'Remove admin'
+          isLoading
+            ? m.team_updating()
+            : newRole === 'admin'
+              ? m.team_make_admin()
+              : m.team_remove_admin()
         }
         isPending={isLoading}
         onConfirm={handleRoleChange}
@@ -136,16 +139,14 @@ export function MemberActions({
       <ConfirmDialog
         open={removeDialogOpen}
         onOpenChange={setRemoveDialogOpen}
-        title="Remove team member?"
+        title={m.team_remove_member_title()}
         description={
           <>
-            <strong>{memberName}</strong> will be removed from the team and converted to a portal
-            user. They will lose access to the admin dashboard but can still interact with the
-            feedback portal.
+            <strong>{memberName}</strong> {m.team_remove_member_description_suffix()}
           </>
         }
         variant="destructive"
-        confirmLabel={isLoading ? 'Removing...' : 'Remove from team'}
+        confirmLabel={isLoading ? m.team_removing() : m.team_remove_from_team()}
         isPending={isLoading}
         onConfirm={handleRemove}
       />

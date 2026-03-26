@@ -7,6 +7,7 @@ import { GitLabConnectionActions } from '@/components/admin/settings/integration
 import { GitLabConfig } from '@/components/admin/settings/integrations/gitlab/gitlab-config'
 import { GitLabIcon } from '@/components/icons/integration-icons'
 import { gitlabCatalog } from '@/lib/server/integrations/gitlab/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/gitlab')({
   loader: async ({ context }) => {
@@ -52,22 +53,12 @@ function GitLabIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<GitLabIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect GitLab"
-          description="Connect GitLab to automatically create issues from feedback and sync statuses between platforms."
+          title={m.integration_gitlab_title()}
+          description={m.integration_gitlab_description()}
           steps={[
-            <p key="1">
-              Configure your GitLab{' '}
-              <span className="font-medium text-foreground">OAuth application credentials</span> in
-              the platform settings.
-            </p>,
-            <p key="2">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback with your GitLab account.
-            </p>,
-            <p key="3">
-              Select a project to create issues in, then choose which events should trigger new
-              issues.
-            </p>,
+            <p key="1">{m.integration_gitlab_setup_step_1()}</p>,
+            <p key="2">{m.integration_gitlab_setup_step_2()}</p>,
+            <p key="3">{m.integration_gitlab_setup_step_3()}</p>,
           ]}
           connectionForm={<GitLabConnectionActions integrationId={undefined} isConnected={false} />}
         />

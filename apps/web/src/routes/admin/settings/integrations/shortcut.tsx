@@ -7,6 +7,7 @@ import { ShortcutConnectionActions } from '@/components/admin/settings/integrati
 import { ShortcutConfig } from '@/components/admin/settings/integrations/shortcut/shortcut-config'
 import { ShortcutIcon } from '@/components/icons/integration-icons'
 import { shortcutCatalog } from '@/lib/server/integrations/shortcut/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/shortcut')({
   loader: async ({ context }) => {
@@ -52,16 +53,12 @@ function ShortcutIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<ShortcutIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Shortcut workspace"
-          description="Connect Shortcut to automatically create stories from feedback and keep statuses in sync across both platforms."
+          title={m.integration_shortcut_title()}
+          description={m.integration_shortcut_description()}
           steps={[
-            <p key="1">
-              Generate an API token from your Shortcut account settings and paste it below.
-            </p>,
-            <p key="2">Select which project new feedback stories should be created in.</p>,
-            <p key="3">
-              Choose which events trigger story creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_shortcut_setup_step_1()}</p>,
+            <p key="2">{m.integration_shortcut_setup_step_2()}</p>,
+            <p key="3">{m.integration_shortcut_setup_step_3()}</p>,
           ]}
           connectionForm={
             <ShortcutConnectionActions integrationId={undefined} isConnected={false} />

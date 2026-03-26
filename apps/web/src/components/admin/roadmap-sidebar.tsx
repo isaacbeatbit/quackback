@@ -34,6 +34,7 @@ import { cn } from '@/lib/shared/utils'
 import { useRoadmaps } from '@/lib/client/hooks/use-roadmaps-query'
 import { useCreateRoadmap, useUpdateRoadmap, useDeleteRoadmap } from '@/lib/client/mutations'
 import type { Roadmap } from '@/lib/shared/db-types'
+import * as m from '@/paraglide/messages'
 
 interface RoadmapSidebarProps {
   selectedRoadmapId: string | null
@@ -136,7 +137,7 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
       <div className="px-5 pt-5 pb-3">
         <div className="flex items-center justify-between py-1">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Roadmaps
+            {m.nav_roadmap()}
           </span>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
@@ -146,27 +147,30 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle>Create Roadmap</DialogTitle>
-                <DialogDescription>
-                  Create a new roadmap to organize your posts into a public timeline.
-                </DialogDescription>
+                <DialogTitle>{m.roadmaps_create_title()}</DialogTitle>
+                <DialogDescription>{m.roadmaps_create_description()}</DialogDescription>
               </DialogHeader>
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" name="name" placeholder="Product Roadmap" required />
+                  <Label htmlFor="name">{m.api_keys_name_label()}</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    placeholder={m.roadmaps_name_placeholder()}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description (optional)</Label>
+                  <Label htmlFor="description">{m.roadmaps_description_label()}</Label>
                   <Input
                     id="description"
                     name="description"
-                    placeholder="Our upcoming features and improvements"
+                    placeholder={m.roadmaps_description_placeholder()}
                   />
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch id="isPublic" name="isPublic" defaultChecked />
-                  <Label htmlFor="isPublic">Public</Label>
+                  <Label htmlFor="isPublic">{m.roadmaps_public_label()}</Label>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button
@@ -174,13 +178,13 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
                     variant="outline"
                     onClick={() => setIsCreateDialogOpen(false)}
                   >
-                    Cancel
+                    {m.common_cancel()}
                   </Button>
                   <Button type="submit" disabled={createRoadmap.isPending}>
                     {createRoadmap.isPending && (
                       <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
                     )}
-                    Create
+                    {m.roadmaps_create_button()}
                   </Button>
                 </div>
               </form>
@@ -199,8 +203,8 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
           ) : roadmaps?.length === 0 ? (
             <EmptyState
               icon={MapIcon}
-              title="No roadmaps yet"
-              description="Create your first roadmap to get started"
+              title={m.roadmaps_empty_title()}
+              description={m.roadmaps_empty_description()}
               className="py-12"
             />
           ) : (
@@ -240,7 +244,7 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(roadmap)}>
                         <PencilIcon className="h-4 w-4 mr-2" />
-                        Edit
+                        {m.common_edit()}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -248,7 +252,7 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
                         onClick={() => openDeleteDialog(roadmap)}
                       >
                         <TrashIcon className="h-4 w-4 mr-2" />
-                        Delete
+                        {m.common_delete()}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -263,17 +267,17 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Roadmap</DialogTitle>
-            <DialogDescription>Update your roadmap settings.</DialogDescription>
+            <DialogTitle>{m.roadmaps_edit_title()}</DialogTitle>
+            <DialogDescription>{m.roadmaps_edit_description()}</DialogDescription>
           </DialogHeader>
           {editingRoadmap && (
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Name</Label>
+                <Label htmlFor="edit-name">{m.api_keys_name_label()}</Label>
                 <Input id="edit-name" name="name" defaultValue={editingRoadmap.name} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Description (optional)</Label>
+                <Label htmlFor="edit-description">{m.roadmaps_description_label()}</Label>
                 <Input
                   id="edit-description"
                   name="description"
@@ -286,17 +290,17 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
                   name="isPublic"
                   defaultChecked={editingRoadmap.isPublic}
                 />
-                <Label htmlFor="edit-isPublic">Public</Label>
+                <Label htmlFor="edit-isPublic">{m.roadmaps_public_label()}</Label>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Cancel
+                  {m.common_cancel()}
                 </Button>
                 <Button type="submit" disabled={updateRoadmap.isPending}>
                   {updateRoadmap.isPending && (
                     <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
                   )}
-                  Save
+                  {m.common_save_changes()}
                 </Button>
               </div>
             </form>
@@ -308,9 +312,9 @@ export function RoadmapSidebar({ selectedRoadmapId, onSelectRoadmap }: RoadmapSi
       <ConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        title="Delete Roadmap"
-        description={`Are you sure you want to delete "${deletingRoadmap?.name}"? This will remove all posts from this roadmap. The posts themselves will not be deleted.`}
-        confirmLabel="Delete"
+        title={m.roadmaps_delete_title()}
+        description={m.roadmaps_delete_description({ name: deletingRoadmap?.name ?? '' })}
+        confirmLabel={m.common_delete()}
         variant="destructive"
         isPending={deleteRoadmap.isPending}
         onConfirm={handleDelete}

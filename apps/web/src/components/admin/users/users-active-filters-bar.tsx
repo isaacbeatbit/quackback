@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { useUserAttributes } from '@/lib/client/hooks/use-user-attributes-queries'
+import { getLocale } from '@/paraglide/runtime'
 import type { UsersFilters } from '@/lib/shared/types'
 
 interface ActiveFilter {
@@ -546,7 +547,11 @@ function getFilterIcon(type: string) {
 function formatDate(dateStr: string): string {
   try {
     const date = new Date(dateStr)
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    return date.toLocaleDateString(getLocale() === 'es' ? 'es-ES' : 'en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
   } catch {
     return dateStr
   }

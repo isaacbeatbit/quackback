@@ -10,6 +10,7 @@ import { LinearConfig } from '@/components/admin/settings/integrations/linear/li
 import { Button } from '@/components/ui/button'
 import { LinearIcon } from '@/components/icons/integration-icons'
 import { linearCatalog } from '@/lib/server/integrations/linear/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/linear')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function LinearIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <LinearConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,27 +65,24 @@ function LinearIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<LinearIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Linear workspace"
-          description="Connect Linear to automatically create issues from user feedback and keep statuses in sync across both platforms."
+          title={m.integration_linear_title()}
+          description={m.integration_linear_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to create issues in your Linear workspace.
-            </p>,
-            <p key="2">Select which team new feedback issues should be created in.</p>,
-            <p key="3">
-              Choose which events trigger issue creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_linear_setup_step_1()}</p>,
+            <p key="2">{m.integration_linear_setup_step_2()}</p>,
+            <p key="3">{m.integration_linear_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <LinearConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

@@ -10,6 +10,7 @@ import { AsanaConfig } from '@/components/admin/settings/integrations/asana/asan
 import { Button } from '@/components/ui/button'
 import { AsanaIcon } from '@/components/icons/integration-icons'
 import { asanaCatalog } from '@/lib/server/integrations/asana/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/asana')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function AsanaIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <AsanaConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,27 +65,24 @@ function AsanaIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<AsanaIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Asana workspace"
-          description="Connect Asana to automatically create tasks from feedback and keep statuses in sync across both platforms."
+          title={m.integration_asana_title()}
+          description={m.integration_asana_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to create tasks in your Asana workspace.
-            </p>,
-            <p key="2">Select which project new feedback tasks should be created in.</p>,
-            <p key="3">
-              Choose which events trigger task creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_asana_setup_step_1()}</p>,
+            <p key="2">{m.integration_asana_setup_step_2()}</p>,
+            <p key="3">{m.integration_asana_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <AsanaConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

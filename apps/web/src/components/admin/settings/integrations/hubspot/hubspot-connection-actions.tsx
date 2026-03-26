@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { getHubSpotConnectUrl } from '@/lib/server/integrations/hubspot/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface HubSpotConnectionActionsProps {
   integrationId?: string
@@ -59,7 +60,7 @@ export function HubSpotConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>Connected successfully!</span>
+          <span>{m.integration_connected_success()}</span>
         </div>
       )}
 
@@ -69,10 +70,10 @@ export function HubSpotConnectionActions({
             {connecting ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Connecting...
+                {m.common_connecting()}
               </>
             ) : (
-              'Connect'
+              m.common_connect()
             )}
           </Button>
         )}
@@ -88,18 +89,18 @@ export function HubSpotConnectionActions({
               {disconnecting ? (
                 <>
                   <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Disconnecting...
+                  {m.common_disconnecting()}
                 </>
               ) : (
-                'Disconnect'
+                m.common_disconnect()
               )}
             </Button>
             <ConfirmDialog
               open={disconnectDialogOpen}
               onOpenChange={setDisconnectDialogOpen}
-              title="Disconnect HubSpot?"
-              description="This will remove the HubSpot integration and stop syncing CRM data. You can reconnect at any time."
-              confirmLabel="Disconnect"
+              title={m.integration_disconnect_title({ provider: 'HubSpot' })}
+              description={m.integration_hubspot_disconnect_description()}
+              confirmLabel={m.common_disconnect()}
               isPending={disconnecting}
               onConfirm={handleDisconnect}
             />

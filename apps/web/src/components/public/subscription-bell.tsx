@@ -17,6 +17,7 @@ import {
 } from '@/lib/server/functions/subscriptions'
 import type { PostId } from '@quackback/ids'
 import type { SubscriptionLevel } from '@/lib/server/domains/subscriptions/subscription.types'
+import * as m from '@/paraglide/messages'
 
 interface SubscriptionStatus {
   subscribed: boolean
@@ -113,9 +114,9 @@ export function SubscriptionBell({
   const BellIconComponent = isSubscribed ? BellAlertIcon : BellIcon
 
   function getAriaLabel(): string {
-    if (!isSubscribed) return 'Subscribe to notifications'
-    if (level === 'status_only') return 'Subscribed to status changes only'
-    return 'Subscribed to all activity'
+    if (!isSubscribed) return m.subscription_subscribe_aria()
+    if (level === 'status_only') return m.subscription_subscribed_status_only_aria()
+    return m.subscription_subscribed_all_activity_aria()
   }
 
   // Button click handler for non-dropdown scenarios
@@ -149,8 +150,8 @@ export function SubscriptionBell({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
-          <p className="text-sm font-medium">Notifications</p>
-          <p className="text-xs text-muted-foreground">Choose what to subscribe to</p>
+          <p className="text-sm font-medium">{m.admin_notifications_title()}</p>
+          <p className="text-xs text-muted-foreground">{m.subscription_choose_description()}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
@@ -162,8 +163,10 @@ export function SubscriptionBell({
           <div className="flex items-center gap-2">
             <BellAlertIcon className="h-4 w-4" />
             <div>
-              <p className="text-sm">All activity</p>
-              <p className="text-xs text-muted-foreground">Comments & status changes</p>
+              <p className="text-sm">{m.voters_subscription_all_activity()}</p>
+              <p className="text-xs text-muted-foreground">
+                {m.subscription_all_activity_description()}
+              </p>
             </div>
           </div>
           {level === 'all' && <CheckIcon className="h-4 w-4 text-primary" />}
@@ -177,8 +180,10 @@ export function SubscriptionBell({
           <div className="flex items-center gap-2">
             <BellIcon className="h-4 w-4" />
             <div>
-              <p className="text-sm">Status changes</p>
-              <p className="text-xs text-muted-foreground">When status is updated</p>
+              <p className="text-sm">{m.subscription_status_changes()}</p>
+              <p className="text-xs text-muted-foreground">
+                {m.subscription_status_changes_description()}
+              </p>
             </div>
           </div>
           {level === 'status_only' && <CheckIcon className="h-4 w-4 text-primary" />}
@@ -194,7 +199,7 @@ export function SubscriptionBell({
         >
           <div className="flex items-center gap-2 text-muted-foreground">
             <BellIcon className="h-4 w-4" />
-            <p className="text-sm">Unsubscribe</p>
+            <p className="text-sm">{m.subscription_unsubscribe()}</p>
           </div>
           {level === 'none' && <CheckIcon className="h-4 w-4 text-primary" />}
         </DropdownMenuItem>

@@ -3,6 +3,8 @@
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { TimeAgo } from '@/components/ui/time-ago'
+import { getLocale } from '@/paraglide/runtime'
+import * as m from '@/paraglide/messages'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,9 +42,9 @@ interface ChangelogListItemProps {
 }
 
 const STATUS_CONFIG = {
-  draft: { label: 'Draft', color: '#a1a1aa' }, // zinc-400
-  scheduled: { label: 'Scheduled', color: '#3b82f6' }, // blue-500
-  published: { label: 'Published', color: '#22c55e' }, // green-500
+  draft: { label: () => m.changelog_status_draft(), color: '#a1a1aa' }, // zinc-400
+  scheduled: { label: () => m.changelog_status_scheduled(), color: '#3b82f6' }, // blue-500
+  published: { label: () => m.changelog_status_published(), color: '#22c55e' }, // green-500
 } as const
 
 export function ChangelogListItem({
@@ -59,6 +61,7 @@ export function ChangelogListItem({
 }: ChangelogListItemProps) {
   const config = STATUS_CONFIG[status]
   const contentPreview = content.length > 150 ? content.slice(0, 150) + '...' : content
+  const locale = getLocale() === 'es' ? 'es-ES' : 'en-US'
 
   return (
     <div
@@ -68,7 +71,7 @@ export function ChangelogListItem({
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Status badge */}
-        <StatusBadge name={config.label} color={config.color} className="mb-1" />
+        <StatusBadge name={config.label()} color={config.color} className="mb-1" />
 
         {/* Title */}
         <h3 className="font-semibold text-base text-foreground line-clamp-1">{title}</h3>
@@ -91,8 +94,7 @@ export function ChangelogListItem({
               </>
             ) : status === 'scheduled' && publishedAt ? (
               <>
-                Scheduled for{' '}
-                {new Date(publishedAt).toLocaleDateString('en-US', {
+                {new Date(publishedAt).toLocaleDateString(locale, {
                   month: 'short',
                   day: 'numeric',
                   hour: 'numeric',
@@ -100,9 +102,7 @@ export function ChangelogListItem({
                 })}
               </>
             ) : (
-              <>
-                Created <TimeAgo date={createdAt} />
-              </>
+              <TimeAgo date={createdAt} />
             )}
           </span>
           {linkedPosts.length > 0 && (
@@ -128,7 +128,7 @@ export function ChangelogListItem({
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit?.(id)}>
               <PencilIcon className="mr-2 h-4 w-4" />
-              Edit
+              {m.common_edit()}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -136,7 +136,7 @@ export function ChangelogListItem({
               className="text-destructive focus:text-destructive"
             >
               <TrashIcon className="mr-2 h-4 w-4" />
-              Delete
+              {m.common_delete()}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

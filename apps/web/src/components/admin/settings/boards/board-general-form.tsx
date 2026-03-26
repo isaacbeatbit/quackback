@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/form'
 import { useUpdateBoard } from '@/lib/client/mutations'
 import type { BoardId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 interface Board {
   id: BoardId
@@ -49,14 +50,16 @@ export function BoardGeneralForm({ board }: BoardGeneralFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {mutation.isError && <FormError message={mutation.error?.message ?? 'An error occurred'} />}
+        {mutation.isError && (
+          <FormError message={mutation.error?.message ?? m.common_something_went_wrong()} />
+        )}
 
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Board name</FormLabel>
+              <FormLabel>{m.board_name_label()}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -70,7 +73,7 @@ export function BoardGeneralForm({ board }: BoardGeneralFormProps) {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{m.common_description()}</FormLabel>
               <FormControl>
                 <Textarea rows={3} {...field} />
               </FormControl>
@@ -81,7 +84,7 @@ export function BoardGeneralForm({ board }: BoardGeneralFormProps) {
 
         <div className="flex justify-end">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? 'Saving...' : 'Save changes'}
+            {mutation.isPending ? m.common_saving() : m.common_save_changes()}
           </Button>
         </div>
       </form>

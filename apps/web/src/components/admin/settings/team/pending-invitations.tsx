@@ -6,7 +6,10 @@ import { CopyButton } from '@/components/shared/copy-button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { cancelInvitationFn, resendInvitationFn } from '@/lib/server/functions/admin'
 import { formatDistanceToNow } from 'date-fns'
+import { enUS, es } from 'date-fns/locale'
 import type { InviteId } from '@quackback/ids'
+import { getLocale } from '@/paraglide/runtime'
+import * as m from '@/paraglide/messages'
 
 export interface PendingInvitation {
   id: string
@@ -26,10 +29,13 @@ export function getExpiryText(expiresAt: string) {
   const isExpired = now > expiry
   const msUntilExpiry = expiry.getTime() - now.getTime()
   const isExpiringSoon = !isExpired && msUntilExpiry < 2 * 24 * 60 * 60 * 1000
+  const locale = getLocale()
+  const dateLocale = locale === 'es' ? es : enUS
+  const relative = formatDistanceToNow(expiry, { addSuffix: false, locale: dateLocale })
 
   const text = isExpired
-    ? `Expired ${formatDistanceToNow(expiry, { addSuffix: false })} ago`
-    : `Expires in ${formatDistanceToNow(expiry, { addSuffix: false })}`
+    ? m.team_invitation_expired_ago({ time: relative })
+    : m.team_invitation_expires_in({ time: relative })
 
   const className = isExpired
     ? 'text-destructive'
@@ -42,7 +48,10 @@ export function getExpiryText(expiresAt: string) {
 
 export function formatInviteDate(dateStr: string) {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  return date.toLocaleDateString(getLocale() === 'es' ? 'es-ES' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+  })
 }
 
 interface InvitationActionsProps {
@@ -70,9 +79,9 @@ export function InvitationActions({
 
   const resendDisabled = !canResendNow || loading !== null
   const resendTitle = expiry.isExpired
-    ? 'Invitation expired'
+    ? m.team_invitation_expired()
     : minutesUntilResend
-      ? `Wait ${minutesUntilResend} min to resend`
+      ? m.team_resend_wait_minutes({ minutes: minutesUntilResend })
       : undefined
 
   const handleResend = async () => {
@@ -87,7 +96,7 @@ export function InvitationActions({
         onInviteLink(inv.id, result.inviteLink)
       }
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to resend invitation')
+      onError(err instanceof Error ? err.message : m.team_resend_failed())
     } finally {
       setLoading(null)
     }
@@ -102,7 +111,7 @@ export function InvitationActions({
       })
       onCancelled(inv.id)
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Failed to cancel invitation')
+      onError(err instanceof Error ? err.message : m.team_cancel_failed())
     } finally {
       setLoading(null)
     }
@@ -117,7 +126,11 @@ export function InvitationActions({
         disabled={resendDisabled}
         title={resendTitle}
       >
-        {loading === 'resend' ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : 'Resend'}
+        {loading === 'resend' ? (
+          <ArrowPathIcon className="h-4 w-4 animate-spin" />
+        ) : (
+          m.team_resend()
+        )}
       </Button>
 
       <TooltipProvider>
@@ -133,7 +146,7 @@ export function InvitationActions({
               <XMarkIcon className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Cancel invitation</TooltipContent>
+          <TooltipContent>{m.team_cancel_invitation()}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>

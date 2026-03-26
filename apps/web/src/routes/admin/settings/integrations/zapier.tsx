@@ -7,6 +7,7 @@ import { ZapierConnectionActions } from '@/components/admin/settings/integration
 import { ZapierConfig } from '@/components/admin/settings/integrations/zapier/zapier-config'
 import { ZapierIcon } from '@/components/icons/integration-icons'
 import { zapierCatalog } from '@/lib/server/integrations/zapier/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/zapier')({
   loader: async ({ context }) => {
@@ -51,23 +52,12 @@ function ZapierIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<ZapierIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Zapier"
-          description="Connect Zapier to trigger automated workflows when users submit feedback, when statuses change, and when comments are added."
+          title={m.integration_zapier_title()}
+          description={m.integration_zapier_description()}
           steps={[
-            <p key="1">
-              Create a new Zap in Zapier and add a{' '}
-              <span className="font-medium text-foreground">Webhooks by Zapier</span> trigger with{' '}
-              <span className="font-medium text-foreground">Catch Hook</span>.
-            </p>,
-            <p key="2">
-              Copy the webhook URL from Zapier and paste it below, then click{' '}
-              <span className="font-medium text-foreground">Save</span>. Quackback will send a test
-              payload.
-            </p>,
-            <p key="3">
-              Choose which events should trigger your Zap, then continue building your workflow in
-              Zapier.
-            </p>,
+            <p key="1">{m.integration_zapier_setup_step_1()}</p>,
+            <p key="2">{m.integration_zapier_setup_step_2()}</p>,
+            <p key="3">{m.integration_zapier_setup_step_3()}</p>,
           ]}
           connectionForm={<ZapierConnectionActions integrationId={undefined} isConnected={false} />}
         />

@@ -10,6 +10,13 @@ import { Button } from '@/components/ui/button'
 import { ZendeskIcon } from '@/components/icons/integration-icons'
 import { zendeskCatalog } from '@/lib/server/integrations/zendesk/catalog'
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
+import { integration_configure_credentials } from '@/paraglide/messages/integration_configure_credentials.js'
+import { integration_zendesk_active_message } from '@/paraglide/messages/integration_zendesk_active_message.js'
+import { integration_zendesk_description } from '@/paraglide/messages/integration_zendesk_description.js'
+import { integration_zendesk_setup_step_1 } from '@/paraglide/messages/integration_zendesk_setup_step_1.js'
+import { integration_zendesk_setup_step_2 } from '@/paraglide/messages/integration_zendesk_setup_step_2.js'
+import { integration_zendesk_setup_step_3 } from '@/paraglide/messages/integration_zendesk_setup_step_3.js'
+import { integration_zendesk_title } from '@/paraglide/messages/integration_zendesk_title.js'
 
 export const Route = createFileRoute('/admin/settings/integrations/zendesk')({
   loader: async ({ context }) => {
@@ -41,7 +48,7 @@ function ZendeskIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {integration_configure_credentials()}
                 </Button>
               )}
               <ZendeskConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -54,10 +61,7 @@ function ZendeskIntegrationPage() {
         <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-            <p className="text-sm text-foreground">
-              Zendesk enrichment is active. Support ticket data will automatically appear alongside
-              feedback from known contacts.
-            </p>
+            <p className="text-sm text-foreground">{integration_zendesk_active_message()}</p>
           </div>
         </div>
       )}
@@ -65,28 +69,24 @@ function ZendeskIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<ZendeskIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Zendesk account"
-          description="Connect Zendesk to enrich feedback with support context like organization, tags, and ticket history."
+          title={integration_zendesk_title()}
+          description={integration_zendesk_description()}
           steps={[
-            <p key="1">
-              Connect your Zendesk account to authorize read-only access to user and ticket data.
-            </p>,
-            <p key="2">
-              When feedback is submitted by a known email, Quackback looks up their Zendesk profile.
-            </p>,
-            <p key="3">
-              Support context (organization, ticket history) appears alongside their feedback.
-            </p>,
+            <p key="1">{integration_zendesk_setup_step_1()}</p>,
+            <p key="2">{integration_zendesk_setup_step_2()}</p>,
+            <p key="3">{integration_zendesk_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {integration_configure_credentials()}
                   </Button>
                   <ZendeskConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

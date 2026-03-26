@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/shared/utils'
 import type { SegmentId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 export const CUSTOM_ATTR_PREFIX = '__custom__'
 
@@ -485,7 +486,9 @@ export function SegmentFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit Segment' : 'Create Segment'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? m.segments_edit_title() : m.segments_create_title()}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -507,8 +510,8 @@ export function SegmentFormDialog({
                   <div className="font-medium text-sm capitalize">{t}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {t === 'manual'
-                      ? 'Manually assign users to this segment'
-                      : 'Auto-populate based on rules'}
+                      ? m.segments_manual_description()
+                      : m.segments_dynamic_description()}
                   </div>
                 </button>
               ))}
@@ -517,12 +520,12 @@ export function SegmentFormDialog({
 
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="seg-name">Name</Label>
+            <Label htmlFor="seg-name">{m.api_keys_name_label()}</Label>
             <Input
               id="seg-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enterprise customers"
+              placeholder={m.segments_name_placeholder()}
               required
             />
           </div>
@@ -530,24 +533,22 @@ export function SegmentFormDialog({
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="seg-desc">
-              Description <span className="text-muted-foreground font-normal">(optional)</span>
+              {m.common_description()}{' '}
+              <span className="text-muted-foreground font-normal">({m.common_optional()})</span>
             </Label>
             <Input
               id="seg-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="High-activity users with 10+ posts"
+              placeholder={m.segments_description_placeholder()}
             />
           </div>
 
           {/* Rules (dynamic only) */}
           {type === 'dynamic' && (
             <div className="space-y-2 border border-border/50 rounded-lg p-4 bg-muted/20">
-              <Label className="text-sm font-medium">Rules</Label>
-              <p className="text-xs text-muted-foreground">
-                Define conditions to automatically match users. Membership is refreshed when you
-                trigger evaluation.
-              </p>
+              <Label className="text-sm font-medium">{m.segments_rules_title()}</Label>
+              <p className="text-xs text-muted-foreground">{m.segments_rules_description()}</p>
               <RuleBuilder
                 match={ruleMatch}
                 conditions={conditions}
@@ -565,10 +566,14 @@ export function SegmentFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button type="submit" disabled={!canSubmit || isPending}>
-              {isPending ? 'Saving...' : isEditing ? 'Save changes' : 'Create segment'}
+              {isPending
+                ? m.common_saving()
+                : isEditing
+                  ? m.common_save_changes()
+                  : m.segments_create_button()}
             </Button>
           </DialogFooter>
         </form>

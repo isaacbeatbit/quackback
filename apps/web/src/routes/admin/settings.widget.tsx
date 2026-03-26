@@ -37,6 +37,7 @@ import {
 import { settingsQueries } from '@/lib/client/queries/settings'
 import { adminQueries } from '@/lib/client/queries/admin'
 import { updateWidgetConfigFn, regenerateWidgetSecretFn } from '@/lib/server/functions/settings'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/widget')({
   loader: async ({ context }) => {
@@ -76,12 +77,12 @@ function WidgetSettingsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={ChatBubbleLeftRightIcon}
-        title="Feedback Widget"
-        description="Embed a feedback widget directly in your product to collect feedback from users"
+        title={m.settings_widget_page_title()}
+        description={m.settings_widget_page_description()}
       />
 
       <WidgetToggle initialEnabled={config.enabled} />
@@ -96,7 +97,7 @@ function WidgetSettingsPage() {
             onPositionChange={setPosition}
           />
         </BrandingControlsPanel>
-        <BrandingPreviewPanel label="Preview">
+        <BrandingPreviewPanel label={m.branding_preview_label()}>
           <WidgetPreview position={position} />
         </BrandingPreviewPanel>
       </BrandingLayout>
@@ -124,15 +125,18 @@ function WidgetToggle({ initialEnabled }: { initialEnabled: boolean }) {
   }
 
   return (
-    <SettingsCard title="Widget" description="Enable or disable the embeddable feedback widget">
+    <SettingsCard
+      title={m.settings_widget_card_title()}
+      description={m.settings_widget_card_description()}
+    >
       <div className="space-y-3">
         <div className="flex items-center justify-between rounded-lg border border-border/50 p-4">
           <div>
             <Label htmlFor="widget-toggle" className="text-sm font-medium cursor-pointer">
-              Enable Feedback Widget
+              {m.settings_widget_enable_title()}
             </Label>
             <p className="text-xs text-muted-foreground mt-0.5">
-              When enabled, you can embed a feedback widget on any website using a script tag
+              {m.settings_widget_enable_description()}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -142,7 +146,7 @@ function WidgetToggle({ initialEnabled }: { initialEnabled: boolean }) {
               checked={enabled}
               onCheckedChange={handleToggle}
               disabled={saving || isPending}
-              aria-label="Feedback Widget"
+              aria-label={m.settings_widget_page_title()}
             />
           </div>
         </div>
@@ -183,15 +187,15 @@ function WidgetAppearanceControls({
     <>
       <div className="p-5 space-y-4">
         <div>
-          <h3 className="text-sm font-medium text-foreground">Appearance</h3>
+          <h3 className="text-sm font-medium text-foreground">{m.settings_section_appearance()}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Customize the widget trigger button and default behavior
+            {m.settings_widget_appearance_description()}
           </p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="widget-position" className="text-xs text-muted-foreground">
-            Button Position
+            {m.settings_widget_button_position()}
           </Label>
           <Select
             value={position}
@@ -205,8 +209,12 @@ function WidgetAppearanceControls({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="bottom-right">Bottom Right</SelectItem>
-              <SelectItem value="bottom-left">Bottom Left</SelectItem>
+              <SelectItem value="bottom-right">
+                {m.settings_widget_position_bottom_right()}
+              </SelectItem>
+              <SelectItem value="bottom-left">
+                {m.settings_widget_position_bottom_left()}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -214,9 +222,11 @@ function WidgetAppearanceControls({
 
       <div className="p-5 space-y-4">
         <div>
-          <h3 className="text-sm font-medium text-foreground">Default Board</h3>
+          <h3 className="text-sm font-medium text-foreground">
+            {m.settings_widget_default_board_title()}
+          </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Which board new posts from the widget are submitted to
+            {m.settings_widget_default_board_description()}
           </p>
         </div>
 
@@ -230,10 +240,10 @@ function WidgetAppearanceControls({
           disabled={isBusy}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="All Boards" />
+            <SelectValue placeholder={m.settings_widget_all_boards()} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All Boards</SelectItem>
+            <SelectItem value="__all__">{m.settings_widget_all_boards()}</SelectItem>
             {boards.map((board) => (
               <SelectItem key={board.id} value={board.slug}>
                 {board.name}
@@ -526,9 +536,11 @@ function WidgetInstallation({
         <div className="flex flex-col border-b lg:border-b-0 lg:border-r border-border divide-y divide-border">
           {/* Header */}
           <div className="p-5">
-            <h3 className="text-sm font-semibold text-foreground">Installation</h3>
+            <h3 className="text-sm font-semibold text-foreground">
+              {m.settings_widget_installation_title()}
+            </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Configure and add the widget to your site
+              {m.settings_widget_installation_description()}
             </p>
           </div>
 
@@ -538,10 +550,14 @@ function WidgetInstallation({
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-[11px] font-bold shrink-0">
                 1
               </span>
-              <span className="text-xs font-medium text-foreground">Add the script</span>
+              <span className="text-xs font-medium text-foreground">
+                {m.settings_widget_add_script_title()}
+              </span>
             </div>
             <p className="text-[11px] text-muted-foreground ml-7">
-              Paste before the closing <code className="text-[11px]">&lt;/body&gt;</code> tag
+              {m.settings_widget_add_script_description_prefix()}{' '}
+              <code className="text-[11px]">&lt;/body&gt;</code>{' '}
+              {m.settings_widget_add_script_description_suffix()}
             </p>
           </div>
 
@@ -552,8 +568,12 @@ function WidgetInstallation({
                 2
               </span>
               <div>
-                <span className="text-xs font-medium text-foreground">Identify users</span>
-                <p className="text-[11px] text-muted-foreground">Required to display the widget</p>
+                <span className="text-xs font-medium text-foreground">
+                  {m.settings_widget_identify_users_title()}
+                </span>
+                <p className="text-[11px] text-muted-foreground">
+                  {m.settings_widget_identify_users_description()}
+                </p>
               </div>
             </div>
 
@@ -561,8 +581,12 @@ function WidgetInstallation({
               {/* HMAC toggle */}
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <span className="text-xs font-medium text-foreground">HMAC verification</span>
-                  <p className="text-[11px] text-muted-foreground">Prevent identity spoofing</p>
+                  <span className="text-xs font-medium text-foreground">
+                    {m.settings_widget_hmac_title()}
+                  </span>
+                  <p className="text-[11px] text-muted-foreground">
+                    {m.settings_widget_hmac_description()}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <InlineSpinner visible={isBusy} />
@@ -570,7 +594,7 @@ function WidgetInstallation({
                     checked={hmacEnabled}
                     onCheckedChange={handleHmacToggle}
                     disabled={isBusy}
-                    aria-label="Require HMAC verification"
+                    aria-label={m.settings_widget_hmac_aria()}
                   />
                 </div>
               </div>
@@ -579,7 +603,9 @@ function WidgetInstallation({
                 <div className="space-y-2.5">
                   {/* Framework */}
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-muted-foreground">Backend framework</Label>
+                    <Label className="text-[11px] text-muted-foreground">
+                      {m.settings_widget_backend_framework()}
+                    </Label>
                     <Select value={framework} onValueChange={setFramework}>
                       <SelectTrigger className="h-8 text-xs">
                         <SelectValue />
@@ -596,7 +622,9 @@ function WidgetInstallation({
 
                   {/* Secret */}
                   <div className="space-y-1.5">
-                    <Label className="text-[11px] text-muted-foreground">Widget secret</Label>
+                    <Label className="text-[11px] text-muted-foreground">
+                      {m.settings_widget_secret_label()}
+                    </Label>
                     {currentSecret ? (
                       <div className="flex items-center gap-1">
                         <code className="flex-1 text-[10px] font-mono text-foreground bg-muted/30 border border-border/50 rounded px-2 py-1 truncate">
@@ -629,7 +657,7 @@ function WidgetInstallation({
                       </div>
                     ) : (
                       <p className="text-[11px] text-muted-foreground italic">
-                        Click regenerate to create a secret
+                        {m.settings_widget_secret_empty()}
                       </p>
                     )}
                     <Button
@@ -642,10 +670,10 @@ function WidgetInstallation({
                       {regenerating ? (
                         <>
                           <ArrowPathIcon className="h-3 w-3 animate-spin mr-1" />
-                          Regenerating...
+                          {m.settings_widget_regenerating()}
                         </>
                       ) : (
-                        'Regenerate'
+                        m.settings_widget_regenerate()
                       )}
                     </Button>
                   </div>
@@ -653,7 +681,7 @@ function WidgetInstallation({
                   {/* Security note */}
                   <p className="flex items-start gap-1.5 text-[10px] text-yellow-600 dark:text-yellow-500">
                     <ExclamationTriangleIcon className="h-3 w-3 shrink-0 mt-px" />
-                    Keep this secret server-side only
+                    {m.settings_widget_secret_warning()}
                   </p>
                 </div>
               )}
@@ -693,12 +721,12 @@ function WidgetInstallation({
               {copiedCode ? (
                 <>
                   <CheckIcon className="h-3 w-3 text-green-400" />
-                  <span className="text-green-400">Copied</span>
+                  <span className="text-green-400">{m.common_copied()}</span>
                 </>
               ) : (
                 <>
                   <ClipboardDocumentIcon className="h-3 w-3" />
-                  <span>Copy</span>
+                  <span>{m.common_copy()}</span>
                 </>
               )}
             </button>

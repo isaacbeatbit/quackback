@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { OnDeleteConfig } from '@/components/admin/settings/integrations/on-delete-config'
 import { fetchMondayBoardsFn, type MondayBoard } from '@/lib/server/integrations/monday/functions'
@@ -30,8 +31,8 @@ interface MondayConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Create Monday.com items when users submit new feedback',
+    label: m.integration_monday_event_post_created_label(),
+    description: m.integration_monday_event_post_created_description(),
   },
 ]
 
@@ -63,7 +64,7 @@ export function MondayConfig({
       const result = await fetchMondayBoardsFn()
       setBoards(result)
     } catch {
-      setBoardError('Failed to load boards. Please try again.')
+      setBoardError(m.integration_monday_load_boards_failed())
     } finally {
       setLoadingBoards(false)
     }
@@ -102,10 +103,10 @@ export function MondayConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_monday_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Monday.com synchronization
+            {m.integration_monday_enabled_description()}
           </p>
         </div>
         <Switch
@@ -118,7 +119,7 @@ export function MondayConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="board-select">Monday.com Board</Label>
+          <Label htmlFor="board-select">{m.integration_monday_board_label()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -127,7 +128,7 @@ export function MondayConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingBoards ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {boardError ? (
@@ -142,10 +143,10 @@ export function MondayConfig({
               {loadingBoards ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading boards...</span>
+                  <span>{m.integration_monday_loading_boards()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a board" />
+                <SelectValue placeholder={m.integration_select_board_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -157,16 +158,12 @@ export function MondayConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          Items will be created in this board when new feedback is submitted.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_monday_board_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose which events trigger Monday.com actions
-        </p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_monday_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -190,13 +187,13 @@ export function MondayConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

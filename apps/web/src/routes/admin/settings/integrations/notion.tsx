@@ -10,6 +10,7 @@ import { NotionConfig } from '@/components/admin/settings/integrations/notion/no
 import { Button } from '@/components/ui/button'
 import { NotionIcon } from '@/components/icons/integration-icons'
 import { notionCatalog } from '@/lib/server/integrations/notion/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/notion')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function NotionIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <NotionConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,30 +65,24 @@ function NotionIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<NotionIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Notion workspace"
-          description="Connect Notion to automatically create database items when users submit feedback. Link feedback to your product roadmap in Notion."
+          title={m.integration_notion_title()}
+          description={m.integration_notion_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback with your Notion workspace.
-            </p>,
-            <p key="2">
-              Select which database new feedback items should be created in. The database must have
-              a Title property.
-            </p>,
-            <p key="3">
-              Choose which events trigger new database items. You can change this at any time.
-            </p>,
+            <p key="1">{m.integration_notion_setup_step_1()}</p>,
+            <p key="2">{m.integration_notion_setup_step_2()}</p>,
+            <p key="3">{m.integration_notion_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <NotionConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

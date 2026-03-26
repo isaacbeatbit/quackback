@@ -2,8 +2,9 @@
 
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
-import { getIntegrationActionVerb, getIntegrationDisplayName } from '@/lib/shared/integrations'
+import { getIntegrationDisplayName } from '@/lib/shared/integrations'
 
 interface OnDeleteConfigProps {
   integrationId: string
@@ -23,8 +24,8 @@ export function OnDeleteConfig({
   const isChecked = onDeleteAction === 'archive'
   const saving = updateMutation.isPending
 
-  const action = getIntegrationActionVerb(integrationType)
   const name = getIntegrationDisplayName(integrationType)
+  const action = isChecked ? m.delete_post_action_archive() : m.delete_post_action_close()
 
   const handleToggle = (checked: boolean) => {
     updateMutation.mutate({
@@ -38,10 +39,10 @@ export function OnDeleteConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="on-delete-toggle" className="text-base font-medium">
-            On post delete
+            {m.integration_on_delete_title()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            {action} linked issues when a post is deleted
+            {m.integration_on_delete_description({ action })}
           </p>
         </div>
         <Switch
@@ -52,8 +53,7 @@ export function OnDeleteConfig({
         />
       </div>
       <p className="text-xs text-muted-foreground">
-        When enabled, the delete confirmation dialog will pre-check the option to{' '}
-        {action.toLowerCase()} linked {name} issues.
+        {m.integration_on_delete_help({ action: action.toLowerCase(), name })}
       </p>
     </div>
   )

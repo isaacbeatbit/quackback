@@ -4,6 +4,8 @@ import { Link } from '@tanstack/react-router'
 import { LinkIcon } from '@heroicons/react/24/outline'
 import type { ChangelogId, PostId } from '@quackback/ids'
 import { cn } from '@/lib/shared/utils'
+import { getLocale } from '@/paraglide/runtime'
+import * as m from '@/paraglide/messages'
 
 interface ChangelogEntryCardProps {
   id: ChangelogId
@@ -31,7 +33,9 @@ export function ChangelogEntryCard({
   const contentPreview = content.length > 280 ? content.slice(0, 280).trim() + '...' : content
 
   const date = new Date(publishedAt)
-  const month = date.toLocaleDateString('en-US', { month: 'short' })
+  const month = date.toLocaleDateString(getLocale() === 'es' ? 'es-ES' : 'en-US', {
+    month: 'short',
+  })
   const day = date.getDate()
   const year = date.getFullYear()
 
@@ -72,7 +76,9 @@ export function ChangelogEntryCard({
             <div className="flex items-center gap-1.5 mt-3 text-sm text-muted-foreground">
               <LinkIcon className="h-3.5 w-3.5" />
               <span>
-                {linkedPosts.length} linked feature{linkedPosts.length === 1 ? '' : 's'}
+                {linkedPosts.length === 1
+                  ? m.changelog_linked_feature_one({ count: String(linkedPosts.length) })
+                  : m.changelog_linked_feature_other({ count: String(linkedPosts.length) })}
               </span>
             </div>
           )}

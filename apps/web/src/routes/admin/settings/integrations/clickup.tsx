@@ -10,6 +10,7 @@ import { ClickUpConfig } from '@/components/admin/settings/integrations/clickup/
 import { Button } from '@/components/ui/button'
 import { ClickUpIcon } from '@/components/icons/integration-icons'
 import { clickupCatalog } from '@/lib/server/integrations/clickup/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/clickup')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function ClickUpIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <ClickUpConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,27 +65,24 @@ function ClickUpIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<ClickUpIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your ClickUp workspace"
-          description="Connect ClickUp to turn feedback into tasks and track progress directly from your workspace."
+          title={m.integration_clickup_title()}
+          description={m.integration_clickup_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to create tasks in your ClickUp workspace.
-            </p>,
-            <p key="2">Select a space and list where new feedback tasks should be created.</p>,
-            <p key="3">
-              Choose which events trigger task creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_clickup_setup_step_1()}</p>,
+            <p key="2">{m.integration_clickup_setup_step_2()}</p>,
+            <p key="3">{m.integration_clickup_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <ClickUpConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

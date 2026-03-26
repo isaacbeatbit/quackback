@@ -4,6 +4,7 @@ import { UsersIcon, PlusIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/shared/page-header'
 import { InviteMemberDialog } from '@/components/auth/invite-member-dialog'
+import * as m from '@/paraglide/messages'
 
 interface TeamHeaderProps {
   workspaceName: string
@@ -22,12 +23,12 @@ export function TeamHeader({ workspaceName }: TeamHeaderProps) {
     <>
       <PageHeader
         icon={UsersIcon}
-        title="Team Members"
-        description={`Manage who has access to ${workspaceName}`}
+        title={m.team_members_title()}
+        description={m.team_members_description({ workspaceName })}
         action={
           <Button onClick={() => setShowInviteDialog(true)}>
             <PlusIcon className="h-4 w-4" />
-            Invite member
+            {m.team_invite_member()}
           </Button>
         }
       />

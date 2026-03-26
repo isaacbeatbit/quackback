@@ -5,6 +5,7 @@ import { AdjustmentsHorizontalIcon } from '@heroicons/react/24/solid'
 import { BackLink } from '@/components/ui/back-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { UserAttributesList } from '@/components/admin/settings/user-attributes/user-attributes-list'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/user-attributes')({
   loader: async ({ context }) => {
@@ -21,12 +22,12 @@ function UserAttributesPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={AdjustmentsHorizontalIcon}
-        title="User Attributes"
-        description="Define custom attributes to enrich user profiles and power segment rules"
+        title={m.settings_user_attributes_page_title()}
+        description={m.settings_user_attributes_page_description()}
       />
 
       <UserAttributesList initialAttributes={attrsQuery.data} />

@@ -7,6 +7,7 @@ import { LinkIcon } from '@heroicons/react/16/solid'
 import { cn } from '@/lib/shared/utils'
 import { findSimilarPostsFn, type SimilarPost } from '@/lib/server/functions/public-posts'
 import type { PostId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 function SimilarPostRow({ post }: { post: SimilarPost }) {
   return (
@@ -69,7 +70,7 @@ export function SimilarPostsSection({
     >
       <div className="mb-1.5 flex items-center gap-1.5 px-1">
         <LinkIcon className="h-3 w-3 text-muted-foreground/70" />
-        <h3 className="text-xs font-medium text-muted-foreground">Related</h3>
+        <h3 className="text-xs font-medium text-muted-foreground">{m.feedback_related()}</h3>
       </div>
 
       <div className="space-y-0.5">

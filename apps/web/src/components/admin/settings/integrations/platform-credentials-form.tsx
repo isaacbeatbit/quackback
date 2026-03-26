@@ -8,11 +8,77 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { PlatformCredentialField } from '@/lib/server/integrations/types'
+import * as m from '@/paraglide/messages'
 
 interface PlatformCredentialsFormProps {
   integrationType: string
   fields: PlatformCredentialField[]
   onSaved?: () => void
+}
+
+function getLocalizedPlatformCredentialField(
+  integrationType: string,
+  field: PlatformCredentialField
+): PlatformCredentialField {
+  switch (integrationType) {
+    case 'gitlab':
+      if (field.key === 'clientId') {
+        return { ...field, label: m.platform_credentials_application_id_label() }
+      }
+      if (field.key === 'clientSecret') {
+        return { ...field, label: m.platform_credentials_secret_label() }
+      }
+      return field
+    case 'notion':
+      if (field.key === 'clientId') {
+        return { ...field, label: m.platform_credentials_oauth_client_id_label() }
+      }
+      if (field.key === 'clientSecret') {
+        return { ...field, label: m.platform_credentials_oauth_client_secret_label() }
+      }
+      return field
+    case 'salesforce':
+      if (field.key === 'clientId') {
+        return { ...field, label: m.platform_credentials_consumer_key_label() }
+      }
+      if (field.key === 'clientSecret') {
+        return { ...field, label: m.platform_credentials_consumer_secret_label() }
+      }
+      return field
+    case 'trello':
+      if (field.key === 'clientId') {
+        return { ...field, label: m.platform_credentials_api_key_label() }
+      }
+      if (field.key === 'clientSecret') {
+        return { ...field, label: m.platform_credentials_api_secret_label() }
+      }
+      return field
+    case 'discord':
+      if (field.key === 'botToken') {
+        return { ...field, label: m.platform_credentials_bot_token_label() }
+      }
+      break
+    case 'slack':
+      if (field.key === 'signingSecret') {
+        return {
+          ...field,
+          label: m.platform_credentials_signing_secret_label(),
+          helpText: m.platform_credentials_signing_secret_help(),
+        }
+      }
+      break
+    default:
+      break
+  }
+
+  if (field.key === 'clientId') {
+    return { ...field, label: m.platform_credentials_client_id_label() }
+  }
+  if (field.key === 'clientSecret') {
+    return { ...field, label: m.platform_credentials_client_secret_label() }
+  }
+
+  return field
 }
 
 export function PlatformCredentialsForm({
@@ -26,6 +92,10 @@ export function PlatformCredentialsForm({
 
   const [isEditing, setIsEditing] = useState(false)
   const [values, setValues] = useState<Record<string, string>>({})
+
+  const localizedFields = fields.map((field) =>
+    getLocalizedPlatformCredentialField(integrationType, field)
+  )
 
   const saveMutation = useSavePlatformCredentials()
   const deleteMutation = useDeletePlatformCredentials()
@@ -64,14 +134,14 @@ export function PlatformCredentialsForm({
     )
   }
 
-  const allFieldsFilled = fields.every((f) => values[f.key]?.trim())
+  const allFieldsFilled = localizedFields.every((f) => values[f.key]?.trim())
 
   // Show masked values when configured and not editing
   if (isConfigured && !isEditing) {
     return (
       <div className="space-y-4">
         <div className="space-y-3">
-          {fields.map((field) => (
+          {localizedFields.map((field) => (
             <div key={field.key}>
               <Label className="text-sm font-medium text-muted-foreground">{field.label}</Label>
               <div className="mt-1 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm font-mono text-muted-foreground">
@@ -82,7 +152,7 @@ export function PlatformCredentialsForm({
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleStartEdit}>
-            Update
+            {m.platform_credentials_update()}
           </Button>
           <Button
             variant="outline"
@@ -91,7 +161,9 @@ export function PlatformCredentialsForm({
             disabled={deleteMutation.isPending}
             className="text-destructive hover:text-destructive"
           >
-            {deleteMutation.isPending ? 'Removing...' : 'Remove'}
+            {deleteMutation.isPending
+              ? m.platform_credentials_removing()
+              : m.platform_credentials_remove()}
           </Button>
         </div>
       </div>
@@ -102,7 +174,7 @@ export function PlatformCredentialsForm({
   return (
     <div className="space-y-4">
       <div className="space-y-3">
-        {fields.map((field) => (
+        {localizedFields.map((field) => (
           <div key={field.key}>
             <Label htmlFor={`cred-${field.key}`} className="text-sm font-medium">
               {field.label}
@@ -125,7 +197,7 @@ export function PlatformCredentialsForm({
                 rel="noopener noreferrer"
                 className="mt-1 inline-block text-xs text-primary hover:underline"
               >
-                Get credentials from provider
+                {m.platform_credentials_get_from_provider()}
               </a>
             )}
           </div>
@@ -137,17 +209,17 @@ export function PlatformCredentialsForm({
           onClick={handleSave}
           disabled={!allFieldsFilled || saveMutation.isPending}
         >
-          {saveMutation.isPending ? 'Saving...' : 'Save'}
+          {saveMutation.isPending ? m.common_saving() : m.common_save_changes()}
         </Button>
         {isEditing && (
           <Button variant="outline" size="sm" onClick={handleCancel}>
-            Cancel
+            {m.platform_credentials_cancel()}
           </Button>
         )}
       </div>
       {saveMutation.isError && (
         <p className="text-sm text-destructive">
-          {saveMutation.error?.message ?? 'Failed to save credentials'}
+          {saveMutation.error?.message ?? m.platform_credentials_save_failed()}
         </p>
       )}
     </div>

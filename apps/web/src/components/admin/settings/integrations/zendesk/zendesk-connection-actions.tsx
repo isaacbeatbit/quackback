@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { getZendeskConnectUrl } from '@/lib/server/integrations/zendesk/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface ZendeskConnectionActionsProps {
   integrationId?: string
@@ -45,11 +46,11 @@ export function ZendeskConnectionActions({
   const handleConnect = async () => {
     const trimmed = subdomain.trim().toLowerCase()
     if (!trimmed) {
-      setSubdomainError('Subdomain is required')
+      setSubdomainError(m.integration_zendesk_subdomain_required())
       return
     }
     if (!SUBDOMAIN_PATTERN.test(trimmed)) {
-      setSubdomainError('Must be lowercase alphanumeric with hyphens (e.g. your-company)')
+      setSubdomainError(m.integration_zendesk_subdomain_invalid())
       return
     }
     setSubdomainError('')
@@ -75,18 +76,18 @@ export function ZendeskConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>Connected successfully!</span>
+          <span>{m.integration_connected_success()}</span>
         </div>
       )}
 
       {!isConnected && (
         <div className="flex w-full flex-col gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="zendesk-subdomain">Zendesk Subdomain</Label>
+            <Label htmlFor="zendesk-subdomain">{m.integration_zendesk_subdomain_label()}</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="zendesk-subdomain"
-                placeholder="your-company"
+                placeholder={m.integration_zendesk_subdomain_placeholder()}
                 value={subdomain}
                 onChange={(e) => {
                   setSubdomain(e.target.value)
@@ -95,7 +96,9 @@ export function ZendeskConnectionActions({
                 onKeyDown={(e) => e.key === 'Enter' && handleConnect()}
                 className="max-w-[200px]"
               />
-              <span className="text-muted-foreground text-sm">.zendesk.com</span>
+              <span className="text-muted-foreground text-sm">
+                {m.integration_zendesk_domain_suffix()}
+              </span>
             </div>
             {subdomainError && <p className="text-destructive text-sm">{subdomainError}</p>}
           </div>
@@ -104,10 +107,10 @@ export function ZendeskConnectionActions({
               {connecting ? (
                 <>
                   <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
+                  {m.common_connecting()}
                 </>
               ) : (
-                'Connect'
+                m.common_connect()
               )}
             </Button>
           </div>
@@ -125,18 +128,18 @@ export function ZendeskConnectionActions({
             {disconnecting ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Disconnecting...
+                {m.common_disconnecting()}
               </>
             ) : (
-              'Disconnect'
+              m.common_disconnect()
             )}
           </Button>
           <ConfirmDialog
             open={disconnectDialogOpen}
             onOpenChange={setDisconnectDialogOpen}
-            title="Disconnect Zendesk?"
-            description="This will remove the Zendesk integration and stop syncing support data. You can reconnect at any time."
-            confirmLabel="Disconnect"
+            title={m.integration_disconnect_title({ provider: 'Zendesk' })}
+            description={m.integration_zendesk_disconnect_description()}
+            confirmLabel={m.common_disconnect()}
             isPending={disconnecting}
             onConfirm={handleDisconnect}
           />

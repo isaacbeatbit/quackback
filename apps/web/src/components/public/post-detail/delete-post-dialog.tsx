@@ -5,11 +5,8 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { INTEGRATION_ICON_MAP } from '@/components/icons/integration-icons'
-import {
-  getIntegrationActionVerb,
-  getIntegrationDisplayName,
-  getIntegrationItemNoun,
-} from '@/lib/shared/integrations'
+import * as m from '@/paraglide/messages'
+import { getIntegrationDisplayName } from '@/lib/shared/integrations'
 
 // ============================================================================
 // Types
@@ -44,6 +41,51 @@ function formatExternalId(integrationType: string, externalId: string): string {
 function getDisplayId(link: ExternalLinkInfo): string {
   if (link.externalDisplayId) return formatExternalId(link.integrationType, link.externalDisplayId)
   return formatExternalId(link.integrationType, link.externalId)
+}
+
+function getLocalizedActionVerb(integrationType: string): string {
+  switch (integrationType) {
+    case 'github':
+    case 'jira':
+    case 'gitlab':
+    case 'clickup':
+    case 'azure_devops':
+      return m.delete_post_action_close()
+    default:
+      return m.delete_post_action_archive()
+  }
+}
+
+function getLocalizedItemNoun(integrationType: string): string {
+  switch (integrationType) {
+    case 'asana':
+    case 'clickup':
+    case 'trello':
+      return m.delete_post_item_task()
+    case 'shortcut':
+      return m.delete_post_item_story()
+    case 'azure_devops':
+      return m.delete_post_item_work_item()
+    case 'notion':
+      return m.delete_post_item_page()
+    case 'monday':
+      return m.delete_post_item_element()
+    default:
+      return m.delete_post_item_issue()
+  }
+}
+
+function getLocalizedResultText(integrationType: string, integrationName: string): string {
+  switch (integrationType) {
+    case 'github':
+    case 'jira':
+    case 'gitlab':
+    case 'clickup':
+    case 'azure_devops':
+      return m.delete_post_link_will_close({ name: integrationName })
+    default:
+      return m.delete_post_link_will_archive({ name: integrationName })
+  }
 }
 
 // ============================================================================
@@ -104,35 +146,32 @@ export function DeletePostDialog({
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Post"
-      description={
-        description ?? (
-          <>
-            Are you sure you want to delete &ldquo;{postTitle}&rdquo;? This action cannot be undone.
-          </>
-        )
-      }
+      title={m.delete_post_title()}
+      description={description ?? <>{m.delete_post_description({ postTitle })}</>}
       variant="destructive"
-      confirmLabel={isPending ? 'Deleting...' : isLoadingLinks ? 'Loading...' : 'Delete Post'}
+      confirmLabel={
+        isPending
+          ? m.delete_post_deleting()
+          : isLoadingLinks
+            ? m.common_loading()
+            : m.delete_post_title()
+      }
       isPending={isPending || isLoadingLinks || isErrorLinks}
       onConfirm={handleConfirm}
     >
       {isErrorLinks && (
-        <p className="text-sm text-destructive">
-          Failed to load linked integrations. Please close and try again.
-        </p>
+        <p className="text-sm text-destructive">{m.delete_post_links_load_failed()}</p>
       )}
       {hasLinks && (
         <div className="rounded-lg border border-border/50 p-4 space-y-3">
           {externalLinks.map((link) => {
             const disabled = !link.integrationActive
             const checked = choices[link.id] ?? false
-            const verb = getIntegrationActionVerb(link.integrationType)
+            const verb = getLocalizedActionVerb(link.integrationType)
             const name = getIntegrationDisplayName(link.integrationType)
-            const noun = getIntegrationItemNoun(link.integrationType)
+            const noun = getLocalizedItemNoun(link.integrationType)
             const displayId = getDisplayId(link)
             const Icon = INTEGRATION_ICON_MAP[link.integrationType]
-            const pastTense = verb === 'Close' ? 'closed' : 'archived'
 
             return (
               <div key={link.id} className="flex items-start gap-3">
@@ -153,15 +192,15 @@ export function DeletePostDialog({
                     {Icon && <Icon className="h-4 w-4 shrink-0" />}
                     <span>
                       {disabled
-                        ? `${name} ${noun} (disconnected)`
-                        : `${verb} linked ${name} ${noun}`}
+                        ? m.delete_post_link_disconnected_label({ name, noun })
+                        : m.delete_post_link_action_label({ verb, name, noun })}
                     </span>
                   </Label>
                   <p className="text-xs text-muted-foreground mt-0.5 ml-6">
                     <code className="rounded bg-muted px-1 py-0.5 text-[11px]">{displayId}</code>
                     {disabled
-                      ? ` — integration disconnected, cannot ${verb.toLowerCase()}`
-                      : ` will be ${pastTense} in ${name}.`}
+                      ? ` - ${m.delete_post_link_disconnected_help({ verb: verb.toLowerCase() })}`
+                      : ` - ${getLocalizedResultText(link.integrationType, name)}`}
                   </p>
                 </div>
               </div>

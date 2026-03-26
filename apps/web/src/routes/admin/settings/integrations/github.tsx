@@ -10,6 +10,7 @@ import { GitHubConfig } from '@/components/admin/settings/integrations/github/gi
 import { Button } from '@/components/ui/button'
 import { GitHubIcon } from '@/components/icons/integration-icons'
 import { githubCatalog } from '@/lib/server/integrations/github/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/github')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function GitHubIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <GitHubConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,27 +65,24 @@ function GitHubIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<GitHubIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your GitHub account"
-          description="Connect GitHub to automatically create issues from user feedback and sync statuses when issues are closed or reopened."
+          title={m.integration_github_title()}
+          description={m.integration_github_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to create issues in your GitHub repositories.
-            </p>,
-            <p key="2">Select which repository new feedback issues should be created in.</p>,
-            <p key="3">
-              Choose which events trigger issue creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_github_setup_step_1()}</p>,
+            <p key="2">{m.integration_github_setup_step_2()}</p>,
+            <p key="3">{m.integration_github_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <GitHubConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

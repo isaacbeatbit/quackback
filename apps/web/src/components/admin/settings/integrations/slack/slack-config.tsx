@@ -41,6 +41,7 @@ import {
 import { adminQueries } from '@/lib/client/queries/admin'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchSlackChannelsFn, type SlackChannel } from '@/lib/server/integrations/slack/functions'
+import * as m from '@/paraglide/messages'
 
 // ============================================
 // Types
@@ -75,27 +76,27 @@ interface SlackConfigProps {
 const SLACK_EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    shortLabel: 'Feedback',
-    description: 'When a user submits new feedback',
+    label: () => m.integration_slack_event_post_created_label(),
+    shortLabel: () => m.integration_slack_event_post_created_short(),
+    description: () => m.integration_slack_event_post_created_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Feedback status changed',
-    shortLabel: 'Status',
-    description: 'When the status of a feedback post is updated',
+    label: () => m.integration_slack_event_post_status_changed_label(),
+    shortLabel: () => m.integration_slack_event_post_status_changed_short(),
+    description: () => m.integration_slack_event_post_status_changed_description(),
   },
   {
     id: 'comment.created' as const,
-    label: 'New comment on feedback',
-    shortLabel: 'Comment',
-    description: 'When someone comments on a feedback post',
+    label: () => m.integration_slack_event_comment_created_label(),
+    shortLabel: () => m.integration_slack_event_comment_created_short(),
+    description: () => m.integration_slack_event_comment_created_description(),
   },
   {
     id: 'changelog.published' as const,
-    label: 'Changelog published',
-    shortLabel: 'Changelog',
-    description: 'When a changelog entry is published',
+    label: () => m.integration_slack_event_changelog_published_label(),
+    shortLabel: () => m.integration_slack_event_changelog_published_short(),
+    description: () => m.integration_slack_event_changelog_published_description(),
   },
 ]
 
@@ -115,14 +116,20 @@ function getBoardSummary(
   channel: NotificationChannel,
   boards: { id: string; name: string }[]
 ): string {
-  if (!channel.boardIds?.length) return 'All boards'
+  if (!channel.boardIds?.length) return m.integration_slack_all_boards()
   if (channel.boardIds.length === 1) {
-    return boards.find((b) => b.id === channel.boardIds![0])?.name ?? '1 board'
+    return (
+      boards.find((b) => b.id === channel.boardIds![0])?.name ?? m.integration_slack_one_board()
+    )
   }
-  // Show first board name + count
   const firstName = boards.find((b) => b.id === channel.boardIds![0])?.name
-  if (firstName) return `${firstName} + ${channel.boardIds.length - 1} more`
-  return `${channel.boardIds.length} boards`
+  if (firstName) {
+    return m.integration_slack_board_summary_with_more({
+      firstName,
+      count: String(channel.boardIds.length - 1),
+    })
+  }
+  return m.integration_slack_boards_count({ count: String(channel.boardIds.length) })
 }
 
 function useSlackChannels() {
@@ -144,7 +151,7 @@ function useSlackChannels() {
   return {
     channels: query.data ?? [],
     loading: query.isLoading || query.isFetching,
-    error: query.isError ? 'Failed to load channels. Please try again.' : null,
+    error: query.isError ? m.integration_slack_channels_load_error() : null,
     refresh,
   }
 }
@@ -159,7 +166,7 @@ function ChannelPicker({
   onSelect,
   loading,
   onRefresh,
-  placeholder = 'Select a channel...',
+  placeholder = m.integration_slack_select_channel_placeholder(),
 }: {
   channels: SlackChannel[]
   value: string
@@ -193,7 +200,7 @@ function ChannelPicker({
           {loading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
               <ArrowPathIcon className="h-4 w-4 animate-spin" />
-              Loading channels...
+              {m.integration_slack_loading_channels()}
             </span>
           ) : selected ? (
             <span className="flex items-center gap-2">
@@ -220,7 +227,7 @@ function ChannelPicker({
             ref={inputRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search channels..."
+            placeholder={m.integration_slack_search_channels_placeholder()}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           {onRefresh && (
@@ -229,7 +236,7 @@ function ChannelPicker({
               onClick={onRefresh}
               disabled={loading}
               className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-              title="Refresh channels"
+              title={m.integration_slack_refresh_channels()}
             >
               <ArrowPathIcon className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -238,7 +245,9 @@ function ChannelPicker({
         <div className="max-h-[200px] overflow-y-auto p-1">
           {filtered.length === 0 ? (
             <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-              {search ? 'No channels match your search.' : 'No channels available.'}
+              {search
+                ? m.integration_slack_no_channels_match()
+                : m.integration_slack_no_channels_available()}
             </div>
           ) : (
             filtered.map((channel) => (
@@ -284,7 +293,9 @@ function BoardFilterPills({
 
   return (
     <div className="space-y-2">
-      <div className="text-xs font-medium text-muted-foreground">Board filter</div>
+      <div className="text-xs font-medium text-muted-foreground">
+        {m.integration_slack_board_filter()}
+      </div>
       <div className="space-y-2">
         {/* All boards radio */}
         <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -295,7 +306,7 @@ function BoardFilterPills({
             }}
             disabled={disabled}
           />
-          All boards
+          {m.integration_slack_all_boards()}
         </label>
         {/* Specific boards radio */}
         <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -311,7 +322,7 @@ function BoardFilterPills({
             }}
             disabled={disabled}
           />
-          Specific boards
+          {m.integration_slack_specific_boards()}
         </label>
         {/* Board list — only shown when "Specific boards" is selected */}
         {!isAllBoards && (
@@ -479,7 +490,7 @@ function ChannelRow({
                   disabled={disabled}
                 >
                   <XMarkIcon className="h-3.5 w-3.5 mr-1" />
-                  Remove channel
+                  {m.integration_slack_remove_channel()}
                 </Button>
               </div>
             </div>
@@ -491,22 +502,23 @@ function ChannelRow({
       <Dialog open={confirmRemove} onOpenChange={setConfirmRemove}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove notification channel</DialogTitle>
+            <DialogTitle>{m.integration_slack_remove_notification_channel_title()}</DialogTitle>
             <DialogDescription>
-              Stop sending notifications to #{channelName}? This will delete all event mappings for
-              this channel.
+              {m.integration_slack_remove_notification_channel_description({ channelName })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmRemove(false)}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               variant="destructive"
               onClick={handleRemove}
               disabled={removeMutation.isPending}
             >
-              {removeMutation.isPending ? 'Removing...' : 'Remove'}
+              {removeMutation.isPending
+                ? m.integration_slack_removing()
+                : m.integration_slack_remove()}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -541,15 +553,15 @@ function RoutingTable({
       {/* Header */}
       <div className={`grid ${TABLE_GRID} items-end bg-muted/40 border-b border-border/50`}>
         <div className="px-4 py-2 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-          Channel
+          {m.integration_slack_channel_label()}
         </div>
         {SLACK_EVENT_CONFIG.map((event) => (
           <div
             key={event.id}
             className="py-2 text-[11px] font-medium text-muted-foreground text-center leading-tight"
-            title={event.label}
+            title={event.label()}
           >
-            {event.shortLabel}
+            {event.shortLabel()}
           </div>
         ))}
       </div>
@@ -580,7 +592,7 @@ function RoutingTable({
           disabled={disabled}
         >
           <PlusIcon className="h-3.5 w-3.5" />
-          Add channel
+          {m.integration_slack_add_channel()}
         </button>
       )}
     </div>
@@ -653,14 +665,16 @@ function AddChannelDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add notification channel</DialogTitle>
-          <DialogDescription>Route events to a Slack channel.</DialogDescription>
+          <DialogTitle>{m.integration_slack_add_notification_channel_title()}</DialogTitle>
+          <DialogDescription>
+            {m.integration_slack_add_notification_channel_description()}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Channel selector */}
           <div className="space-y-1.5">
-            <Label>Channel</Label>
+            <Label>{m.integration_slack_channel_label()}</Label>
             <ChannelPicker
               channels={availableChannels}
               value={selectedChannelId}
@@ -673,7 +687,7 @@ function AddChannelDialog({
           {/* Events — compact 2-column grid */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label>Events</Label>
+              <Label>{m.integration_slack_events_label()}</Label>
               <button
                 type="button"
                 onClick={() => {
@@ -682,7 +696,9 @@ function AddChannelDialog({
                 }}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                {allEventsSelected ? 'Deselect all' : 'Select all'}
+                {allEventsSelected
+                  ? m.integration_slack_deselect_all()
+                  : m.integration_slack_select_all()}
               </button>
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
@@ -700,7 +716,7 @@ function AddChannelDialog({
                       }))
                     }
                   />
-                  {event.shortLabel}
+                  {event.shortLabel()}
                 </label>
               ))}
             </div>
@@ -715,12 +731,14 @@ function AddChannelDialog({
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
               >
                 <PlusIcon className="h-3 w-3" />
-                Filter by board
+                {m.integration_slack_filter_by_board()}
               </button>
             ) : (
               <>
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs text-muted-foreground">Board filter</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    {m.integration_slack_board_filter()}
+                  </Label>
                   {boardIds?.length ? (
                     <button
                       type="button"
@@ -730,7 +748,7 @@ function AddChannelDialog({
                       }}
                       className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      Clear
+                      {m.integration_slack_clear()}
                     </button>
                   ) : null}
                 </div>
@@ -762,7 +780,7 @@ function AddChannelDialog({
                 </div>
                 {!boardIds?.length && (
                   <p className="text-[11px] text-muted-foreground">
-                    Select boards to filter, or leave empty for all boards.
+                    {m.integration_slack_select_boards_filter_hint()}
                   </p>
                 )}
               </>
@@ -772,13 +790,15 @@ function AddChannelDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button
             onClick={handleSave}
             disabled={!selectedChannelId || noEventsSelected || addMutation.isPending}
           >
-            {addMutation.isPending ? 'Adding...' : 'Add channel'}
+            {addMutation.isPending
+              ? m.integration_slack_adding()
+              : m.integration_slack_add_channel()}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -834,7 +854,7 @@ function MonitoredChannelRow({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All boards</SelectItem>
+            <SelectItem value="__all__">{m.integration_slack_all_boards()}</SelectItem>
             {boards.map((b) => (
               <SelectItem key={b.id} value={b.id}>
                 {b.name}
@@ -867,15 +887,14 @@ function MonitoredChannelRow({
       <Dialog open={confirmRemove} onOpenChange={setConfirmRemove}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Remove monitored channel</DialogTitle>
+            <DialogTitle>{m.integration_slack_remove_monitored_channel_title()}</DialogTitle>
             <DialogDescription>
-              Stop monitoring #{channelName} for feedback? Messages will no longer be automatically
-              ingested.
+              {m.integration_slack_remove_monitored_channel_description({ channelName })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmRemove(false)}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button
               variant="destructive"
@@ -887,7 +906,9 @@ function MonitoredChannelRow({
               }
               disabled={removeMutation.isPending}
             >
-              {removeMutation.isPending ? 'Removing...' : 'Remove'}
+              {removeMutation.isPending
+                ? m.integration_slack_removing()
+                : m.integration_slack_remove()}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -951,15 +972,13 @@ function AddMonitoredChannelDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Monitor a channel</DialogTitle>
-          <DialogDescription>
-            All messages in this channel will be automatically screened for feedback by AI.
-          </DialogDescription>
+          <DialogTitle>{m.integration_slack_monitor_channel_title()}</DialogTitle>
+          <DialogDescription>{m.integration_slack_monitor_channel_description()}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Channel</Label>
+            <Label>{m.integration_slack_channel_label()}</Label>
             <ChannelPicker
               channels={availableChannels}
               value={selectedChannelId}
@@ -971,13 +990,13 @@ function AddMonitoredChannelDialog({
 
           {selectedChannel?.isPrivate && (
             <p className="text-xs text-amber-600 dark:text-amber-400">
-              The bot must be manually invited to private channels to receive messages.
+              {m.integration_slack_private_channel_hint()}
             </p>
           )}
 
           {boards.length > 0 && (
             <div className="space-y-1.5">
-              <Label>Board (optional)</Label>
+              <Label>{m.integration_slack_board_optional_label()}</Label>
               <Select
                 value={boardId ?? '__none__'}
                 onValueChange={(val) => setBoardId(val === '__none__' ? null : val)}
@@ -986,7 +1005,7 @@ function AddMonitoredChannelDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">All boards</SelectItem>
+                  <SelectItem value="__none__">{m.integration_slack_all_boards()}</SelectItem>
                   {boards.map((b) => (
                     <SelectItem key={b.id} value={b.id}>
                       {b.name}
@@ -995,7 +1014,7 @@ function AddMonitoredChannelDialog({
                 </SelectContent>
               </Select>
               <p className="text-[11px] text-muted-foreground">
-                Feedback from this channel will be assigned to this board.
+                {m.integration_slack_feedback_assigned_hint()}
               </p>
             </div>
           )}
@@ -1003,10 +1022,12 @@ function AddMonitoredChannelDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button onClick={handleSave} disabled={!selectedChannelId || addMutation.isPending}>
-            {addMutation.isPending ? 'Adding...' : 'Monitor channel'}
+            {addMutation.isPending
+              ? m.integration_slack_adding()
+              : m.integration_slack_monitor_channel_button()}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1076,9 +1097,11 @@ export function SlackConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_slack_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">Turn off to pause all Slack features</p>
+          <p className="text-sm text-muted-foreground">
+            {m.integration_slack_enabled_description()}
+          </p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -1093,9 +1116,11 @@ export function SlackConfig({
       {/* Notification Routing */}
       <div className="space-y-3">
         <div>
-          <Label className="text-base font-medium">Notification routing</Label>
+          <Label className="text-base font-medium">
+            {m.integration_slack_notification_routing_title()}
+          </Label>
           <p className="text-sm text-muted-foreground">
-            Choose which events reach each Slack channel
+            {m.integration_slack_notification_routing_description()}
           </p>
         </div>
 
@@ -1104,7 +1129,7 @@ export function SlackConfig({
         {notificationChannels.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/50 p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No notification channels configured yet.
+              {m.integration_slack_no_notification_channels()}
             </p>
             <Button
               variant="outline"
@@ -1114,7 +1139,7 @@ export function SlackConfig({
               disabled={!integrationEnabled}
             >
               <PlusIcon className="h-3.5 w-3.5" />
-              Add your first channel
+              {m.integration_slack_add_channel()}
             </Button>
           </div>
         ) : (
@@ -1134,25 +1159,27 @@ export function SlackConfig({
       {/* Channel Monitoring */}
       <div className="space-y-3">
         <div>
-          <Label className="text-base font-medium">Channel monitoring</Label>
+          <Label className="text-base font-medium">
+            {m.integration_slack_channel_monitoring_title()}
+          </Label>
           <p className="text-sm text-muted-foreground">
-            Automatically ingest messages from selected channels as feedback. Messages are screened
-            by AI to only capture genuine feedback.
+            {m.integration_slack_channel_monitoring_description()}
           </p>
         </div>
 
         {!hasMonitoringScopes && (
           <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4">
             <p className="text-sm text-amber-800 dark:text-amber-200">
-              Channel monitoring requires additional permissions. Please disconnect and reconnect
-              Slack to authorize the new scopes.
+              {m.integration_slack_monitoring_permissions_required()}
             </p>
           </div>
         )}
 
         {hasMonitoringScopes && monitoredChannels.length === 0 && (
           <div className="rounded-lg border border-dashed border-border/50 p-8 text-center">
-            <p className="text-sm text-muted-foreground">No channels being monitored yet.</p>
+            <p className="text-sm text-muted-foreground">
+              {m.integration_slack_no_monitored_channels()}
+            </p>
             <Button
               variant="outline"
               size="sm"
@@ -1161,7 +1188,7 @@ export function SlackConfig({
               disabled={!integrationEnabled}
             >
               <PlusIcon className="h-3.5 w-3.5" />
-              Monitor your first channel
+              {m.integration_slack_monitor_channel_button()}
             </Button>
           </div>
         )}
@@ -1170,10 +1197,14 @@ export function SlackConfig({
           <div className="rounded-lg border border-border/50 overflow-hidden">
             <div className="grid grid-cols-[minmax(0,1fr)_140px_48px_32px] items-end bg-muted/40 border-b border-border/50 px-4 py-2">
               <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                Channel
+                {m.integration_slack_channel_label()}
               </div>
-              <div className="text-[11px] font-medium text-muted-foreground text-center">Board</div>
-              <div className="text-[11px] font-medium text-muted-foreground text-center">On</div>
+              <div className="text-[11px] font-medium text-muted-foreground text-center">
+                {m.integration_slack_board_column_label()}
+              </div>
+              <div className="text-[11px] font-medium text-muted-foreground text-center">
+                {m.integration_slack_on_column_label()}
+              </div>
               <div />
             </div>
             {monitoredChannels.map((mc) => (
@@ -1203,14 +1234,14 @@ export function SlackConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {/* Error message */}
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

@@ -11,6 +11,7 @@ import {
 } from '@/lib/client/hooks/use-roadmap-posts-query'
 import type { RoadmapId, StatusId } from '@quackback/ids'
 import type { RoadmapFilters } from '@/lib/shared/types'
+import * as m from '@/paraglide/messages'
 
 interface RoadmapColumnProps {
   roadmapId: RoadmapId
@@ -73,7 +74,7 @@ export const RoadmapColumn = memo(function RoadmapColumn({
             <ArrowPathIcon className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : posts.length === 0 ? (
-          <EmptyState icon={InboxIcon} title="No items" className="py-8" />
+          <EmptyState icon={InboxIcon} title={m.roadmap_no_items()} className="py-8" />
         ) : (
           <>
             {posts.map((post) => (

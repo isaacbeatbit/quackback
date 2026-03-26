@@ -5,6 +5,7 @@ import { BackLink } from '@/components/ui/back-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { adminQueries } from '@/lib/client/queries/admin'
 import { IntegrationList } from '@/components/admin/settings/integrations/integration-list'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/')({
   loader: async ({ context }) => {
@@ -31,12 +32,12 @@ function IntegrationsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={PuzzlePieceIcon}
-        title="Integrations"
-        description="Connect external services to automate workflows"
+        title={m.settings_integrations_page_title()}
+        description={m.settings_integrations_page_description()}
       />
 
       <IntegrationList catalog={catalogQuery.data} integrations={integrations} />

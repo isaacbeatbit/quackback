@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TimeAgo } from '@/components/ui/time-ago'
+import * as m from '@/paraglide/messages'
 import {
   PlusIcon,
   TrashIcon,
@@ -325,16 +326,16 @@ function MergedInCard({ activity, isUnmerged }: { activity: ActivityItem; isUnme
       <AlertDialog open={confirmOpen} onOpenChange={(open) => !open && setConfirmOpen(false)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unmerge this post?</AlertDialogTitle>
+            <AlertDialogTitle>{m.feedback_unmerge_title()}</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-medium text-foreground">{title}</span> will be restored as
-              independent feedback. Its votes will no longer count toward this post.
+              <span className="font-medium text-foreground">{title}</span>{' '}
+              {m.feedback_unmerge_description_suffix()}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={unmerge.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={unmerge.isPending}>{m.common_cancel()}</AlertDialogCancel>
             <AlertDialogAction onClick={handleUnmerge} disabled={unmerge.isPending}>
-              {unmerge.isPending ? 'Unmerging...' : 'Unmerge'}
+              {unmerge.isPending ? m.feedback_unmerging() : m.feedback_unmerge_button()}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -410,10 +411,8 @@ export function PostActivityTimeline({ postId }: { postId: PostId }) {
   if (!activities?.length) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-sm text-muted-foreground">No activity recorded yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Activity will appear here as changes are made to this post
-        </p>
+        <p className="text-sm text-muted-foreground">{m.feedback_no_activity_title()}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{m.feedback_no_activity_description()}</p>
       </div>
     )
   }

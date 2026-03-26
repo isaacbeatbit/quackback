@@ -11,6 +11,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { AuthProviderCredentialsForm } from './auth-provider-credentials-form'
 import type { PlatformCredentialField } from '@/lib/server/integrations/types'
+import * as m from '@/paraglide/messages'
 
 interface AuthProviderCredentialsDialogProps {
   credentialType: string
@@ -51,9 +52,9 @@ export function AuthProviderCredentialsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Configure {providerName}</DialogTitle>
+          <DialogTitle>{m.dialog_configure_integration_title({ name: providerName })}</DialogTitle>
           <DialogDescription>
-            Enter your {providerName} OAuth app credentials to enable sign-in.
+            {m.dialog_configure_auth_provider_description({ name: providerName })}
             {helpUrl && (
               <>
                 {' '}
@@ -63,7 +64,7 @@ export function AuthProviderCredentialsDialog({
                   rel="noopener noreferrer"
                   className="text-primary hover:underline"
                 >
-                  Open {providerName} developer console &rarr;
+                  {m.dialog_open_developer_console({ name: providerName })}
                 </a>
               </>
             )}

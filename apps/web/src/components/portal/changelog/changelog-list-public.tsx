@@ -6,6 +6,7 @@ import { ChangelogEntryCard } from './changelog-entry-card'
 import { EmptyState } from '@/components/shared/empty-state'
 import { publicChangelogQueries } from '@/lib/client/queries/changelog'
 import { DocumentTextIcon } from '@heroicons/react/24/outline'
+import * as m from '@/paraglide/messages'
 
 export function ChangelogListPublic() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery(
@@ -17,7 +18,7 @@ export function ChangelogListPublic() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="text-muted-foreground">Loading changelog...</div>
+        <div className="text-muted-foreground">{m.portal_changelog_loading()}</div>
       </div>
     )
   }
@@ -26,8 +27,8 @@ export function ChangelogListPublic() {
     return (
       <EmptyState
         icon={DocumentTextIcon}
-        title="No updates yet"
-        description="Check back soon for the latest product updates and shipped features."
+        title={m.portal_changelog_empty_title()}
+        description={m.portal_changelog_empty_description()}
       />
     )
   }
@@ -54,7 +55,7 @@ export function ChangelogListPublic() {
       {hasNextPage && (
         <div className="flex justify-center pt-4">
           <Button variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-            {isFetchingNextPage ? 'Loading...' : 'Load more'}
+            {isFetchingNextPage ? m.common_loading() : m.changelog_load_more()}
           </Button>
         </div>
       )}

@@ -7,6 +7,7 @@ import { StripeConnectionActions } from '@/components/admin/settings/integration
 import { StripeConfig } from '@/components/admin/settings/integrations/stripe/stripe-config'
 import { StripeIcon } from '@/components/icons/integration-icons'
 import { stripeCatalog } from '@/lib/server/integrations/stripe/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/stripe')({
   loader: async ({ context }) => {
@@ -51,21 +52,12 @@ function StripeIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<StripeIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Stripe"
-          description="Connect Stripe to enrich feedback with customer revenue data. See MRR, plan tier, and billing status alongside each feedback submission."
+          title={m.integration_stripe_title()}
+          description={m.integration_stripe_description()}
           steps={[
-            <p key="1">
-              Create a <span className="font-medium text-foreground">restricted API key</span> in
-              your Stripe dashboard with read access to Customers.
-            </p>,
-            <p key="2">
-              Paste the API key below and click{' '}
-              <span className="font-medium text-foreground">Save</span>. Quackback will verify the
-              connection.
-            </p>,
-            <p key="3">
-              Customer data will be automatically looked up by email when new feedback is submitted.
-            </p>,
+            <p key="1">{m.integration_stripe_setup_step_1()}</p>,
+            <p key="2">{m.integration_stripe_setup_step_2()}</p>,
+            <p key="3">{m.integration_stripe_setup_step_3()}</p>,
           ]}
           connectionForm={<StripeConnectionActions integrationId={undefined} isConnected={false} />}
         />

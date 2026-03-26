@@ -17,6 +17,7 @@ import type { PublicPostDetailView } from '@/lib/client/queries/portal-detail'
 import { SimilarPostsSection } from './similar-posts-section'
 import { PostActionsMenu } from './post-actions-menu'
 import type { PostId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 export function PostContentSectionSkeleton(): React.ReactElement {
   return (
@@ -163,7 +164,7 @@ export function PostContentSection({
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            placeholder="What's your idea?"
+            placeholder={m.widget_title_placeholder()}
             maxLength={200}
             autoFocus
             disabled={isSaving}
@@ -174,7 +175,7 @@ export function PostContentSection({
           <RichTextEditor
             value={editContentJson || ''}
             onChange={handleContentChange}
-            placeholder="Add more details..."
+            placeholder={m.widget_details_placeholder()}
             minHeight="150px"
             disabled={isSaving}
             borderless
@@ -191,10 +192,10 @@ export function PostContentSection({
             onClick={onEditCancel}
             disabled={isSaving}
           >
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button size="sm" onClick={handleSave} disabled={!isValid || !hasChanges || isSaving}>
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? m.common_saving() : m.common_save_changes()}
           </Button>
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useWidgetAuth } from './widget-auth-provider'
+import * as m from '@/paraglide/messages'
 
 interface WidgetNewPostFormProps {
   boards: { id: string; name: string; slug: string }[]
@@ -68,7 +69,7 @@ export function WidgetNewPostForm({
 
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-        <p className="text-sm font-medium text-foreground">Want to share an idea?</p>
+        <p className="text-sm font-medium text-foreground">{m.widget_share_idea_prompt()}</p>
         <button
           type="button"
           onClick={() =>
@@ -76,7 +77,7 @@ export function WidgetNewPostForm({
           }
           className="text-xs text-primary hover:text-primary/80 transition-colors mt-1"
         >
-          Log in to submit your feedback
+          {m.widget_log_in_submit_feedback()}
         </button>
       </div>
     )
@@ -117,7 +118,7 @@ export function WidgetNewPostForm({
         board: result.board,
       })
     } catch {
-      setError('Network error. Please try again.')
+      setError(m.widget_network_error_try_again())
     } finally {
       setIsSubmitting(false)
     }
@@ -132,7 +133,7 @@ export function WidgetNewPostForm({
         {boards.length > 1 && (
           <div>
             <label htmlFor="widget-board" className="text-xs font-medium text-muted-foreground">
-              Board
+              {m.widget_board_label()}
             </label>
             <Select value={boardId} onValueChange={setBoardId}>
               <SelectTrigger className="mt-1 w-full">
@@ -151,13 +152,13 @@ export function WidgetNewPostForm({
 
         <div>
           <label htmlFor="widget-title" className="text-xs font-medium text-muted-foreground">
-            Title
+            {m.widget_title_label()}
           </label>
           <input
             ref={titleRef}
             id="widget-title"
             type="text"
-            placeholder="What's your idea?"
+            placeholder={m.widget_title_placeholder()}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={200}
@@ -167,12 +168,12 @@ export function WidgetNewPostForm({
 
         <div>
           <label htmlFor="widget-details" className="text-xs font-medium text-muted-foreground">
-            Details (optional)
+            {m.widget_details_label()}
           </label>
           <textarea
             ref={descriptionRef}
             id="widget-details"
-            placeholder="Add more details..."
+            placeholder={m.widget_details_placeholder()}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             maxLength={10000}
@@ -186,14 +187,16 @@ export function WidgetNewPostForm({
 
       <div className="px-4 py-3 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
         <span className="text-xs text-muted-foreground truncate">
-          {user ? `Posting as ${user.name || user.email}` : 'Posting anonymously'}
+          {user
+            ? m.widget_posting_as({ name: user.name || user.email || '' })
+            : m.widget_posting_anonymously()}
         </span>
         <button
           type="submit"
           disabled={!title.trim() || isSubmitting}
           className="px-4 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit idea'}
+          {isSubmitting ? m.widget_submitting() : m.widget_submit_idea()}
         </button>
       </div>
     </form>

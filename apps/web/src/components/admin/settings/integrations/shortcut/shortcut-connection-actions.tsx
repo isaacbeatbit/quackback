@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { saveShortcutTokenFn } from '@/lib/server/integrations/shortcut/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
 import { useQueryClient } from '@tanstack/react-query'
+import * as m from '@/paraglide/messages'
 
 interface ShortcutConnectionActionsProps {
   integrationId?: string
@@ -39,7 +40,7 @@ export function ShortcutConnectionActions({
       const timer = setTimeout(() => setShowSuccess(false), 3000)
       return () => clearTimeout(timer)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save API token')
+      setError(err instanceof Error ? err.message : m.integration_shortcut_save_failed())
     } finally {
       setSaving(false)
     }
@@ -57,7 +58,7 @@ export function ShortcutConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>Connected successfully!</span>
+          <span>{m.integration_api_key_saved_verified()}</span>
         </div>
       )}
 
@@ -70,13 +71,13 @@ export function ShortcutConnectionActions({
       {!isConnected && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="shortcut-token" className="text-sm">
-            API Token
+            {m.integration_shortcut_api_token_label()}
           </Label>
           <div className="flex items-center gap-2">
             <Input
               id="shortcut-token"
               type="password"
-              placeholder="Paste your Shortcut API token"
+              placeholder={m.integration_shortcut_api_token_placeholder()}
               value={apiToken}
               onChange={(e) => setApiToken(e.target.value)}
               disabled={saving}
@@ -86,10 +87,10 @@ export function ShortcutConnectionActions({
               {saving ? (
                 <>
                   <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  {m.common_saving()}
                 </>
               ) : (
-                'Save'
+                m.common_save_changes()
               )}
             </Button>
           </div>
@@ -107,18 +108,18 @@ export function ShortcutConnectionActions({
             {disconnecting ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Disconnecting...
+                {m.common_disconnecting()}
               </>
             ) : (
-              'Disconnect'
+              m.common_disconnect()
             )}
           </Button>
           <ConfirmDialog
             open={disconnectDialogOpen}
             onOpenChange={setDisconnectDialogOpen}
-            title="Disconnect Shortcut?"
-            description="This will remove the Shortcut integration and stop all story syncing. You can reconnect at any time."
-            confirmLabel="Disconnect"
+            title={m.integration_disconnect_title({ provider: 'Shortcut' })}
+            description={m.integration_shortcut_disconnect_description()}
+            confirmLabel={m.common_disconnect()}
             isPending={disconnecting}
             onConfirm={handleDisconnect}
           />

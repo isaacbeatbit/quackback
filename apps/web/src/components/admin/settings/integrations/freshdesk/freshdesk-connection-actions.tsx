@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { saveFreshdeskKeyFn } from '@/lib/server/integrations/freshdesk/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface FreshdeskConnectionActionsProps {
   integrationId?: string
@@ -43,7 +44,7 @@ export function FreshdeskConnectionActions({
       const timer = setTimeout(() => setShowSuccess(false), 3000)
       return () => clearTimeout(timer)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save credentials')
+      setError(err instanceof Error ? err.message : m.integration_freshdesk_save_failed())
     } finally {
       setSaving(false)
     }
@@ -68,18 +69,18 @@ export function FreshdeskConnectionActions({
           {disconnecting ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Disconnecting...
+              {m.common_disconnecting()}
             </>
           ) : (
-            'Disconnect'
+            m.common_disconnect()
           )}
         </Button>
         <ConfirmDialog
           open={disconnectDialogOpen}
           onOpenChange={setDisconnectDialogOpen}
-          title="Disconnect Freshdesk?"
-          description="This will remove the Freshdesk integration and stop all ticket synchronization. You can reconnect at any time."
-          confirmLabel="Disconnect"
+          title={m.integration_disconnect_title({ provider: 'Freshdesk' })}
+          description={m.integration_freshdesk_disconnect_description()}
+          confirmLabel={m.common_disconnect()}
           isPending={disconnecting}
           onConfirm={handleDisconnect}
         />
@@ -92,7 +93,7 @@ export function FreshdeskConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>Credentials saved and verified!</span>
+          <span>{m.integration_credentials_saved_verified()}</span>
         </div>
       )}
 
@@ -106,46 +107,44 @@ export function FreshdeskConnectionActions({
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="subdomain" className="text-sm">
-            Freshdesk Subdomain
+            {m.integration_freshdesk_subdomain_label()}
           </Label>
           <Input
             id="subdomain"
             type="text"
-            placeholder="yourcompany"
+            placeholder={m.integration_freshdesk_subdomain_placeholder()}
             value={subdomainValue}
             onChange={(e) => setSubdomainValue(e.target.value)}
             disabled={saving}
           />
           <p className="text-xs text-muted-foreground">
-            The subdomain from your Freshdesk URL (e.g., yourcompany.freshdesk.com)
+            {m.integration_freshdesk_subdomain_help()}
           </p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="api-key" className="text-sm">
-            Freshdesk API Key
+            {m.integration_freshdesk_api_key_label()}
           </Label>
           <Input
             id="api-key"
             type="password"
-            placeholder="Your Freshdesk API key"
+            placeholder={m.integration_freshdesk_api_key_placeholder()}
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
             disabled={saving}
           />
-          <p className="text-xs text-muted-foreground">
-            Find your API key in Freshdesk under Profile Settings → API Key
-          </p>
+          <p className="text-xs text-muted-foreground">{m.integration_freshdesk_api_key_help()}</p>
         </div>
 
         <Button onClick={handleSave} disabled={saving || !subdomainValue.trim() || !apiKey.trim()}>
           {saving ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {m.common_saving()}
             </>
           ) : (
-            'Save'
+            m.common_save_changes()
           )}
         </Button>
       </div>

@@ -3,6 +3,7 @@ import { RssIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/shared/page-header'
 import { ChangelogListPublic } from '@/components/portal/changelog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/_portal/changelog/')({
   loader: async ({ context }) => {
@@ -14,8 +15,8 @@ export const Route = createFileRoute('/_portal/changelog/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     const { workspaceName, baseUrl } = loaderData
-    const title = `Changelog - ${workspaceName}`
-    const description = `Stay up to date with the latest ${workspaceName} product updates and shipped features.`
+    const title = m.portal_changelog_meta_title({ workspaceName })
+    const description = m.portal_changelog_meta_description({ workspaceName })
     const canonicalUrl = baseUrl ? `${baseUrl}/changelog` : ''
     return {
       meta: [
@@ -38,13 +39,13 @@ function ChangelogPage() {
     <div className="py-8">
       <PageHeader
         size="large"
-        title="Changelog"
-        description="Stay up to date with the latest product updates and shipped features."
+        title={m.nav_changelog()}
+        description={m.portal_changelog_page_description()}
         action={
           <Button variant="outline" size="sm" asChild className="shrink-0 gap-1.5">
             <a href="/changelog/feed" target="_blank" rel="noopener noreferrer">
               <RssIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">RSS Feed</span>
+              <span className="hidden sm:inline">{m.portal_changelog_rss_label()}</span>
             </a>
           </Button>
         }

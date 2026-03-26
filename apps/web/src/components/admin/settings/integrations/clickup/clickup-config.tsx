@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
+import * as m from '@/paraglide/messages'
 import {
   StatusSyncConfig,
   type ExternalStatus,
@@ -39,18 +40,7 @@ interface ClickUpConfigProps {
   enabled: boolean
 }
 
-const EVENT_CONFIG = [
-  {
-    id: 'post.created' as const,
-    label: 'Create task from new feedback',
-    description: 'Automatically create a ClickUp task when new feedback is submitted',
-  },
-  {
-    id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked tasks when feedback status changes',
-  },
-]
+const EVENT_IDS = ['post.created', 'post.status_changed'] as const
 
 export function ClickUpConfig({
   integrationId,
@@ -74,9 +64,9 @@ export function ClickUpConfig({
   const [integrationEnabled, setIntegrationEnabled] = useState(enabled)
   const [eventSettings, setEventSettings] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
-      EVENT_CONFIG.map((event) => [
-        event.id,
-        initialEventMappings.find((m) => m.eventType === event.id)?.enabled ?? false,
+      EVENT_IDS.map((eventId) => [
+        eventId,
+        initialEventMappings.find((mapping) => mapping.eventType === eventId)?.enabled ?? false,
       ])
     )
   )
@@ -88,7 +78,7 @@ export function ClickUpConfig({
       const result = await fetchClickUpSpacesFn()
       setSpaces(result)
     } catch {
-      setSpaceError('Failed to load spaces. Please try again.')
+      setSpaceError(m.integration_clickup_load_spaces_failed())
     } finally {
       setLoadingSpaces(false)
     }
@@ -101,7 +91,7 @@ export function ClickUpConfig({
       const result = await fetchClickUpListsFn({ data: { spaceId } })
       setLists(result)
     } catch {
-      setListError('Failed to load lists. Please try again.')
+      setListError(m.integration_clickup_load_lists_failed())
     } finally {
       setLoadingLists(false)
     }
@@ -153,16 +143,28 @@ export function ClickUpConfig({
   }
 
   const saving = updateMutation.isPending
+  const eventConfig = [
+    {
+      id: 'post.created' as const,
+      label: m.integration_clickup_event_create_label(),
+      description: m.integration_clickup_event_create_description(),
+    },
+    {
+      id: 'post.status_changed' as const,
+      label: m.integration_clickup_event_status_label(),
+      description: m.integration_clickup_event_status_description(),
+    },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_clickup_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all ClickUp task syncing
+            {m.integration_clickup_enabled_description()}
           </p>
         </div>
         <Switch
@@ -175,7 +177,7 @@ export function ClickUpConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="space-select">Space</Label>
+          <Label htmlFor="space-select">{m.common_space()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -184,7 +186,7 @@ export function ClickUpConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingSpaces ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {spaceError ? (
@@ -199,10 +201,10 @@ export function ClickUpConfig({
               {loadingSpaces ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading spaces...</span>
+                  <span>{m.integration_clickup_loading_spaces()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a space" />
+                <SelectValue placeholder={m.integration_select_space_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -217,13 +219,11 @@ export function ClickUpConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          Select the space that contains the list for new feedback tasks.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_clickup_space_help()}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="list-select">List</Label>
+        <Label htmlFor="list-select">{m.common_list()}</Label>
         {listError ? (
           <p className="text-sm text-destructive">{listError}</p>
         ) : (
@@ -236,11 +236,15 @@ export function ClickUpConfig({
               {loadingLists ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading lists...</span>
+                  <span>{m.integration_clickup_loading_lists()}</span>
                 </div>
               ) : (
                 <SelectValue
-                  placeholder={selectedSpace ? 'Select a list' : 'Select a space first'}
+                  placeholder={
+                    selectedSpace
+                      ? m.integration_clickup_select_list_placeholder()
+                      : m.integration_clickup_select_space_first()
+                  }
                 />
               )}
             </SelectTrigger>
@@ -253,16 +257,14 @@ export function ClickUpConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback tasks will be created in this list.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_clickup_list_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger task creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_clickup_events_help()}</p>
         <div className="space-y-3 pt-2">
-          {EVENT_CONFIG.map((event) => (
+          {eventConfig.map((event) => (
             <div
               key={event.id}
               className="flex items-center justify-between rounded-lg border border-border/50 p-3"
@@ -284,13 +286,13 @@ export function ClickUpConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

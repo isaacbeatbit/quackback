@@ -21,6 +21,7 @@ import { useDeleteChangelog } from '@/lib/client/mutations/changelog'
 import { Route } from '@/routes/admin/changelog'
 import type { ChangelogId } from '@quackback/ids'
 import { DocumentTextIcon } from '@heroicons/react/24/outline'
+import * as m from '@/paraglide/messages'
 
 function ChangelogSkeleton() {
   return (
@@ -156,10 +157,10 @@ export function ChangelogList() {
               icon={DocumentTextIcon}
               title={
                 filters.search
-                  ? 'No changelog entries match your search'
+                  ? m.changelog_list_empty_search()
                   : hasActiveFilters
-                    ? 'No changelog entries match your filters'
-                    : 'No changelog entries yet'
+                    ? m.changelog_list_empty_filters()
+                    : m.changelog_list_empty()
               }
               action={!hasActiveFilters && !filters.search ? <CreateChangelogDialog /> : undefined}
               className="h-48"
@@ -203,7 +204,7 @@ export function ChangelogList() {
                   onClick={() => fetchNextPage()}
                   className="text-muted-foreground"
                 >
-                  Load more
+                  {m.changelog_load_more()}
                 </Button>
               )}
             </div>
@@ -215,9 +216,9 @@ export function ChangelogList() {
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        title="Delete changelog entry?"
-        description="This action cannot be undone. The changelog entry will be permanently deleted."
-        confirmLabel="Delete"
+        title={m.changelog_delete_title()}
+        description={m.changelog_delete_description()}
+        confirmLabel={m.common_delete()}
         variant="destructive"
         isPending={deleteChangelogMutation.isPending}
         onConfirm={confirmDelete}

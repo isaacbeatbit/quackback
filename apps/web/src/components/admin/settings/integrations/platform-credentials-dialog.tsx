@@ -11,6 +11,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { PlatformCredentialsForm } from './platform-credentials-form'
 import type { PlatformCredentialField } from '@/lib/server/integrations/types'
+import * as m from '@/paraglide/messages'
 
 interface PlatformCredentialsDialogProps {
   integrationType: string
@@ -47,9 +48,11 @@ export function PlatformCredentialsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Configure {integrationName}</DialogTitle>
+          <DialogTitle>
+            {m.dialog_configure_integration_title({ name: integrationName })}
+          </DialogTitle>
           <DialogDescription>
-            Enter your {integrationName} app credentials to enable the integration.
+            {m.dialog_configure_integration_description({ name: integrationName })}
           </DialogDescription>
         </DialogHeader>
         <Suspense fallback={<FormSkeleton fieldCount={fields.length || 2} />}>

@@ -130,22 +130,22 @@ function PostDetailPage() {
 
   const deleteComment = useDeleteComment({
     postId,
-    onError: (error) => toast.error(error.message || 'Failed to delete comment'),
+    onError: (error) => toast.error(error.message || m.comment_failed_to_delete()),
   })
 
   const pinComment = usePinComment({
     postId,
-    onError: (error) => toast.error(error.message || 'Failed to pin comment'),
+    onError: (error) => toast.error(error.message || m.comment_failed_to_pin()),
   })
 
   const unpinComment = useUnpinComment({
     postId,
-    onError: (error) => toast.error(error.message || 'Failed to unpin comment'),
+    onError: (error) => toast.error(error.message || m.comment_failed_to_unpin()),
   })
 
   const restoreComment = useRestoreComment({
     postId,
-    onError: (error) => toast.error(error.message || 'Failed to restore comment'),
+    onError: (error) => toast.error(error.message || m.comment_failed_to_restore()),
   })
 
   const post = postQuery.data
@@ -246,7 +246,7 @@ function PostDetailPage() {
             comments={post.comments}
             pinnedCommentId={post.pinnedCommentId}
             disableCommenting={!!post.mergeInfo || !!post.isCommentsLocked}
-            lockedMessage={post.isCommentsLocked ? 'Comments are locked on this post' : undefined}
+            lockedMessage={post.isCommentsLocked ? m.widget_comments_locked() : undefined}
             statuses={statusesQuery.data}
             currentStatusId={post.statusId}
             onPinComment={(commentId: CommentId) => pinComment.mutate(commentId)}

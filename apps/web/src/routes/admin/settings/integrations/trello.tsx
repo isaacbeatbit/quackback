@@ -10,6 +10,7 @@ import { TrelloConfig } from '@/components/admin/settings/integrations/trello/tr
 import { Button } from '@/components/ui/button'
 import { TrelloIcon } from '@/components/icons/integration-icons'
 import { trelloCatalog } from '@/lib/server/integrations/trello/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/trello')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function TrelloIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <TrelloConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,32 +65,25 @@ function TrelloIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<TrelloIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Trello workspace"
-          description="Connect Trello to create cards from feedback and sync statuses between Trello lists and Quackback."
+          title={m.integration_trello_title()}
+          description={m.integration_trello_description()}
           steps={[
-            <p key="1">
-              Create a Trello Power-Up in your workspace (optional, only needed for custom
-              branding).
-            </p>,
-            <p key="2">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to access your Trello workspace.
-            </p>,
-            <p key="3">Select which board and list new feedback cards should be created in.</p>,
-            <p key="4">
-              Choose which events trigger card creation. You can enable or disable individual event
-              types at any time.
-            </p>,
+            <p key="1">{m.integration_trello_setup_step_1()}</p>,
+            <p key="2">{m.integration_trello_setup_step_2()}</p>,
+            <p key="3">{m.integration_trello_setup_step_3()}</p>,
+            <p key="4">{m.integration_trello_setup_step_4()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <TrelloConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

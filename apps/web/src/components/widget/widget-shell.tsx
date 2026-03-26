@@ -3,6 +3,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { ArrowLeftIcon, XMarkIcon } from '@heroicons/react/24/solid'
 import { useWidgetAuth } from './widget-auth-provider'
+import * as m from '@/paraglide/messages'
 
 interface WidgetShellProps {
   orgSlug: string
@@ -33,7 +34,7 @@ export function WidgetShell({ orgSlug, onBack, children }: WidgetShellProps) {
             type="button"
             onClick={onBack}
             className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
-            aria-label="Go back"
+            aria-label={m.widget_go_back()}
           >
             <ArrowLeftIcon className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -47,7 +48,7 @@ export function WidgetShell({ orgSlug, onBack, children }: WidgetShellProps) {
               type="button"
               onClick={closeWidget}
               className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
-              aria-label="Close feedback widget"
+              aria-label={m.widget_close_feedback_widget()}
             >
               <XMarkIcon className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -71,7 +72,7 @@ export function WidgetShell({ orgSlug, onBack, children }: WidgetShellProps) {
             className="opacity-60"
             aria-hidden="true"
           />
-          Powered by Quackback
+          {m.widget_powered_by()}
         </a>
       </div>
     </div>

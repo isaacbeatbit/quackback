@@ -49,6 +49,7 @@ import { primaryPresetIds, themePresets, type ThemeConfig } from '@/lib/shared/t
 import { useWorkspaceLogo } from '@/lib/client/hooks/use-settings-queries'
 import { useUploadWorkspaceLogo, useDeleteWorkspaceLogo } from '@/lib/client/mutations/settings'
 import { updateWorkspaceNameFn } from '@/lib/server/functions/settings'
+import * as m from '@/paraglide/messages'
 
 // ==============================================
 // Custom CodeMirror theme using admin portal CSS variables
@@ -172,7 +173,7 @@ function BrandingPage() {
         try {
           await updateWorkspaceNameFn({ data: { name: value.trim() } })
         } catch {
-          toast.error('Failed to update workspace name')
+          toast.error(m.branding_workspace_name_update_failed())
         } finally {
           setIsSavingName(false)
         }
@@ -186,12 +187,12 @@ function BrandingPage() {
 
       <div className="space-y-6">
         <div className="lg:hidden">
-          <BackLink to="/admin/settings">Settings</BackLink>
+          <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
         </div>
         <PageHeader
           icon={PaintBrushIcon}
-          title="Branding"
-          description="Customize your portal's appearance and branding"
+          title={m.branding_title()}
+          description={m.branding_description()}
         />
 
         {/* Two-Column Layout */}
@@ -200,9 +201,11 @@ function BrandingPage() {
             {/* Identity Section */}
             <div className="p-5 space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-foreground">Identity</h3>
+                <h3 className="text-sm font-medium text-foreground">
+                  {m.branding_identity_title()}
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  How your brand appears in the portal header
+                  {m.branding_identity_description()}
                 </p>
               </div>
 
@@ -210,14 +213,14 @@ function BrandingPage() {
                 <LogoUploader workspaceName={workspaceName} onLogoChange={state.setLogoUrl} />
                 <div className="flex-1 space-y-1.5">
                   <Label htmlFor="workspace-name" className="text-xs text-muted-foreground">
-                    Workspace Name
+                    {m.branding_workspace_name_label()}
                   </Label>
                   <div className="relative">
                     <Input
                       id="workspace-name"
                       value={workspaceName}
                       onChange={(e) => handleNameChange(e.target.value)}
-                      placeholder="My Workspace"
+                      placeholder={m.branding_workspace_name_placeholder()}
                     />
                     {isSavingName && (
                       <ArrowPathIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -230,9 +233,11 @@ function BrandingPage() {
             {/* Theme Mode Section */}
             <div className="p-5 space-y-4 border-t border-border">
               <div>
-                <h3 className="text-sm font-medium text-foreground">Theme Mode</h3>
+                <h3 className="text-sm font-medium text-foreground">
+                  {m.branding_theme_mode_title()}
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Control how light/dark mode works for portal visitors
+                  {m.branding_theme_mode_description()}
                 </p>
               </div>
 
@@ -241,9 +246,9 @@ function BrandingPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User choice (allow toggle)</SelectItem>
-                  <SelectItem value="light">Light only</SelectItem>
-                  <SelectItem value="dark">Dark only</SelectItem>
+                  <SelectItem value="user">{m.branding_theme_mode_user()}</SelectItem>
+                  <SelectItem value="light">{m.branding_theme_mode_light()}</SelectItem>
+                  <SelectItem value="dark">{m.branding_theme_mode_dark()}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -251,9 +256,9 @@ function BrandingPage() {
             {/* Theme Preset Section */}
             <div className="p-5 space-y-4 border-t border-border">
               <div>
-                <h3 className="text-sm font-medium text-foreground">Theme</h3>
+                <h3 className="text-sm font-medium text-foreground">{m.branding_theme_title()}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Choose a preset to set your portal's color palette
+                  {m.branding_theme_description()}
                 </p>
               </div>
 
@@ -290,13 +295,17 @@ function BrandingPage() {
             {/* Typography Section */}
             <div className="p-5 space-y-4 border-t border-border">
               <div>
-                <h3 className="text-sm font-medium text-foreground">Typography</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Font and corner styling</p>
+                <h3 className="text-sm font-medium text-foreground">
+                  {m.branding_typography_title()}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {m.branding_typography_description()}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Font</Label>
+                  <Label className="text-xs text-muted-foreground">{m.branding_font_label()}</Label>
                   <Select
                     value={state.currentFontId}
                     onValueChange={(id) => {
@@ -308,7 +317,7 @@ function BrandingPage() {
                       <SelectValue>
                         <span style={{ fontFamily: state.font }}>
                           {FONT_OPTIONS.find((f) => f.id === state.currentFontId)?.name ||
-                            'Select font'}
+                            m.branding_select_font()}
                         </span>
                       </SelectValue>
                     </SelectTrigger>
@@ -323,9 +332,11 @@ function BrandingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Corner Roundness</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {m.branding_corner_roundness_label()}
+                </Label>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-12">Sharp</span>
+                  <span className="text-xs text-muted-foreground w-12">{m.branding_sharp()}</span>
                   <Slider
                     value={[state.radius * 100]}
                     onValueChange={([v]) => state.setRadius(v / 100)}
@@ -334,7 +345,9 @@ function BrandingPage() {
                     step={5}
                     className="flex-1"
                   />
-                  <span className="text-xs text-muted-foreground w-12 text-right">Round</span>
+                  <span className="text-xs text-muted-foreground w-12 text-right">
+                    {m.branding_round()}
+                  </span>
                   <div
                     className="h-6 w-6 bg-primary shrink-0"
                     style={{ borderRadius: `${state.radius}rem` }}
@@ -346,9 +359,11 @@ function BrandingPage() {
             {/* CSS Editor Section */}
             <div className="p-5 space-y-4 border-t border-border">
               <div>
-                <h3 className="text-sm font-medium text-foreground">Theme CSS</h3>
+                <h3 className="text-sm font-medium text-foreground">
+                  {m.branding_theme_css_title()}
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Your full theme stylesheet. Design at{' '}
+                  {m.branding_theme_css_description_prefix()}{' '}
                   <a
                     href="https://tweakcn.com"
                     target="_blank"
@@ -390,22 +405,22 @@ function BrandingPage() {
                 {state.isSaving ? (
                   <>
                     <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    {m.common_saving()}
                   </>
                 ) : state.saveSuccess ? (
                   <>
                     <CheckIcon className="mr-2 h-4 w-4" />
-                    Saved!
+                    {m.common_saved()}
                   </>
                 ) : (
-                  'Save Changes'
+                  m.common_save_changes()
                 )}
               </Button>
             </div>
           </BrandingControlsPanel>
 
           <BrandingPreviewPanel
-            label="Preview"
+            label={m.branding_preview_label()}
             headerRight={
               <div className="flex items-center gap-1 p-0.5 bg-muted rounded-md">
                 <button
@@ -420,7 +435,7 @@ function BrandingPage() {
                   )}
                 >
                   <SunIcon className="h-3 w-3" />
-                  Light
+                  {m.theme_light()}
                 </button>
                 <button
                   onClick={() => state.setPreviewMode('dark')}
@@ -434,7 +449,7 @@ function BrandingPage() {
                   )}
                 >
                   <MoonIcon className="h-3 w-3" />
-                  Dark
+                  {m.theme_dark()}
                 </button>
               </div>
             }
@@ -442,7 +457,7 @@ function BrandingPage() {
             <ThemePreview
               previewMode={state.previewMode}
               logoUrl={state.logoUrl}
-              workspaceName={workspaceName || 'My Workspace'}
+              workspaceName={workspaceName || m.branding_workspace_name_placeholder()}
               cssVariables={state.parsedCssVariables}
             />
           </BrandingPreviewPanel>
@@ -485,11 +500,11 @@ function LogoUploader({ workspaceName, onLogoChange }: LogoUploaderProps) {
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type)) {
-      toast.error('Invalid file type. Allowed: JPEG, PNG, GIF, WebP')
+      toast.error(m.branding_logo_invalid_file_type())
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('File too large. Maximum size is 5MB')
+      toast.error(m.branding_logo_file_too_large())
       return
     }
 
@@ -506,10 +521,10 @@ function LogoUploader({ workspaceName, onLogoChange }: LogoUploaderProps) {
     }
     uploadMutation.mutate(croppedBlob, {
       onSuccess: () => {
-        toast.success('Logo updated')
+        toast.success(m.branding_logo_updated())
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to upload logo')
+        toast.error(error instanceof Error ? error.message : m.branding_logo_upload_failed())
       },
     })
   }
@@ -525,11 +540,11 @@ function LogoUploader({ workspaceName, onLogoChange }: LogoUploaderProps) {
   const handleDeleteLogo = () => {
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
-        toast.success('Logo removed')
+        toast.success(m.branding_logo_removed())
         onLogoChange?.(null)
       },
       onError: (error) => {
-        toast.error(error instanceof Error ? error.message : 'Failed to remove logo')
+        toast.error(error instanceof Error ? error.message : m.branding_logo_remove_failed())
       },
     })
   }
@@ -576,7 +591,7 @@ function LogoUploader({ workspaceName, onLogoChange }: LogoUploaderProps) {
           disabled={isDeleting}
           className="text-xs text-muted-foreground hover:text-destructive transition-colors"
         >
-          {isDeleting ? 'Removing...' : 'Remove'}
+          {isDeleting ? m.branding_logo_removing() : m.branding_logo_remove()}
         </button>
       )}
 
@@ -596,7 +611,7 @@ function LogoUploader({ workspaceName, onLogoChange }: LogoUploaderProps) {
           onCropComplete={handleCropComplete}
           aspectRatio={1}
           maxOutputSize={512}
-          title="Crop your logo"
+          title={m.branding_logo_crop_title()}
         />
       )}
     </div>

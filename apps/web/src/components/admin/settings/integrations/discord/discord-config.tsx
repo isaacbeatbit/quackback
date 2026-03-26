@@ -15,6 +15,7 @@ import {
   fetchDiscordChannelsFn,
   type DiscordChannel,
 } from '@/lib/server/integrations/discord/functions'
+import * as m from '@/paraglide/messages'
 
 interface EventMapping {
   id: string
@@ -29,23 +30,7 @@ interface DiscordConfigProps {
   enabled: boolean
 }
 
-const EVENT_CONFIG = [
-  {
-    id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'When a user submits new feedback',
-  },
-  {
-    id: 'post.status_changed' as const,
-    label: 'Feedback status changed',
-    description: 'When the status of a feedback post is updated',
-  },
-  {
-    id: 'comment.created' as const,
-    label: 'New comment on feedback',
-    description: 'When someone comments on a feedback post',
-  },
-]
+const EVENT_IDS = ['post.created', 'post.status_changed', 'comment.created'] as const
 
 export function DiscordConfig({
   integrationId,
@@ -61,9 +46,9 @@ export function DiscordConfig({
   const [integrationEnabled, setIntegrationEnabled] = useState(enabled)
   const [eventSettings, setEventSettings] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
-      EVENT_CONFIG.map((event) => [
-        event.id,
-        initialEventMappings.find((m) => m.eventType === event.id)?.enabled ?? false,
+      EVENT_IDS.map((eventId) => [
+        eventId,
+        initialEventMappings.find((mapping) => mapping.eventType === eventId)?.enabled ?? false,
       ])
     )
   )
@@ -75,7 +60,7 @@ export function DiscordConfig({
       const result = await fetchDiscordChannelsFn()
       setChannels(result)
     } catch {
-      setChannelError('Failed to load channels. Please try again.')
+      setChannelError(m.integration_discord_load_channels_failed())
     } finally {
       setLoadingChannels(false)
     }
@@ -108,16 +93,33 @@ export function DiscordConfig({
   }
 
   const saving = updateMutation.isPending
+  const eventConfig = [
+    {
+      id: 'post.created' as const,
+      label: m.integration_discord_event_post_created_label(),
+      description: m.integration_discord_event_post_created_description(),
+    },
+    {
+      id: 'post.status_changed' as const,
+      label: m.integration_discord_event_status_changed_label(),
+      description: m.integration_discord_event_status_changed_description(),
+    },
+    {
+      id: 'comment.created' as const,
+      label: m.integration_discord_event_comment_created_label(),
+      description: m.integration_discord_event_comment_created_description(),
+    },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Notifications enabled
+            {m.integration_discord_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Discord notifications
+            {m.integration_discord_enabled_description()}
           </p>
         </div>
         <Switch
@@ -130,7 +132,7 @@ export function DiscordConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="channel-select">Notification channel</Label>
+          <Label htmlFor="channel-select">{m.integration_discord_channel_label()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -139,7 +141,7 @@ export function DiscordConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingChannels ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {channelError ? (
@@ -154,10 +156,10 @@ export function DiscordConfig({
               {loadingChannels ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading channels...</span>
+                  <span>{m.integration_discord_loading_channels()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a channel" />
+                <SelectValue placeholder={m.integration_select_channel_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -172,17 +174,14 @@ export function DiscordConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          The bot will post notifications to this channel. Make sure the bot has been added to your
-          server.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_discord_channel_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger notifications</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_discord_events_help()}</p>
         <div className="space-y-3 pt-2">
-          {EVENT_CONFIG.map((event) => (
+          {eventConfig.map((event) => (
             <div
               key={event.id}
               className="flex items-center justify-between rounded-lg border border-border/50 p-3"
@@ -204,13 +203,13 @@ export function DiscordConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import { SlackConfig } from '@/components/admin/settings/integrations/slack/slac
 import { Button } from '@/components/ui/button'
 import { SlackIcon } from '@/components/icons/integration-icons'
 import { slackCatalog } from '@/lib/server/integrations/slack/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/slack')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function SlackIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <SlackConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -66,31 +67,24 @@ function SlackIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<SlackIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Slack workspace"
-          description="Connect Slack to receive notifications when users submit feedback, when statuses change, and when comments are added."
+          title={m.integration_slack_title()}
+          description={m.integration_slack_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to post messages to your Slack workspace.
-            </p>,
-            <p key="2">
-              Select which channel notifications should be posted to. The bot must be added to
-              private channels before they appear in the list.
-            </p>,
-            <p key="3">
-              Choose which events trigger notifications. You can enable or disable individual event
-              types at any time.
-            </p>,
+            <p key="1">{m.integration_slack_setup_step_1()}</p>,
+            <p key="2">{m.integration_slack_setup_step_2()}</p>,
+            <p key="3">{m.integration_slack_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <SlackConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

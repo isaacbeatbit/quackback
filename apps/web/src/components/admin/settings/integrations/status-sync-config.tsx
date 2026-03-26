@@ -14,11 +14,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { adminQueries } from '@/lib/client/queries/admin'
+import * as m from '@/paraglide/messages'
 import {
   useEnableStatusSync,
   useDisableStatusSync,
   useUpdateStatusMappings,
 } from '@/lib/client/mutations'
+import { getIntegrationDisplayName } from '@/lib/shared/integrations'
 
 /** External statuses that can be mapped (provided by the integration config component) */
 export interface ExternalStatus {
@@ -53,6 +55,7 @@ export function StatusSyncConfig({
 
   const [mappings, setMappings] = useState<Record<string, string | null>>(existingMappings)
   const [copied, setCopied] = useState(false)
+  const platformName = getIntegrationDisplayName(integrationType)
 
   const statusesQuery = useSuspenseQuery(adminQueries.statuses())
   const quackbackStatuses = statusesQuery.data
@@ -95,11 +98,10 @@ export function StatusSyncConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="status-sync-toggle" className="text-base font-medium">
-            Status sync
+            {m.integration_status_sync_title()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Automatically update post statuses when issues change in{' '}
-            {integrationType.charAt(0).toUpperCase() + integrationType.slice(1).replace('_', ' ')}
+            {m.integration_status_sync_description({ platform: platformName })}
           </p>
         </div>
         <Switch
@@ -112,9 +114,9 @@ export function StatusSyncConfig({
 
       {statusSyncEnabled && isManual && webhookUrl && (
         <div className="rounded-lg border border-border/50 bg-muted/30 p-4 space-y-2">
-          <p className="text-sm font-medium">Webhook URL</p>
+          <p className="text-sm font-medium">{m.common_webhook_url()}</p>
           <p className="text-xs text-muted-foreground">
-            Copy this URL into your {integrationType.replace('_', ' ')} webhook settings.
+            {m.integration_status_sync_webhook_help({ platform: platformName })}
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 rounded bg-muted px-3 py-2 text-xs font-mono break-all">
@@ -134,9 +136,9 @@ export function StatusSyncConfig({
       {statusSyncEnabled && externalStatuses.length > 0 && (
         <div className="space-y-3">
           <div>
-            <Label className="text-base font-medium">Status mapping</Label>
+            <Label className="text-base font-medium">{m.integration_status_mapping_title()}</Label>
             <p className="text-sm text-muted-foreground">
-              Map external statuses to Quackback statuses. Unmapped statuses are ignored.
+              {m.integration_status_mapping_description()}
             </p>
           </div>
 
@@ -157,7 +159,7 @@ export function StatusSyncConfig({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={IGNORE_VALUE}>
-                      <span className="text-muted-foreground">Ignore</span>
+                      <span className="text-muted-foreground">{m.common_ignore()}</span>
                     </SelectItem>
                     {quackbackStatuses.map((status) => (
                       <SelectItem key={status.id} value={status.id}>
@@ -175,7 +177,7 @@ export function StatusSyncConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
@@ -184,7 +186,7 @@ export function StatusSyncConfig({
           {enableSync.error?.message ||
             disableSync.error?.message ||
             updateMappings.error?.message ||
-            'Failed to save changes'}
+            m.common_failed_save_changes()}
         </div>
       )}
     </div>

@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/shared/page-header'
 import { SettingsCard } from '@/components/admin/settings/settings-card'
 import { Switch } from '@/components/ui/switch'
 import { updatePortalConfigFn } from '@/lib/server/functions/settings'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/permissions')({
   loader: async ({ context }) => {
@@ -75,23 +76,23 @@ function PermissionsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={ShieldCheckIcon}
-        title="Permissions"
-        description="Change who can post, comment and upvote under your organization."
+        title={m.settings_permissions_page_title()}
+        description={m.settings_permissions_page_description()}
       />
 
       <SettingsCard
-        title="Anonymous Access"
-        description="Control what actions visitors can take without signing in. Anonymous users cannot receive notifications."
+        title={m.settings_permissions_anonymous_title()}
+        description={m.settings_permissions_anonymous_description()}
       >
         <div className="divide-y divide-border/50">
           <PermissionToggle
             id="anon-posting"
-            label="Anonymous Posting"
-            description="Anyone can create submissions without authenticating."
+            label={m.settings_permissions_anonymous_posting_title()}
+            description={m.settings_permissions_anonymous_posting_description()}
             checked={anonPosting}
             onCheckedChange={(checked) => {
               setAnonPosting(checked)
@@ -101,8 +102,8 @@ function PermissionsPage() {
           />
           <PermissionToggle
             id="anon-commenting"
-            label="Anonymous Commenting"
-            description="Users will be able to comment on posts without signing in."
+            label={m.settings_permissions_anonymous_commenting_title()}
+            description={m.settings_permissions_anonymous_commenting_description()}
             checked={anonCommenting}
             onCheckedChange={(checked) => {
               setAnonCommenting(checked)
@@ -112,8 +113,8 @@ function PermissionsPage() {
           />
           <PermissionToggle
             id="anon-voting"
-            label="Anonymous Upvoting"
-            description="Users will be able to upvote posts without having to sign in."
+            label={m.settings_permissions_anonymous_voting_title()}
+            description={m.settings_permissions_anonymous_voting_description()}
             checked={anonVoting}
             onCheckedChange={(checked) => {
               setAnonVoting(checked)

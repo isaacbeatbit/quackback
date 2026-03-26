@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { OnDeleteConfig } from '@/components/admin/settings/integrations/on-delete-config'
 import {
@@ -33,8 +34,8 @@ interface GitLabConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Create GitLab issues when users submit new feedback',
+    label: m.integration_gitlab_event_post_created_label(),
+    description: m.integration_gitlab_event_post_created_description(),
   },
 ]
 
@@ -66,7 +67,7 @@ export function GitLabConfig({
       const result = await fetchGitLabProjectsFn()
       setProjects(result)
     } catch {
-      setProjectError('Failed to load projects. Please try again.')
+      setProjectError(m.integration_gitlab_load_projects_failed())
     } finally {
       setLoadingProjects(false)
     }
@@ -105,10 +106,10 @@ export function GitLabConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_gitlab_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all GitLab synchronization
+            {m.integration_gitlab_enabled_description()}
           </p>
         </div>
         <Switch
@@ -121,7 +122,7 @@ export function GitLabConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="project-select">GitLab Project</Label>
+          <Label htmlFor="project-select">{m.common_project()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -130,7 +131,7 @@ export function GitLabConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingProjects ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {projectError ? (
@@ -145,10 +146,10 @@ export function GitLabConfig({
               {loadingProjects ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading projects...</span>
+                  <span>{m.integration_gitlab_loading_projects()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a project" />
+                <SelectValue placeholder={m.integration_select_project_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -160,14 +161,12 @@ export function GitLabConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          Issues will be created in this project when new feedback is submitted.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_gitlab_project_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger GitLab actions</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_gitlab_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -191,13 +190,13 @@ export function GitLabConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

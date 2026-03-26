@@ -3,6 +3,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useUpdateIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface EventMapping {
   id: string
@@ -19,13 +20,13 @@ interface FreshdeskConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Create Freshdesk tickets when users submit new feedback',
+    label: m.integration_freshdesk_event_post_created_label(),
+    description: m.integration_freshdesk_event_post_created_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Feedback status changed',
-    description: 'Update Freshdesk tickets when feedback status changes',
+    label: m.integration_freshdesk_event_status_changed_label(),
+    description: m.integration_freshdesk_event_status_changed_description(),
   },
 ]
 
@@ -69,10 +70,10 @@ export function FreshdeskConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_freshdesk_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Freshdesk ticket synchronization
+            {m.integration_freshdesk_enabled_description()}
           </p>
         </div>
         <Switch
@@ -84,10 +85,8 @@ export function FreshdeskConfig({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose which events trigger Freshdesk actions
-        </p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_freshdesk_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -111,13 +110,13 @@ export function FreshdeskConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
     </div>

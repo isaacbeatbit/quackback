@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { rotateApiKeyFn } from '@/lib/server/functions/api-keys'
 import type { ApiKey } from '@/lib/server/domains/api-keys'
+import * as m from '@/paraglide/messages'
 
 interface RotateApiKeyDialogProps {
   open: boolean
@@ -50,7 +51,7 @@ export function RotateApiKeyDialog({
       onKeyRotated(result.apiKey, result.plainTextKey)
     } catch (err) {
       console.error('Failed to rotate API key:', err)
-      setError(err instanceof Error ? err.message : 'Failed to rotate API key')
+      setError(err instanceof Error ? err.message : m.api_keys_rotate_failed())
     }
   }
 
@@ -58,17 +59,17 @@ export function RotateApiKeyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Rotate API Key</DialogTitle>
+          <DialogTitle>{m.api_keys_rotate_title()}</DialogTitle>
           <DialogDescription>
-            Generate a new secret for the API key <strong>{apiKey.name}</strong>.
+            {m.api_keys_rotate_description_prefix()} <strong>{apiKey.name}</strong>.
           </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <WarningBox
             variant="warning"
-            title="The old key will stop working immediately"
-            description="Any applications using the current key will lose access until you update them with the new key. The key name and settings will be preserved."
+            title={m.api_keys_rotate_warning_title()}
+            description={m.api_keys_rotate_warning_description()}
           />
 
           {error && <p className="text-sm text-destructive mt-4">{error}</p>}
@@ -81,10 +82,10 @@ export function RotateApiKeyDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button onClick={handleRotate} disabled={isPending}>
-            {isPending ? 'Rotating...' : 'Rotate Key'}
+            {isPending ? m.api_keys_rotating() : m.api_keys_rotate_button()}
           </Button>
         </DialogFooter>
       </DialogContent>

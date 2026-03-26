@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog'
 import { rotateWebhookSecretFn } from '@/lib/server/functions/webhooks'
 import type { Webhook } from '@/lib/server/domains/webhooks'
+import * as m from '@/paraglide/messages'
 
 interface RotateWebhookSecretDialogProps {
   webhook: Webhook
@@ -49,7 +50,7 @@ export function RotateWebhookSecretDialog({
       onOpenChange(false)
     } catch (err) {
       console.error('Failed to rotate webhook secret:', err)
-      setError(err instanceof Error ? err.message : 'Failed to rotate secret')
+      setError(err instanceof Error ? err.message : m.webhooks_rotate_secret_failed())
     }
   }
 
@@ -57,22 +58,20 @@ export function RotateWebhookSecretDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Rotate Signing Secret</DialogTitle>
-          <DialogDescription>
-            Generate a new signing secret for this webhook endpoint.
-          </DialogDescription>
+          <DialogTitle>{m.webhooks_rotate_secret_title()}</DialogTitle>
+          <DialogDescription>{m.webhooks_rotate_secret_description()}</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <WarningBox
             variant="warning"
-            title="The old secret will stop working immediately"
-            description="Your endpoint will need to use the new secret to verify webhook signatures. Make sure to update your code before rotating."
+            title={m.webhooks_old_secret_stops_title()}
+            description={m.webhooks_old_secret_stops_description()}
           />
 
           <div className="mt-4 rounded-lg border p-3 bg-muted/30">
             <p className="text-xs text-muted-foreground">
-              <strong>Endpoint:</strong>{' '}
+              <strong>{m.webhooks_endpoint_label()}</strong>{' '}
               <code className="font-mono text-foreground break-all">{webhook.url}</code>
             </p>
           </div>
@@ -87,10 +86,10 @@ export function RotateWebhookSecretDialog({
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button onClick={handleRotate} disabled={isPending}>
-            {isPending ? 'Rotating...' : 'Rotate Secret'}
+            {isPending ? m.webhooks_rotating() : m.webhooks_rotate_secret_button()}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -21,6 +21,7 @@ import { useUpdateVoterSubscription } from '@/lib/client/mutations/admin-subscri
 import { useRemoveVote } from '@/lib/client/mutations/posts'
 import type { PostId, PrincipalId } from '@quackback/ids'
 import type { SubscriptionLevel } from '@/lib/server/domains/subscriptions/subscription.types'
+import * as m from '@/paraglide/messages'
 
 interface VotersModalProps {
   postId: PostId
@@ -34,9 +35,9 @@ interface VotersModalProps {
 }
 
 const SUBSCRIPTION_LABELS: Record<SubscriptionLevel, string> = {
-  all: 'All activity',
-  status_only: 'Status only',
-  none: 'Not subscribed',
+  all: m.voters_subscription_all_activity(),
+  status_only: m.voters_subscription_status_only(),
+  none: m.voters_subscription_none(),
 }
 
 export function VotersModal({
@@ -95,7 +96,7 @@ export function VotersModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Voters ({voteCount})</DialogTitle>
+          <DialogTitle>{m.voters_modal_title({ voteCount })}</DialogTitle>
         </DialogHeader>
         <div className="max-h-[400px] overflow-y-auto -mx-6 px-6">
           {isLoading ? (
@@ -123,7 +124,7 @@ export function VotersModal({
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {voter.displayName || voter.email || 'Anonymous'}
+                        {voter.displayName || voter.email || m.widget_anonymous_author()}
                       </p>
                       <VoterSourceLine voter={voter} />
                     </div>
@@ -136,7 +137,7 @@ export function VotersModal({
                             disabled={
                               removeVote.isPending && removeVote.variables === voter.principalId
                             }
-                            aria-label="Remove vote"
+                            aria-label={m.voters_remove_vote_aria()}
                           >
                             <XMarkIcon className="h-3.5 w-3.5" />
                           </button>
@@ -161,7 +162,7 @@ export function VotersModal({
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">No voters yet</p>
+            <p className="text-sm text-muted-foreground text-center py-4">{m.voters_empty()}</p>
           )}
         </div>
         {summary && summary.total > 0 && (

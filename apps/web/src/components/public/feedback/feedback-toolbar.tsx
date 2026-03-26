@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { PostStatusEntity, Tag } from '@/lib/shared/db-types'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
 
 interface FeedbackToolbarProps {
   currentSort: 'top' | 'new' | 'trending'
@@ -30,9 +31,9 @@ interface FeedbackToolbarProps {
 }
 
 const SORT_OPTIONS = [
-  { value: 'top', label: 'Top', icon: ArrowTrendingUpIcon },
-  { value: 'new', label: 'New', icon: ClockIcon },
-  { value: 'trending', label: 'Trending', icon: FireIcon },
+  { value: 'top', label: () => m.feedback_sort_top(), icon: ArrowTrendingUpIcon },
+  { value: 'new', label: () => m.feedback_sort_new(), icon: ClockIcon },
+  { value: 'trending', label: () => m.feedback_sort_trending(), icon: FireIcon },
 ] as const
 
 export function FeedbackToolbar({
@@ -84,7 +85,7 @@ export function FeedbackToolbar({
               )}
             >
               <Icon className={cn('h-3.5 w-3.5', isActive && 'text-primary')} />
-              {option.label}
+              {option.label()}
             </button>
           )
         })}
@@ -100,25 +101,25 @@ export function FeedbackToolbar({
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5">
               <MagnifyingGlassIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Search</span>
+              <span className="hidden sm:inline">{m.common_search()}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80" align="end">
             <form onSubmit={handleSearchSubmit} className="flex gap-2">
               <Input
-                placeholder="Search posts..."
+                placeholder={m.feedback_search_posts_placeholder()}
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="flex-1"
                 autoFocus
               />
               <Button type="submit" size="sm">
-                Search
+                {m.common_search()}
               </Button>
             </form>
             {currentSearch && (
               <Button variant="ghost" size="sm" className="mt-2 w-full" onClick={handleClearSearch}>
-                Clear search
+                {m.feedback_clear_search()}
               </Button>
             )}
           </PopoverContent>

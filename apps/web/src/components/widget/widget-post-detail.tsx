@@ -16,6 +16,7 @@ import { WidgetVoteButton } from './widget-vote-button'
 import { WidgetCommentList } from './widget-comment-list'
 import { useWidgetAuth } from './widget-auth-provider'
 import type { PostId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 interface StatusInfo {
   id: string
@@ -113,7 +114,7 @@ export function WidgetPostDetail({
       await submitComment(content)
       setCommentText('')
     } catch (err) {
-      setCommentError(err instanceof Error ? err.message : 'Failed to post comment')
+      setCommentError(err instanceof Error ? err.message : m.widget_failed_post_comment())
     } finally {
       setIsSubmitting(false)
     }
@@ -167,9 +168,9 @@ export function WidgetPostDetail({
   if (error || !post) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-        <p className="text-sm text-muted-foreground">Could not load post</p>
+        <p className="text-sm text-muted-foreground">{m.widget_load_post_failed()}</p>
         <p className="text-xs text-muted-foreground/60 mt-1">
-          {error instanceof Error ? error.message : 'Something went wrong'}
+          {error instanceof Error ? error.message : m.common_something_went_wrong()}
         </p>
       </div>
     )
@@ -185,7 +186,7 @@ export function WidgetPostDetail({
           )}
           <h2 className="text-sm font-semibold text-foreground leading-snug">{post.title}</h2>
           <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 mt-1.5">
-            <span>{post.authorName || 'Anonymous'}</span>
+            <span>{post.authorName || m.widget_anonymous_author()}</span>
             <span className="text-muted-foreground/30">&middot;</span>
             <TimeAgo date={post.createdAt} />
             <span className="text-muted-foreground/30">&middot;</span>
@@ -207,7 +208,7 @@ export function WidgetPostDetail({
             onClick={handleViewOnPortal}
             className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/60 hover:text-muted-foreground transition-colors ml-auto"
           >
-            View full discussion
+            {m.widget_view_full_discussion()}
             <ArrowTopRightOnSquareIcon className="h-3 w-3" />
           </button>
         </div>
@@ -224,12 +225,14 @@ export function WidgetPostDetail({
         {/* Pinned comment / official response */}
         {post.pinnedComment && (
           <div className="rounded-md border border-primary/20 bg-primary/[0.03] p-2.5">
-            <p className="text-[10px] font-medium text-primary mb-1">Official response</p>
+            <p className="text-[10px] font-medium text-primary mb-1">
+              {m.widget_official_response()}
+            </p>
             <p className="text-xs text-foreground/80 whitespace-pre-wrap leading-relaxed">
               {post.pinnedComment.content}
             </p>
             <p className="text-[10px] text-muted-foreground/60 mt-1">
-              — {post.pinnedComment.authorName || 'Team'}
+              - {post.pinnedComment.authorName || m.widget_team_label()}
             </p>
           </div>
         )}
@@ -239,7 +242,9 @@ export function WidgetPostDetail({
           <div className="flex items-center gap-1.5 mb-3">
             <ChatBubbleLeftIcon className="h-3.5 w-3.5 text-muted-foreground/50" />
             <span className="text-xs font-medium text-muted-foreground">
-              {liveCommentCount} {liveCommentCount === 1 ? 'comment' : 'comments'}
+              {liveCommentCount === 1
+                ? m.widget_comment_count_one({ count: String(liveCommentCount) })
+                : m.widget_comment_count_other({ count: String(liveCommentCount) })}
             </span>
           </div>
 
@@ -250,7 +255,7 @@ export function WidgetPostDetail({
                 <textarea
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Write a comment..."
+                  placeholder={m.widget_write_comment()}
                   rows={2}
                   disabled={isSubmitting}
                   className="flex-1 min-h-[52px] max-h-[120px] resize-none rounded-md border border-border/50 bg-muted/20 px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary/50 disabled:opacity-50 transition-colors"
@@ -267,11 +272,13 @@ export function WidgetPostDetail({
                   disabled={isSubmitting || !commentText.trim()}
                   className="self-end px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                  {isSubmitting ? 'Posting...' : 'Post'}
+                  {isSubmitting ? m.widget_posting() : m.widget_post()}
                 </button>
               </div>
               <p className="text-[10px] text-muted-foreground/50 mt-1">
-                {user ? `Posting as ${user.name || user.email}` : 'Posting anonymously'}
+                {user
+                  ? m.widget_posting_as({ name: user.name || user.email || '' })
+                  : m.widget_posting_anonymously()}
               </p>
               {commentError && <p className="text-[10px] text-destructive mt-1">{commentError}</p>}
             </div>
@@ -283,13 +290,13 @@ export function WidgetPostDetail({
               onClick={handleViewOnPortal}
               className="text-[10px] text-primary hover:text-primary/80 transition-colors mb-3"
             >
-              Log in to join the conversation
+              {m.widget_log_in_join_conversation()}
             </button>
           )}
 
           {post.isCommentsLocked && (
             <p className="text-[10px] text-muted-foreground/50 mb-3">
-              Comments are locked on this post
+              {m.widget_comments_locked()}
             </p>
           )}
 

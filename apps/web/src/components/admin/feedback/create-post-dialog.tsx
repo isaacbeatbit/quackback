@@ -13,6 +13,7 @@ import { FolderIcon, TagIcon, UserIcon } from '@heroicons/react/24/outline'
 import { PencilSquareIcon } from '@heroicons/react/24/solid'
 import { richTextToPlainText, RichTextEditor } from '@/components/ui/rich-text-editor'
 import { SimilarPostsCard } from '@/components/public/similar-posts-card'
+import * as m from '@/paraglide/messages'
 import {
   Select,
   SelectContent,
@@ -151,7 +152,7 @@ export function CreatePostDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button variant="ghost" size="icon" title="Create new post">
+          <Button variant="ghost" size="icon" title={m.feedback_create_post_title()}>
             <PencilSquareIcon className="h-4 w-4" />
           </Button>
         )}
@@ -160,7 +161,7 @@ export function CreatePostDialog({
         className="w-[95vw] max-w-5xl p-0 gap-0 overflow-hidden"
         onKeyDown={handleKeyDown}
       >
-        <DialogTitle className="sr-only">Create new post</DialogTitle>
+        <DialogTitle className="sr-only">{m.feedback_create_post_title()}</DialogTitle>
 
         <Form {...form}>
           <form onSubmit={handleSubmit}>
@@ -177,7 +178,7 @@ export function CreatePostDialog({
 
                   <TitleInput
                     control={form.control}
-                    placeholder="What's the feedback about?"
+                    placeholder={m.feedback_post_title_placeholder()}
                     autoFocus
                   />
 

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { ChevronUpIcon } from '@heroicons/react/24/solid'
 import { usePostVote } from '@/lib/client/hooks/use-post-vote'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
 import type { PostId } from '@quackback/ids'
 
 interface VoteButtonProps {
@@ -108,7 +109,7 @@ export function VoteButton({
     return (
       <div
         data-testid="vote-button"
-        aria-label={`${displayCount} votes`}
+        aria-label={m.vote_count_aria({ count: displayCount })}
         className={sharedClassName}
       >
         {chevron}
@@ -122,7 +123,7 @@ export function VoteButton({
       type="button"
       data-testid="vote-button"
       aria-label={
-        hasVoted ? `Remove vote (${voteCount} votes)` : `Vote for this post (${voteCount} votes)`
+        hasVoted ? m.vote_remove_aria({ count: voteCount }) : m.vote_add_aria({ count: voteCount })
       }
       aria-pressed={hasVoted}
       className={sharedClassName}

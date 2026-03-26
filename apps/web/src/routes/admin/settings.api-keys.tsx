@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/shared/page-header'
 import { ApiKeysSettings } from '@/components/admin/settings/api-keys/api-keys-settings'
 import { ApiUsageGuide } from '@/components/admin/settings/api-keys/api-usage-guide'
 import { SettingsCard } from '@/components/admin/settings/settings-card'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/api-keys')({
   loader: async ({ context }) => {
@@ -33,17 +34,17 @@ function ApiKeysPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={KeyIcon}
-        title="API Keys"
-        description="Manage API keys for programmatic access to Quackback"
+        title={m.settings_api_keys_page_title()}
+        description={m.settings_api_keys_page_description()}
       />
 
       <SettingsCard
-        title="API Keys"
-        description="Create and manage API keys to authenticate with the Quackback REST API. Keys are shown only once when created."
+        title={m.settings_api_keys_card_title()}
+        description={m.settings_api_keys_card_description()}
       >
         <ApiKeysSettings apiKeys={apiKeysQuery.data} />
       </SettingsCard>

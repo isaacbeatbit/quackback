@@ -13,6 +13,7 @@ import type { BoardId, PostId, StatusId, TagId } from '@quackback/ids'
 import { Form } from '@/components/ui/form'
 import type { AdminEditPostInput } from '@/lib/server/domains/posts'
 import { PostFormFields } from './post-form-fields'
+import * as m from '@/paraglide/messages'
 
 interface PostToEdit {
   id: PostId
@@ -164,7 +165,7 @@ export function EditPostDialog({
         className="w-[95vw] max-w-3xl p-0 gap-0 overflow-hidden"
         onKeyDown={handleKeyDown}
       >
-        <DialogTitle className="sr-only">Edit post</DialogTitle>
+        <DialogTitle className="sr-only">{m.feedback_edit_post_title()}</DialogTitle>
 
         <Form {...form}>
           <form onSubmit={handleSubmit}>
@@ -180,7 +181,9 @@ export function EditPostDialog({
 
             <ModalFooter
               onCancel={() => onOpenChange(false)}
-              submitLabel={form.formState.isSubmitting ? 'Saving...' : 'Save changes'}
+              submitLabel={
+                form.formState.isSubmitting ? m.common_saving() : m.common_save_changes()
+              }
               isPending={form.formState.isSubmitting}
             />
           </form>

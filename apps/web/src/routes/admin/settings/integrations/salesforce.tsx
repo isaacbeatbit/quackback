@@ -7,6 +7,7 @@ import { SalesforceConnectionActions } from '@/components/admin/settings/integra
 import { SalesforceConfig } from '@/components/admin/settings/integrations/salesforce/salesforce-config'
 import { SalesforceIcon } from '@/components/icons/integration-icons'
 import { salesforceCatalog } from '@/lib/server/integrations/salesforce/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/salesforce')({
   loader: async ({ context }) => {
@@ -51,21 +52,12 @@ function SalesforceIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<SalesforceIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Salesforce"
-          description="Connect Salesforce to enrich feedback with CRM data. See account details, opportunity stage, and deal value alongside each feedback submission."
+          title={m.integration_salesforce_title()}
+          description={m.integration_salesforce_description()}
           steps={[
-            <p key="1">
-              Configure your Salesforce{' '}
-              <span className="font-medium text-foreground">Connected App credentials</span> in the
-              platform settings.
-            </p>,
-            <p key="2">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback with your Salesforce org.
-            </p>,
-            <p key="3">
-              Contact data will be automatically looked up by email when new feedback is submitted.
-            </p>,
+            <p key="1">{m.integration_salesforce_setup_step_1()}</p>,
+            <p key="2">{m.integration_salesforce_setup_step_2()}</p>,
+            <p key="3">{m.integration_salesforce_setup_step_3()}</p>,
           ]}
           connectionForm={
             <SalesforceConnectionActions integrationId={undefined} isConnected={false} />

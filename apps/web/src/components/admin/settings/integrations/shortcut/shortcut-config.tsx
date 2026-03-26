@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
 import {
@@ -40,13 +41,13 @@ interface ShortcutConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'Create story from new feedback',
-    description: 'Automatically create a Shortcut story when new feedback is submitted',
+    label: m.integration_shortcut_event_create_label(),
+    description: m.integration_shortcut_event_create_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked stories when feedback status changes',
+    label: m.integration_shortcut_event_status_label(),
+    description: m.integration_shortcut_event_status_description(),
   },
 ]
 
@@ -79,7 +80,7 @@ export function ShortcutConfig({
       const result = await fetchShortcutProjectsFn()
       setTeams(result)
     } catch {
-      setTeamError('Failed to load teams. Please try again.')
+      setTeamError(m.integration_shortcut_load_projects_failed())
     } finally {
       setLoadingTeams(false)
     }
@@ -121,10 +122,10 @@ export function ShortcutConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_shortcut_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Shortcut story syncing
+            {m.integration_shortcut_enabled_description()}
           </p>
         </div>
         <Switch
@@ -137,7 +138,7 @@ export function ShortcutConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="team-select">Team</Label>
+          <Label htmlFor="team-select">{m.common_project()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -146,7 +147,7 @@ export function ShortcutConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingTeams ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {teamError ? (
@@ -161,10 +162,10 @@ export function ShortcutConfig({
               {loadingTeams ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading teams...</span>
+                  <span>{m.integration_shortcut_loading_projects()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a team" />
+                <SelectValue placeholder={m.integration_shortcut_select_project_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -179,14 +180,12 @@ export function ShortcutConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback stories will be created in this team.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_shortcut_project_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger story creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_shortcut_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -210,13 +209,13 @@ export function ShortcutConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

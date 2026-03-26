@@ -4,6 +4,7 @@ import { BackLink } from '@/components/ui/back-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { SegmentList } from '@/components/admin/segments/segment-list'
 import { adminQueries } from '@/lib/client/queries/admin'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/segments')({
   loader: async ({ context }) => {
@@ -21,12 +22,12 @@ function SegmentsPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={TagIcon}
-        title="Segments"
-        description="Organize users into groups for filtering and analysis. Manual segments are assigned by hand; dynamic segments update automatically based on rules."
+        title={m.settings_segments_page_title()}
+        description={m.settings_segments_page_description()}
       />
       <SegmentList />
     </div>

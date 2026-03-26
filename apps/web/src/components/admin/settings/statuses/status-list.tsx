@@ -37,6 +37,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { PostStatusEntity, StatusCategory } from '@/lib/shared/db-types'
 import { cn } from '@/lib/shared/utils'
+import * as m from '@/paraglide/messages'
 import {
   updateStatusFn,
   deleteStatusFn,
@@ -569,50 +570,50 @@ function CreateStatusDialog({ open, onOpenChange, category, onSubmit }: CreateSt
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add new status</DialogTitle>
+          <DialogTitle>{m.statuses_create_title()}</DialogTitle>
           <DialogDescription>
-            Create a new status in the {CATEGORY_INFO[category].label.toLowerCase()} category.
+            {m.statuses_create_description({
+              category: CATEGORY_INFO[category].label.toLowerCase(),
+            })}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{m.api_keys_name_label()}</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              placeholder="e.g., In Review"
+              placeholder={m.statuses_name_placeholder()}
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slug">Slug (for API)</Label>
+            <Label htmlFor="slug">{m.statuses_slug_label()}</Label>
             <Input
               id="slug"
               value={slug}
               onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-              placeholder="e.g., in_review"
+              placeholder={m.statuses_slug_placeholder()}
               pattern="^[a-z0-9_]+$"
               required
             />
-            <p className="text-xs text-muted-foreground">
-              Lowercase letters, numbers, and underscores only
-            </p>
+            <p className="text-xs text-muted-foreground">{m.statuses_slug_description()}</p>
           </div>
 
           <div className="space-y-2">
-            <Label>Color</Label>
+            <Label>{m.statuses_color_label()}</Label>
             <ColorPickerGrid selectedColor={color} onColorChange={setColor} />
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button type="submit" disabled={isSubmitting || !name || !slug}>
-              {isSubmitting ? 'Creating...' : 'Create status'}
+              {isSubmitting ? m.api_keys_creating() : m.statuses_create_button()}
             </Button>
           </DialogFooter>
         </form>

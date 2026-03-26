@@ -10,6 +10,7 @@ import { JiraConfig } from '@/components/admin/settings/integrations/jira/jira-c
 import { Button } from '@/components/ui/button'
 import { JiraIcon } from '@/components/icons/integration-icons'
 import { jiraCatalog } from '@/lib/server/integrations/jira/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/jira')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function JiraIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <JiraConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,27 +65,24 @@ function JiraIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<JiraIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Jira instance"
-          description="Connect Jira to automatically create and sync issues from feedback posts, keeping your team's workflow in sync."
+          title={m.integration_jira_title()}
+          description={m.integration_jira_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback to create issues in your Jira instance.
-            </p>,
-            <p key="2">Select which project and issue type to use for new feedback issues.</p>,
-            <p key="3">
-              Choose which events trigger issue creation. You can change these settings at any time.
-            </p>,
+            <p key="1">{m.integration_jira_setup_step_1()}</p>,
+            <p key="2">{m.integration_jira_setup_step_2()}</p>,
+            <p key="3">{m.integration_jira_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <JiraConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { NotificationItem } from '@/components/notifications/notification-item'
 import { useNotifications } from '@/lib/client/hooks/use-notifications-queries'
 import { useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/notifications')({
   component: NotificationsPage,
@@ -31,13 +32,13 @@ function NotificationsPage() {
             <BellIconSolid className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">Notifications</h1>
+            <h1 className="text-lg font-semibold">{m.admin_notifications_title()}</h1>
             <p className="text-xs text-muted-foreground">
               {total === 0
-                ? 'No notifications'
+                ? m.admin_notifications_none()
                 : unreadCount > 0
-                  ? `${unreadCount} unread of ${total}`
-                  : `${total} notifications — all caught up`}
+                  ? m.admin_notifications_unread_summary({ unreadCount, total })
+                  : m.admin_notifications_all_caught_up({ total })}
             </p>
           </div>
         </div>
@@ -48,7 +49,7 @@ function NotificationsPage() {
             onClick={() => markAllAsRead.mutate()}
             disabled={markAllAsRead.isPending}
           >
-            Mark all as read
+            {m.admin_notifications_mark_all_read()}
           </Button>
         )}
       </div>
@@ -74,8 +75,8 @@ function NotificationsPage() {
       ) : (
         <EmptyState
           icon={InboxIcon}
-          title="No notifications yet"
-          description="You'll see notifications here when there are status changes or new comments on posts you're subscribed to."
+          title={m.admin_notifications_empty_title()}
+          description={m.admin_notifications_empty_description()}
           className="py-24"
         />
       )}

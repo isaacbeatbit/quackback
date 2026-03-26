@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { OnDeleteConfig } from '@/components/admin/settings/integrations/on-delete-config'
 import {
@@ -33,8 +34,8 @@ interface NotionConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Create a database item when a user submits new feedback',
+    label: m.integration_notion_event_post_created_label(),
+    description: m.integration_notion_event_post_created_description(),
   },
 ]
 
@@ -66,7 +67,7 @@ export function NotionConfig({
       const result = await fetchNotionDatabasesFn()
       setDatabases(result)
     } catch {
-      setDatabaseError('Failed to load databases. Please try again.')
+      setDatabaseError(m.integration_notion_load_databases_failed())
     } finally {
       setLoadingDatabases(false)
     }
@@ -105,10 +106,10 @@ export function NotionConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_notion_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause creating Notion items from feedback
+            {m.integration_notion_enabled_description()}
           </p>
         </div>
         <Switch
@@ -121,7 +122,7 @@ export function NotionConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="database-select">Target database</Label>
+          <Label htmlFor="database-select">{m.integration_notion_database_label()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -130,7 +131,7 @@ export function NotionConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingDatabases ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {databaseError ? (
@@ -145,10 +146,10 @@ export function NotionConfig({
               {loadingDatabases ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading databases...</span>
+                  <span>{m.integration_notion_loading_databases()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a database" />
+                <SelectValue placeholder={m.integration_select_database_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -160,15 +161,12 @@ export function NotionConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback will be added as items in this database. The database must have a Title
-          property.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_notion_database_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events create database items</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_notion_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -192,13 +190,13 @@ export function NotionConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

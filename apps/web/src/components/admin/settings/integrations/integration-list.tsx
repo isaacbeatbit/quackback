@@ -3,8 +3,8 @@ import { Link } from '@tanstack/react-router'
 import { ChevronRightIcon, Cog6ToothIcon } from '@heroicons/react/24/solid'
 import { Badge } from '@/components/ui/badge'
 import { INTEGRATION_ICON_MAP } from '@/components/icons/integration-icons'
+import * as m from '@/paraglide/messages'
 import {
-  INTEGRATION_CATEGORIES,
   type IntegrationCatalogEntry,
   type IntegrationCategory,
   type PlatformCredentialField,
@@ -38,6 +38,14 @@ interface SelectedIntegration {
   type: string
   name: string
   fields: PlatformCredentialField[]
+}
+
+const CATEGORY_LABELS: Record<IntegrationCategory, () => string> = {
+  notifications: () => m.integration_category_notifications(),
+  issue_tracking: () => m.integration_category_issue_tracking(),
+  support_crm: () => m.integration_category_support_crm(),
+  user_data: () => m.integration_category_user_data(),
+  automation: () => m.integration_category_automation(),
 }
 
 export function IntegrationList({ catalog, integrations }: IntegrationListProps) {
@@ -74,7 +82,7 @@ export function IntegrationList({ catalog, integrations }: IntegrationListProps)
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             )}
           >
-            All
+            {m.integration_list_all()}
             <span className="text-[10px] text-muted-foreground">{catalog.length}</span>
           </button>
           {populatedCategories.map((cat) => (
@@ -89,7 +97,7 @@ export function IntegrationList({ catalog, integrations }: IntegrationListProps)
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
               )}
             >
-              {INTEGRATION_CATEGORIES[cat].label}
+              {CATEGORY_LABELS[cat]()}
               <span className="text-[10px] text-muted-foreground">{categoryCounts.get(cat)}</span>
             </button>
           ))}
@@ -128,28 +136,28 @@ export function IntegrationList({ catalog, integrations }: IntegrationListProps)
               variant="outline"
               className="border-green-500/30 text-green-600 text-[10px] px-1.5 py-0"
             >
-              Enabled
+              {m.integration_status_enabled()}
             </Badge>
           ) : isPaused ? (
             <Badge
               variant="outline"
               className="border-yellow-500/30 text-yellow-600 text-[10px] px-1.5 py-0"
             >
-              Paused
+              {m.integration_status_paused()}
             </Badge>
           ) : !entry.available && !entry.configurable ? (
             <Badge
               variant="outline"
               className="text-[10px] px-1.5 py-0 text-muted-foreground/60 border-border/40"
             >
-              Coming soon
+              {m.integration_status_coming_soon()}
             </Badge>
           ) : !entry.available && entry.configurable ? (
             <Badge
               variant="outline"
               className="text-[10px] px-1.5 py-0 text-muted-foreground/60 border-border/40"
             >
-              Not configured
+              {m.integration_status_not_configured()}
             </Badge>
           ) : null
 

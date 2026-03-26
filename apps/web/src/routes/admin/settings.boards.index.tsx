@@ -22,6 +22,7 @@ import {
   type BoardTab,
 } from '@/components/admin/settings/boards/use-board-selection'
 import type { BoardId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 /** Board data as returned from server functions (dates serialized as strings) */
 interface BoardForSettings {
@@ -73,7 +74,7 @@ function BoardsSettingsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <BoardSettingsHeader currentBoard={currentBoard} allBoards={boards} />
 
@@ -98,11 +99,11 @@ function BoardTabContent({ board, tab }: BoardTabContentProps): ReactNode {
     case 'general':
       return (
         <div className="space-y-8">
-          <SettingsCard title="Board Details">
+          <SettingsCard title={m.board_details_title()}>
             <BoardGeneralForm board={board} />
           </SettingsCard>
 
-          <SettingsCard title="Danger Zone" variant="danger">
+          <SettingsCard title={m.board_danger_zone_title()} variant="danger">
             <DeleteBoardForm board={board} />
           </SettingsCard>
         </div>
@@ -110,7 +111,7 @@ function BoardTabContent({ board, tab }: BoardTabContentProps): ReactNode {
 
     case 'access':
       return (
-        <SettingsCard title="Access Control">
+        <SettingsCard title={m.board_access_control_title()}>
           <BoardAccessForm board={board} />
         </SettingsCard>
       )
@@ -119,10 +120,8 @@ function BoardTabContent({ board, tab }: BoardTabContentProps): ReactNode {
       return (
         <div className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold">Import Data</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Import posts from a CSV file into this board
-            </p>
+            <h2 className="text-base font-semibold">{m.board_import_title()}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{m.board_import_description()}</p>
           </div>
           <BoardImportSection boardId={board.id} />
         </div>
@@ -132,10 +131,8 @@ function BoardTabContent({ board, tab }: BoardTabContentProps): ReactNode {
       return (
         <div className="space-y-4">
           <div>
-            <h2 className="text-base font-semibold">Export Data</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Download all posts from this board as CSV
-            </p>
+            <h2 className="text-base font-semibold">{m.board_export_title()}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{m.board_export_description()}</p>
           </div>
           <BoardExportSection boardId={board.id} />
         </div>
@@ -148,15 +145,15 @@ function EmptyBoardsState() {
     <div className="space-y-6">
       <PageHeader
         icon={Squares2X2Icon}
-        title="Board Settings"
-        description="Configure your feedback board settings and preferences"
+        title={m.board_settings_title()}
+        description={m.board_settings_description()}
       />
 
       <div className="rounded-xl border border-border/50 bg-card p-8 shadow-sm">
         <EmptyState
           icon={ChatBubbleLeftIcon}
-          title="No boards yet"
-          description="Create your first feedback board to start collecting ideas from your users"
+          title={m.board_empty_title()}
+          description={m.board_empty_description()}
           action={<CreateBoardDialog />}
           className="py-8"
         />

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { IntercomIcon } from '@/components/icons/integration-icons'
 import { intercomCatalog } from '@/lib/server/integrations/intercom/catalog'
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/intercom')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function IntercomIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <IntercomConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -54,10 +55,7 @@ function IntercomIntegrationPage() {
         <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-6 shadow-sm">
           <div className="flex items-start gap-3">
             <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-            <p className="text-sm text-foreground">
-              Intercom enrichment is active. Customer data from Intercom will automatically appear
-              alongside feedback from known contacts.
-            </p>
+            <p className="text-sm text-foreground">{m.integration_intercom_active_message()}</p>
           </div>
         </div>
       )}
@@ -65,30 +63,24 @@ function IntercomIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<IntercomIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Intercom account"
-          description="Connect Intercom to enrich feedback with customer context like company, plan, and conversation history."
+          title={m.integration_intercom_title()}
+          description={m.integration_intercom_description()}
           steps={[
-            <p key="1">
-              Connect your Intercom account to authorize read-only access to contact data.
-            </p>,
-            <p key="2">
-              When feedback is submitted by a known email, Quackback automatically looks up their
-              Intercom profile.
-            </p>,
-            <p key="3">
-              Customer context (company, plan, tags) appears alongside their feedback to help you
-              prioritize.
-            </p>,
+            <p key="1">{m.integration_intercom_setup_step_1()}</p>,
+            <p key="2">{m.integration_intercom_setup_step_2()}</p>,
+            <p key="3">{m.integration_intercom_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <IntercomConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

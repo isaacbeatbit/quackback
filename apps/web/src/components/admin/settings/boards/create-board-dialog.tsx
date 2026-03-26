@@ -28,6 +28,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import * as m from '@/paraglide/messages'
 
 interface CreateBoardDialogProps {
   open?: boolean
@@ -84,7 +85,7 @@ export function CreateBoardDialog({
         {trigger ?? (
           <Button>
             <PlusIcon className="h-4 w-4" />
-            New board
+            {m.board_new_button()}
           </Button>
         )}
       </DialogTrigger>
@@ -92,15 +93,13 @@ export function CreateBoardDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
-              <DialogTitle>Create new board</DialogTitle>
-              <DialogDescription>
-                Create a new feedback board to collect ideas from your users.
-              </DialogDescription>
+              <DialogTitle>{m.board_create_title()}</DialogTitle>
+              <DialogDescription>{m.board_create_description()}</DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               {mutation.isError && (
-                <FormError message={mutation.error?.message ?? 'An error occurred'} />
+                <FormError message={mutation.error?.message ?? m.common_something_went_wrong()} />
               )}
 
               <FormField
@@ -108,9 +107,9 @@ export function CreateBoardDialog({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Board name</FormLabel>
+                    <FormLabel>{m.board_name_label()}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Feature Requests" {...field} />
+                      <Input placeholder={m.board_name_placeholder()} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,10 +121,10 @@ export function CreateBoardDialog({
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{m.common_description()}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Share your ideas and vote on features"
+                        placeholder={m.board_description_placeholder()}
                         rows={3}
                         {...field}
                       />
@@ -141,8 +140,8 @@ export function CreateBoardDialog({
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <FormLabel>Public board</FormLabel>
-                      <FormDescription>Anyone can view and submit feedback</FormDescription>
+                      <FormLabel>{m.board_public_toggle_title()}</FormLabel>
+                      <FormDescription>{m.board_public_toggle_description()}</FormDescription>
                     </div>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -154,10 +153,10 @@ export function CreateBoardDialog({
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                Cancel
+                {m.common_cancel()}
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? 'Creating...' : 'Create board'}
+                {mutation.isPending ? m.board_creating() : m.board_create_button()}
               </Button>
             </DialogFooter>
           </form>

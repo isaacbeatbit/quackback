@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { WidgetVoteButton } from './widget-vote-button'
 import { useWidgetAuth } from './widget-auth-provider'
 import type { PostId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 interface WidgetPost {
   id: string
@@ -153,11 +154,11 @@ export function WidgetHome({
   const displayPosts = isSearchMode ? (searchResults?.posts ?? []) : filteredInitialPosts
   const sectionLabel = isSearchMode
     ? isSearching
-      ? 'Searching...'
+      ? m.widget_searching()
       : displayPosts.length > 0
-        ? 'Matching ideas'
+        ? m.widget_matching_ideas()
         : null
-    : 'Popular ideas'
+    : m.widget_popular_ideas()
 
   const truncatedQuery =
     searchQuery.trim().length > 30 ? searchQuery.trim().slice(0, 30) + '...' : searchQuery.trim()
@@ -175,7 +176,7 @@ export function WidgetHome({
               value={searchQuery}
               onChange={(e) => onSearchQueryChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="What's on your mind?"
+              placeholder={m.widget_search_placeholder()}
               className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-border bg-muted/30 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-background transition-colors"
             />
           </div>
@@ -183,7 +184,7 @@ export function WidgetHome({
             type="button"
             onClick={closeWidget}
             className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors shrink-0"
-            aria-label="Close feedback widget"
+            aria-label={m.widget_close_feedback_widget()}
           >
             <XMarkIcon className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -197,11 +198,12 @@ export function WidgetHome({
               onClick={() => setBoardOpen(!boardOpen)}
               className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-0.5 rounded hover:bg-muted/50"
             >
-              <span className="text-muted-foreground/60">in</span>
+              <span className="text-muted-foreground/60">{m.widget_filter_in()}</span>
               <span className="font-medium">
                 {selectedBoardSlug
-                  ? (boards.find((b) => b.slug === selectedBoardSlug)?.name ?? 'All boards')
-                  : 'All boards'}
+                  ? (boards.find((b) => b.slug === selectedBoardSlug)?.name ??
+                    m.widget_all_boards())
+                  : m.widget_all_boards()}
               </span>
               <svg
                 className="w-3 h-3"
@@ -228,7 +230,7 @@ export function WidgetHome({
                       !selectedBoardSlug && 'font-medium text-primary'
                     )}
                   >
-                    All boards
+                    {m.widget_all_boards()}
                   </button>
                   {boards.map((b) => (
                     <button
@@ -264,8 +266,12 @@ export function WidgetHome({
         {!isSearchMode && displayPosts.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <LightBulbIcon className="w-8 h-8 text-muted-foreground/30 mb-2" />
-            <p className="text-sm font-medium text-muted-foreground/70">No ideas yet</p>
-            <p className="text-xs text-muted-foreground/50 mt-0.5">Be the first to share one!</p>
+            <p className="text-sm font-medium text-muted-foreground/70">
+              {m.widget_no_ideas_title()}
+            </p>
+            <p className="text-xs text-muted-foreground/50 mt-0.5">
+              {m.widget_no_ideas_description()}
+            </p>
           </div>
         )}
 
@@ -321,13 +327,13 @@ export function WidgetHome({
         {/* Search mode: no results */}
         {isSearchMode && !isSearching && searchResults && searchResults.posts.length === 0 && (
           <div className="rounded-lg border border-dashed border-border p-4 text-center mt-2">
-            <p className="text-sm text-muted-foreground">No matching ideas found</p>
+            <p className="text-sm text-muted-foreground">{m.widget_no_matching_ideas()}</p>
             <button
               type="button"
               onClick={() => onSubmitNew(searchQuery.trim())}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              Submit &ldquo;{truncatedQuery}&rdquo; as new idea
+              {m.widget_submit_new_idea({ title: truncatedQuery })}
               <span aria-hidden="true">&rarr;</span>
             </button>
           </div>
@@ -336,13 +342,13 @@ export function WidgetHome({
         {/* Search mode: has results — show submit CTA below */}
         {isSearchMode && !isSearching && searchResults && searchResults.posts.length > 0 && (
           <div className="border-t border-border/50 mt-2 pt-2 px-1">
-            <p className="text-xs text-muted-foreground/60">Don&apos;t see your idea?</p>
+            <p className="text-xs text-muted-foreground/60">{m.widget_dont_see_your_idea()}</p>
             <button
               type="button"
               onClick={() => onSubmitNew(searchQuery.trim())}
               className="mt-0.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
-              Submit &ldquo;{truncatedQuery}&rdquo; as new idea &rarr;
+              {m.widget_submit_new_idea({ title: truncatedQuery })} &rarr;
             </button>
           </div>
         )}

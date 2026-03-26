@@ -12,6 +12,7 @@ import { RoadmapColumn } from './roadmap-column'
 import { RoadmapFiltersBar } from '@/components/admin/roadmap/roadmap-filters-bar'
 import { usePublicRoadmapFilters } from './use-public-roadmap-filters'
 import { usePublicRoadmapSelection } from './use-public-roadmap-selection'
+import * as m from '@/paraglide/messages'
 
 interface RoadmapBoardProps {
   statuses: PostStatusEntity[]
@@ -55,9 +56,9 @@ export function RoadmapBoard({
       <div className="flex items-center justify-center py-16 animate-in fade-in duration-200 fill-mode-backwards">
         <div className="text-center">
           <MapIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground">No roadmaps available</h3>
+          <h3 className="text-lg font-medium text-foreground">{m.roadmap_no_roadmaps_title()}</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Check back later to see what we're working on.
+            {m.roadmap_no_roadmaps_description()}
           </p>
         </div>
       </div>

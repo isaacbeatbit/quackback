@@ -1,6 +1,7 @@
 import { MagnifyingGlassIcon, DocumentIcon } from '@heroicons/react/24/solid'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
+import * as m from '@/paraglide/messages'
 
 interface InboxEmptyStateProps {
   type: 'no-posts' | 'no-results' | 'no-selection'
@@ -12,12 +13,12 @@ export function InboxEmptyState({ type, onClearFilters }: InboxEmptyStateProps) 
     return (
       <EmptyState
         icon={MagnifyingGlassIcon}
-        title="No posts match your filters"
-        description="Try adjusting your search or filter criteria."
+        title={m.feedback_inbox_empty_filters_title()}
+        description={m.feedback_inbox_empty_filters_description()}
         action={
           onClearFilters && (
             <Button variant="outline" onClick={onClearFilters}>
-              Clear all filters
+              {m.feedback_inbox_clear_filters()}
             </Button>
           )
         }
@@ -29,8 +30,8 @@ export function InboxEmptyState({ type, onClearFilters }: InboxEmptyStateProps) 
   return (
     <EmptyState
       icon={DocumentIcon}
-      title="Select a post"
-      description="Choose a post from the list to view its details."
+      title={m.feedback_inbox_empty_selection_title()}
+      description={m.feedback_inbox_empty_selection_description()}
       className="h-full"
     />
   )

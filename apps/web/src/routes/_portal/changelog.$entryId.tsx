@@ -4,6 +4,7 @@ import { publicChangelogQueries } from '@/lib/client/queries/changelog'
 import { ChangelogEntryDetail } from '@/components/portal/changelog'
 import { BackLink } from '@/components/ui/back-link'
 import type { ChangelogId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/_portal/changelog/$entryId')({
   loader: async ({ context, params }) => {
@@ -28,8 +29,8 @@ export const Route = createFileRoute('/_portal/changelog/$entryId')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     const { entryTitle, entryId, workspaceName, baseUrl } = loaderData
-    const title = `${entryTitle} - ${workspaceName} Changelog`
-    const description = `${entryTitle}. A product update from ${workspaceName}.`
+    const title = m.portal_changelog_entry_meta_title({ entryTitle, workspaceName })
+    const description = m.portal_changelog_entry_meta_description({ entryTitle, workspaceName })
     const canonicalUrl = baseUrl ? `${baseUrl}/changelog/${entryId}` : ''
     return {
       meta: [
@@ -71,11 +72,11 @@ function ChangelogEntryPage() {
 function ChangelogNotFound() {
   return (
     <div className="py-16 text-center">
-      <h1 className="text-2xl font-bold mb-2">Changelog entry not found</h1>
+      <h1 className="text-2xl font-bold mb-2">{m.portal_changelog_entry_not_found_title()}</h1>
       <p className="text-muted-foreground mb-6">
-        This entry may have been removed or is not yet published.
+        {m.portal_changelog_entry_not_found_description()}
       </p>
-      <BackLink to="/changelog">Changelog</BackLink>
+      <BackLink to="/changelog">{m.nav_changelog()}</BackLink>
     </div>
   )
 }

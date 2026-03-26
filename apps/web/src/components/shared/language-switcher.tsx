@@ -20,6 +20,11 @@ interface LanguageSwitcherProps {
 }
 
 const supportedLocales = ['en', 'es'] as const
+type SupportedLocale = (typeof supportedLocales)[number]
+
+function isSupportedLocale(value: string): value is SupportedLocale {
+  return supportedLocales.includes(value as SupportedLocale)
+}
 
 export function LanguageSwitcher({
   compact = false,
@@ -37,6 +42,10 @@ export function LanguageSwitcher({
   }
 
   const handleLocaleChange = (nextLocale: string) => {
+    if (!isSupportedLocale(nextLocale)) {
+      return
+    }
+
     if (nextLocale === currentLocale || typeof window === 'undefined') {
       return
     }

@@ -21,6 +21,7 @@ import { useRouter, useRouteContext } from '@tanstack/react-router'
 import { useAuthBroadcast } from '@/lib/client/hooks/use-auth-broadcast'
 import { cn } from '@/lib/shared/utils'
 import type { PostId, CommentId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 export type CreateCommentMutation = UseMutationResult<
   unknown,
@@ -103,16 +104,16 @@ export function CommentForm({
   const isPrivateLocked = defaultPrivate === true
 
   function privateTooltipText(): string {
-    if (isPrivateLocked) return 'Replies to private comments are always private'
-    if (isPrivate) return 'Only visible to team members'
-    return 'Make this comment private (team-only)'
+    if (isPrivateLocked) return m.comment_private_locked()
+    if (isPrivate) return m.comment_private_team_only()
+    return m.comment_private_make_team_only()
   }
 
   function onSubmit(data: CommentInput) {
     setError(null)
 
     if (!createComment) {
-      setError('Comment functionality not available')
+      setError(m.comment_functionality_unavailable())
       return
     }
 
@@ -134,7 +135,7 @@ export function CommentForm({
           onSuccess?.()
         },
         onError: (err) => {
-          setError(err instanceof Error ? err.message : 'Failed to post comment')
+          setError(err instanceof Error ? err.message : m.comment_failed_to_post())
         },
       }
     )
@@ -158,10 +159,10 @@ export function CommentForm({
               name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="sr-only">Your comment</FormLabel>
+                  <FormLabel className="sr-only">{m.comment_your_comment()}</FormLabel>
                   <FormControl>
                     <textarea
-                      placeholder="Write a comment..."
+                      placeholder={m.widget_write_comment()}
                       rows={3}
                       disabled={isSubmitting}
                       className="w-full resize-none border-0 bg-transparent px-3 pt-3 pb-2 text-sm placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -180,7 +181,7 @@ export function CommentForm({
               {/* Left: Identity */}
               <p className="text-xs text-muted-foreground mr-auto truncate">
                 <span className="font-medium text-foreground">
-                  {effectiveUser?.name || effectiveUser?.email || 'Anonymous'}
+                  {effectiveUser?.name || effectiveUser?.email || m.widget_anonymous_author()}
                 </span>
               </p>
 
@@ -217,14 +218,14 @@ export function CommentForm({
                           className="size-1.5 rounded-full shrink-0"
                           style={{ backgroundColor: currentStatus?.color ?? '#94a3b8' }}
                         />
-                        <span>{currentStatus?.name ?? 'No status'}</span>
+                        <span>{currentStatus?.name ?? m.comment_no_status()}</span>
                       </>
                     )}
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-44 p-1" align="end">
                   <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    Update status
+                    {m.comment_update_status()}
                   </div>
                   {statuses.map((status) => {
                     const isCurrent = status.id === currentStatusId
@@ -249,7 +250,9 @@ export function CommentForm({
                         />
                         <span className="flex-1 text-left">{status.name}</span>
                         {isCurrent && !isSelected && (
-                          <span className="text-muted-foreground text-[10px]">current</span>
+                          <span className="text-muted-foreground text-[10px]">
+                            {m.common_current()}
+                          </span>
                         )}
                         {isSelected && <CheckIcon className="size-3.5 text-primary shrink-0" />}
                       </button>
@@ -266,7 +269,7 @@ export function CommentForm({
                           setStatusPopoverOpen(false)
                         }}
                       >
-                        Clear status change
+                        {m.comment_clear_status_change()}
                       </button>
                     </>
                   )}
@@ -290,7 +293,7 @@ export function CommentForm({
                       )}
                     >
                       <LockClosedIcon className="h-3 w-3" />
-                      Private
+                      {m.common_private()}
                     </button>
                   </TooltipTrigger>
                   <TooltipContent>{privateTooltipText()}</TooltipContent>
@@ -307,15 +310,15 @@ export function CommentForm({
                   disabled={isSubmitting}
                   className="h-7 text-xs"
                 >
-                  Cancel
+                  {m.common_cancel()}
                 </Button>
               )}
               <Button type="submit" size="sm" disabled={isSubmitting} className="h-7 text-xs">
                 {isSubmitting
-                  ? 'Posting...'
+                  ? m.widget_posting()
                   : selectedStatus
-                    ? `Comment & mark ${selectedStatus.name}`
-                    : 'Comment'}
+                    ? m.comment_post_and_mark({ status: selectedStatus.name })
+                    : m.comment_post_button()}
               </Button>
             </div>
           </div>
@@ -333,10 +336,10 @@ export function CommentForm({
           name="content"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="sr-only">Your comment</FormLabel>
+              <FormLabel className="sr-only">{m.comment_your_comment()}</FormLabel>
               <FormControl>
                 <textarea
-                  placeholder="Write a comment..."
+                  placeholder={m.widget_write_comment()}
                   rows={3}
                   disabled={isSubmitting}
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -353,13 +356,10 @@ export function CommentForm({
         <div className="flex items-center justify-end gap-2">
           <p className="text-xs text-muted-foreground mr-auto">
             {isAnonymousCommenter ? (
-              'Posting anonymously'
+              m.comment_posting_anonymously()
             ) : (
               <>
-                Posting as{' '}
-                <span className="font-medium text-foreground">
-                  {effectiveUser?.name || effectiveUser?.email}
-                </span>
+                {m.comment_posting_as({ name: effectiveUser?.name || effectiveUser?.email || '' })}
                 {' ('}
                 <button
                   type="button"
@@ -374,7 +374,7 @@ export function CommentForm({
                     })
                   }}
                 >
-                  sign out
+                  {m.auth_sign_out()}
                 </button>
                 {')'}
               </>
@@ -388,7 +388,7 @@ export function CommentForm({
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              {m.common_cancel()}
             </Button>
           )}
           {/* Private toggle for team members */}
@@ -410,7 +410,7 @@ export function CommentForm({
                     )}
                   >
                     <LockClosedIcon className="h-3.5 w-3.5" />
-                    Private
+                    {m.common_private()}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{privateTooltipText()}</TooltipContent>
@@ -418,7 +418,11 @@ export function CommentForm({
             </TooltipProvider>
           )}
           <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? 'Posting...' : parentId ? 'Reply' : 'Comment'}
+            {isSubmitting
+              ? m.widget_posting()
+              : parentId
+                ? m.widget_reply()
+                : m.comment_post_button()}
           </Button>
         </div>
       </form>

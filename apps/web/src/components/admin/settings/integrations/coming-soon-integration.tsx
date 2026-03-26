@@ -1,5 +1,6 @@
 import { IntegrationHeader } from './integration-header'
 import type { IntegrationCatalogEntry } from '@/lib/server/integrations/types'
+import * as m from '@/paraglide/messages'
 
 interface ComingSoonIntegrationProps {
   catalog: IntegrationCatalogEntry
@@ -13,7 +14,7 @@ export function ComingSoonIntegration({ catalog }: ComingSoonIntegrationProps) {
       {catalog.capabilities.length > 0 && (
         <div className="rounded-xl border border-border/40 bg-card p-5">
           <h3 className="text-sm font-medium text-foreground mb-3">
-            What this integration will do
+            {m.integration_coming_soon_capabilities_title()}
           </h3>
           <ul className="space-y-2.5">
             {catalog.capabilities.map((cap) => (
@@ -35,10 +36,11 @@ export function ComingSoonIntegration({ catalog }: ComingSoonIntegrationProps) {
             {catalog.name.charAt(0)}
           </span>
         </div>
-        <h3 className="mt-4 font-medium text-muted-foreground">Not yet available</h3>
+        <h3 className="mt-4 font-medium text-muted-foreground">
+          {m.integration_coming_soon_not_available()}
+        </h3>
         <p className="mt-2 text-sm text-muted-foreground/60 max-w-sm mx-auto">
-          This integration is on our roadmap. Check back later or let us know if you'd like to see
-          it prioritized.
+          {m.integration_coming_soon_description()}
         </p>
       </div>
     </div>

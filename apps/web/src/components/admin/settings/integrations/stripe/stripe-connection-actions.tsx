@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { saveStripeKeyFn } from '@/lib/server/integrations/stripe/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface StripeConnectionActionsProps {
   integrationId?: string
@@ -37,7 +38,7 @@ export function StripeConnectionActions({
       const timer = setTimeout(() => setShowSuccess(false), 3000)
       return () => clearTimeout(timer)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save API key')
+      setError(err instanceof Error ? err.message : m.integration_stripe_save_failed())
     } finally {
       setSaving(false)
     }
@@ -62,18 +63,18 @@ export function StripeConnectionActions({
           {disconnecting ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Disconnecting...
+              {m.common_disconnecting()}
             </>
           ) : (
-            'Disconnect'
+            m.common_disconnect()
           )}
         </Button>
         <ConfirmDialog
           open={disconnectDialogOpen}
           onOpenChange={setDisconnectDialogOpen}
-          title="Disconnect Stripe?"
-          description="This will remove the Stripe integration and stop all payment event synchronization. You can reconnect at any time."
-          confirmLabel="Disconnect"
+          title={m.integration_disconnect_title({ provider: 'Stripe' })}
+          description={m.integration_stripe_disconnect_description()}
+          confirmLabel={m.common_disconnect()}
           isPending={disconnecting}
           onConfirm={handleDisconnect}
         />
@@ -86,7 +87,7 @@ export function StripeConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>API key saved and verified!</span>
+          <span>{m.integration_api_key_saved_verified()}</span>
         </div>
       )}
 
@@ -99,13 +100,13 @@ export function StripeConnectionActions({
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="api-key" className="text-sm">
-          Stripe API Key
+          {m.integration_stripe_api_key_label()}
         </Label>
         <div className="flex gap-2">
           <Input
             id="api-key"
             type="password"
-            placeholder="sk_live_... or rk_live_..."
+            placeholder={m.integration_stripe_api_key_placeholder()}
             value={key}
             onChange={(e) => setKey(e.target.value)}
             disabled={saving}
@@ -115,16 +116,14 @@ export function StripeConnectionActions({
             {saving ? (
               <>
                 <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {m.common_saving()}
               </>
             ) : (
-              'Save'
+              m.common_save_changes()
             )}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Use a restricted API key with read-only access to customer and payment data.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_stripe_api_key_help()}</p>
       </div>
     </>
   )

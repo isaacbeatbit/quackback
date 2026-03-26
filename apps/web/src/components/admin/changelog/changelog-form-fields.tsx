@@ -7,6 +7,7 @@ import { TitleInput } from '@/components/shared/title-input'
 import { FormError } from '@/components/shared/form-error'
 import { useImageUpload } from '@/lib/client/hooks/use-image-upload'
 import type { JSONContent } from '@tiptap/react'
+import * as m from '@/paraglide/messages'
 
 interface ChangelogFormFieldsProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,7 +29,7 @@ export function ChangelogFormFields({
     <div className="px-4 sm:px-6 py-4 space-y-4 h-full flex flex-col">
       {error && <FormError message={error} className="px-3 py-2" />}
 
-      <TitleInput control={form.control} placeholder="What's new?" autoFocus />
+      <TitleInput control={form.control} placeholder={m.changelog_title_placeholder()} autoFocus />
 
       {/* Content - rich text editor with images and code blocks */}
       <FormField
@@ -40,7 +41,7 @@ export function ChangelogFormFields({
               <RichTextEditor
                 value={contentJson || ''}
                 onChange={onContentChange}
-                placeholder="Share the details of your update..."
+                placeholder={m.changelog_content_placeholder()}
                 minHeight="100%"
                 borderless
                 features={{

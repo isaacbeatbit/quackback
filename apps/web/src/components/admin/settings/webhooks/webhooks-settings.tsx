@@ -17,13 +17,7 @@ import { CreateWebhookDialog } from './create-webhook-dialog'
 import { EditWebhookDialog } from './edit-webhook-dialog'
 import { DeleteWebhookDialog } from './delete-webhook-dialog'
 import type { Webhook } from '@/lib/server/domains/webhooks'
-
-const EVENT_LABELS: Record<string, string> = {
-  'post.created': 'New Post',
-  'post.status_changed': 'Status Changed',
-  'comment.created': 'New Comment',
-  'changelog.published': 'Changelog Published',
-}
+import * as m from '@/paraglide/messages'
 
 interface WebhooksSettingsProps {
   webhooks: Webhook[]
@@ -40,29 +34,35 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
         return (
           <Badge
             variant="destructive"
-            title={`Auto-disabled after ${webhook.failureCount} failures`}
+            title={m.webhooks_auto_disabled_after_failures({ count: String(webhook.failureCount) })}
           >
-            Auto-disabled
+            {m.webhooks_auto_disabled_badge()}
           </Badge>
         )
       }
-      return <Badge variant="secondary">Disabled</Badge>
+      return <Badge variant="secondary">{m.webhooks_disabled_badge()}</Badge>
     }
     if (webhook.failureCount >= 25) {
       return (
-        <Badge variant="destructive" title={`${webhook.failureCount} consecutive failures`}>
-          Failing ({webhook.failureCount}/50)
+        <Badge
+          variant="destructive"
+          title={m.webhooks_consecutive_failures({ count: String(webhook.failureCount) })}
+        >
+          {m.webhooks_failing_badge({ count: String(webhook.failureCount) })}
         </Badge>
       )
     }
     if (webhook.failureCount > 0) {
       return (
-        <Badge variant="outline" title={`${webhook.failureCount} consecutive failures`}>
-          Issues ({webhook.failureCount})
+        <Badge
+          variant="outline"
+          title={m.webhooks_consecutive_failures({ count: String(webhook.failureCount) })}
+        >
+          {m.webhooks_issues_badge({ count: String(webhook.failureCount) })}
         </Badge>
       )
     }
-    return <Badge variant="default">Active</Badge>
+    return <Badge variant="default">{m.webhooks_active_badge()}</Badge>
   }
 
   return (
@@ -72,12 +72,12 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
         <div className="rounded-lg border border-dashed">
           <EmptyState
             icon={BoltIcon}
-            title="No webhooks configured"
-            description="Get notified in real-time when posts are created, statuses change, or votes hit milestones. Connect to Slack, Discord, or your own systems."
+            title={m.webhooks_empty_title()}
+            description={m.webhooks_empty_description()}
             action={
               <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
                 <PlusIcon className="h-4 w-4 mr-1.5" />
-                Create your first webhook
+                {m.webhooks_create_first_button()}
               </Button>
             }
           />
@@ -87,14 +87,16 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
       {/* Header with create button */}
       {webhooks.length > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">{webhooks.length} of 25 webhooks</p>
+          <p className="text-sm text-muted-foreground">
+            {m.webhooks_usage_count({ count: String(webhooks.length), limit: '25' })}
+          </p>
           <Button
             size="sm"
             onClick={() => setCreateDialogOpen(true)}
             disabled={webhooks.length >= 25}
           >
             <PlusIcon className="h-4 w-4 mr-1.5" />
-            Create Webhook
+            {m.webhooks_create_button()}
           </Button>
         </div>
       )}
@@ -123,13 +125,13 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-muted-foreground mt-1">
                     <span className="truncate">
-                      {webhook.events.map((e) => EVENT_LABELS[e] || e).join(', ')}
+                      {webhook.events.map((e) => getWebhookEventLabel(e)).join(', ')}
                     </span>
                     {webhook.lastTriggeredAt && (
                       <>
                         <span className="hidden sm:inline">·</span>
                         <span>
-                          Last fired{' '}
+                          {m.webhooks_last_fired_prefix()}{' '}
                           {formatDistanceToNow(webhook.lastTriggeredAt, { addSuffix: true })}
                         </span>
                       </>
@@ -137,7 +139,7 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
                   </div>
                   {webhook.lastError && webhook.failureCount > 0 && (
                     <p className="text-xs text-destructive mt-1 truncate" title={webhook.lastError}>
-                      Error: {webhook.lastError}
+                      {m.webhooks_error_prefix()} {webhook.lastError}
                     </p>
                   )}
                 </div>
@@ -149,7 +151,7 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setEditWebhook(webhook)}
-                  aria-label={`Edit webhook ${webhook.url}`}
+                  aria-label={m.webhooks_edit_aria({ url: webhook.url })}
                 >
                   <PencilIcon className="h-4 w-4" />
                 </Button>
@@ -157,7 +159,7 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setDeleteWebhook(webhook)}
-                  aria-label={`Delete webhook ${webhook.url}`}
+                  aria-label={m.webhooks_delete_aria({ url: webhook.url })}
                   className="text-destructive hover:text-destructive"
                 >
                   <TrashIcon className="h-4 w-4" />
@@ -168,21 +170,21 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
               <div className="sm:hidden self-end">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" aria-label="Webhook actions">
+                    <Button variant="outline" size="sm" aria-label={m.webhooks_actions_aria()}>
                       <EllipsisVerticalIcon className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => setEditWebhook(webhook)}>
                       <PencilIcon className="h-4 w-4 mr-2" />
-                      Edit Webhook
+                      {m.webhooks_edit_title()}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => setDeleteWebhook(webhook)}
                       className="text-destructive focus:text-destructive"
                     >
                       <TrashIcon className="h-4 w-4 mr-2" />
-                      Delete Webhook
+                      {m.webhooks_delete_title()}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -212,4 +214,33 @@ export function WebhooksSettings({ webhooks }: WebhooksSettingsProps) {
       )}
     </div>
   )
+}
+
+function getWebhookEventLabel(eventId: string) {
+  switch (eventId) {
+    case 'post.created':
+      return m.webhooks_event_post_created_short()
+    case 'post.status_changed':
+      return m.webhooks_event_post_status_changed_short()
+    case 'post.updated':
+      return m.webhooks_event_post_updated_short()
+    case 'post.deleted':
+      return m.webhooks_event_post_deleted_short()
+    case 'post.restored':
+      return m.webhooks_event_post_restored_short()
+    case 'post.merged':
+      return m.webhooks_event_post_merged_short()
+    case 'post.unmerged':
+      return m.webhooks_event_post_unmerged_short()
+    case 'comment.created':
+      return m.webhooks_event_comment_created_short()
+    case 'comment.updated':
+      return m.webhooks_event_comment_updated_short()
+    case 'comment.deleted':
+      return m.webhooks_event_comment_deleted_short()
+    case 'changelog.published':
+      return m.webhooks_event_changelog_published_short()
+    default:
+      return eventId
+  }
 }

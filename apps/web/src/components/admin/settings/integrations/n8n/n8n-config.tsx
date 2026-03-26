@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 
 interface EventMapping {
@@ -19,18 +20,18 @@ interface N8nConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'When a user submits new feedback',
+    label: m.integration_discord_event_post_created_label(),
+    description: m.integration_discord_event_post_created_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Feedback status changed',
-    description: 'When the status of a feedback post is updated',
+    label: m.integration_discord_event_status_changed_label(),
+    description: m.integration_discord_event_status_changed_description(),
   },
   {
     id: 'comment.created' as const,
-    label: 'New comment on feedback',
-    description: 'When someone comments on a feedback post',
+    label: m.integration_discord_event_comment_created_label(),
+    description: m.integration_discord_event_comment_created_description(),
   },
 ]
 
@@ -70,11 +71,9 @@ export function N8nConfig({ integrationId, initialEventMappings, enabled }: N8nC
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Webhook enabled
+            {m.integration_n8n_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">
-            Turn off to pause all n8n webhook notifications
-          </p>
+          <p className="text-sm text-muted-foreground">{m.integration_n8n_enabled_description()}</p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -85,10 +84,8 @@ export function N8nConfig({ integrationId, initialEventMappings, enabled }: N8nC
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose which events trigger your n8n workflow
-        </p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_n8n_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -112,13 +109,13 @@ export function N8nConfig({ integrationId, initialEventMappings, enabled }: N8nC
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
     </div>

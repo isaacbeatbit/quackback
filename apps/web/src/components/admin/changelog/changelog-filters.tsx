@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid'
 import { cn } from '@/lib/shared/utils'
 import type { ChangelogStatusFilter } from './use-changelog-filters'
+import * as m from '@/paraglide/messages'
 
 interface ChangelogFiltersProps {
   status: ChangelogStatusFilter
@@ -11,10 +12,10 @@ interface ChangelogFiltersProps {
 }
 
 const CHANGELOG_STATUSES = [
-  { id: 'all', name: 'All', color: undefined },
-  { id: 'draft', name: 'Draft', color: '#6b7280' }, // gray
-  { id: 'scheduled', name: 'Scheduled', color: '#3b82f6' }, // blue
-  { id: 'published', name: 'Published', color: '#22c55e' }, // green
+  { id: 'all', name: m.changelog_status_all(), color: undefined },
+  { id: 'draft', name: m.changelog_status_draft(), color: '#6b7280' }, // gray
+  { id: 'scheduled', name: m.changelog_status_scheduled(), color: '#3b82f6' }, // blue
+  { id: 'published', name: m.changelog_status_published(), color: '#22c55e' }, // green
 ] as const
 
 function FilterSection({
@@ -46,8 +47,8 @@ function FilterSection({
 export function ChangelogFiltersPanel({ status, onStatusChange }: ChangelogFiltersProps) {
   return (
     <div className="space-y-0">
-      <FilterSection title="Status">
-        <div className="space-y-1" role="listbox" aria-label="Status filter">
+      <FilterSection title={m.changelog_filter_status()}>
+        <div className="space-y-1" role="listbox" aria-label={m.changelog_filter_status()}>
           {CHANGELOG_STATUSES.map((item) => {
             const isSelected = status === item.id
             return (

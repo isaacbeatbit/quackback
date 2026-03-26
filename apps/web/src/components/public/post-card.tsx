@@ -28,6 +28,7 @@ import type { PostStatusEntity } from '@/lib/shared/db-types'
 import { usePostVote } from '@/lib/client/hooks/use-post-vote'
 import { cn, getInitials } from '@/lib/shared/utils'
 import { useEnsureAnonSession } from '@/lib/client/hooks/use-ensure-anon-session'
+import * as m from '@/paraglide/messages'
 import type { PostId, StatusId } from '@quackback/ids'
 
 interface PostCardProps {
@@ -159,9 +160,9 @@ export function PostCard({
     try {
       const url = `${window.location.origin}/admin/feedback?post=${id}`
       await navigator.clipboard.writeText(url)
-      toast.success('Link copied to clipboard')
+      toast.success(m.common_copied())
     } catch {
-      toast.error('Failed to copy link')
+      toast.error(m.common_something_went_wrong())
     }
   }
 
@@ -172,8 +173,8 @@ export function PostCard({
       data-testid="vote-button"
       aria-label={
         currentHasVoted
-          ? `Remove vote (${currentVoteCount} votes)`
-          : `Vote for this post (${currentVoteCount} votes)`
+          ? m.vote_remove_aria({ count: currentVoteCount })
+          : m.vote_add_aria({ count: currentVoteCount })
       }
       aria-pressed={currentHasVoted}
       onClick={handleVoteClick}
@@ -248,11 +249,11 @@ export function PostCard({
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem onClick={() => window.open(`/b/${boardSlug}/posts/${id}`, '_blank')}>
             <ArrowTopRightOnSquareIcon className="h-4 w-4" />
-            View in Portal
+            {m.nav_view_portal()}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleCopyLink}>
             <LinkIcon className="h-4 w-4" />
-            Copy Link
+            {m.common_copy()}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -269,7 +270,7 @@ export function PostCard({
               type="button"
               onClick={(e) => e.preventDefault()}
               className="p-1 -m-1 rounded hover:bg-muted/50 transition-colors"
-              aria-label="Post options"
+              aria-label={m.post_actions_sr()}
             >
               <EllipsisHorizontalIcon className="h-4 w-4" />
             </button>
@@ -367,7 +368,7 @@ export function PostCard({
           {showAvatar && (
             <Avatar className="h-5 w-5">
               {authorAvatarUrl && (
-                <AvatarImage src={authorAvatarUrl} alt={authorName || 'Author'} />
+                <AvatarImage src={authorAvatarUrl} alt={authorName || m.common_author()} />
               )}
               <AvatarFallback className="bg-muted text-[10px]">
                 {getInitials(authorName)}
@@ -375,7 +376,7 @@ export function PostCard({
             </Avatar>
           )}
           <span className={showAvatar ? '' : 'text-foreground/80'}>
-            {authorName || 'Anonymous'}
+            {authorName || m.widget_anonymous_author()}
           </span>
           <span className="text-muted-foreground/40">·</span>
           <TimeAgo date={createdAtDate} className="text-muted-foreground/70" />

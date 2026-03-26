@@ -26,6 +26,7 @@ import {
 } from '@/lib/server/events/integrations/webhook/constants'
 import { RotateWebhookSecretDialog } from './rotate-webhook-secret-dialog'
 import type { Webhook } from '@/lib/server/domains/webhooks'
+import * as m from '@/paraglide/messages'
 
 interface EditWebhookDialogProps {
   webhook: Webhook
@@ -47,6 +48,11 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
   // Rotate secret state
   const [rotateDialogOpen, setRotateDialogOpen] = useState(false)
   const [newSecret, setNewSecret] = useState<string | null>(null)
+  const translatedEventConfig = WEBHOOK_EVENT_CONFIG.map((event) => ({
+    ...event,
+    label: getWebhookEventLabel(event.id),
+    description: getWebhookEventDescription(event.id),
+  }))
 
   // Reset form when webhook changes
   useEffect(() => {
@@ -62,7 +68,7 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
     setError(null)
 
     if (selectedEvents.length === 0) {
-      setError('Select at least one event')
+      setError(m.webhooks_select_at_least_one_event())
       return
     }
 
@@ -83,7 +89,7 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
 
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update webhook')
+      setError(err instanceof Error ? err.message : m.webhooks_update_failed())
     }
   }
 
@@ -104,18 +110,18 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Webhook</DialogTitle>
-            <DialogDescription>Update webhook configuration.</DialogDescription>
+            <DialogTitle>{m.webhooks_edit_title()}</DialogTitle>
+            <DialogDescription>{m.webhooks_edit_description()}</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-url">Endpoint URL</Label>
+                <Label htmlFor="edit-url">{m.webhooks_endpoint_url_label()}</Label>
                 <Input
                   id="edit-url"
                   type="url"
-                  placeholder="https://example.com/webhook"
+                  placeholder={m.webhooks_endpoint_url_placeholder()}
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   disabled={isPending}
@@ -124,9 +130,9 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
               </div>
 
               <div className="space-y-2">
-                <Label>Events</Label>
+                <Label>{m.webhooks_events_label()}</Label>
                 <div className="space-y-2">
-                  {WEBHOOK_EVENT_CONFIG.map((event) => (
+                  {translatedEventConfig.map((event) => (
                     <label
                       key={event.id}
                       className="flex items-start gap-3 rounded-lg border p-3 cursor-pointer hover:bg-muted/50 transition-colors"
@@ -136,7 +142,7 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
                         onCheckedChange={() => toggleEvent(event.id)}
                         disabled={isPending}
                         className="mt-0.5"
-                        aria-label={`Subscribe to ${event.label} events`}
+                        aria-label={m.webhooks_subscribe_event_aria({ event: event.label })}
                       />
                       <div>
                         <p className="text-sm font-medium">{event.label}</p>
@@ -150,12 +156,12 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
               <div className="flex items-center justify-between rounded-lg border p-4">
                 <div>
                   <Label htmlFor="webhook-enabled" className="text-sm font-medium">
-                    Webhook Enabled
+                    {m.webhooks_enabled_label()}
                   </Label>
                   <p className="text-xs text-muted-foreground">
                     {wasAutoDisabled
-                      ? 'Re-enabling will reset the failure count'
-                      : 'Disabled webhooks will not receive events'}
+                      ? m.webhooks_reenable_resets_failures()
+                      : m.webhooks_disabled_description()}
                   </p>
                 </div>
                 <Switch
@@ -163,21 +169,27 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
                   checked={isEnabled}
                   onCheckedChange={setIsEnabled}
                   disabled={isPending}
-                  aria-label="Toggle webhook enabled"
+                  aria-label={m.webhooks_toggle_enabled_aria()}
                 />
               </div>
 
               {wasAutoDisabled && (
                 <WarningBox
                   variant="warning"
-                  title={`Auto-disabled after ${webhook.failureCount} failures`}
-                  description={webhook.lastError ? `Last error: ${webhook.lastError}` : undefined}
+                  title={m.webhooks_auto_disabled_after_failures({
+                    count: String(webhook.failureCount),
+                  })}
+                  description={
+                    webhook.lastError
+                      ? m.webhooks_last_error({ error: webhook.lastError })
+                      : undefined
+                  }
                 />
               )}
 
               {/* Rotate Secret Section */}
               <div className="space-y-2">
-                <Label>Signing Secret</Label>
+                <Label>{m.webhooks_signing_secret_label()}</Label>
                 {newSecret ? (
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 rounded-lg bg-green-500/10 border border-green-500/20 p-3">
@@ -186,17 +198,15 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
                         value={newSecret}
                         variant="ghost"
                         size="sm"
-                        aria-label="Copy secret to clipboard"
+                        aria-label={m.webhooks_copy_secret_aria()}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Save this secret now. It won't be shown again.
-                    </p>
+                    <p className="text-xs text-muted-foreground">{m.webhooks_save_secret_now()}</p>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between rounded-lg border p-3">
                     <p className="text-sm text-muted-foreground">
-                      Rotate to generate a new signing secret
+                      {m.webhooks_rotate_generate_secret()}
                     </p>
                     <Button
                       type="button"
@@ -204,10 +214,10 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
                       size="sm"
                       onClick={() => setRotateDialogOpen(true)}
                       disabled={isPending}
-                      aria-label="Rotate signing secret"
+                      aria-label={m.webhooks_rotate_secret_aria()}
                     >
                       <ArrowPathIcon className="h-4 w-4 mr-1.5" />
-                      Rotate Secret
+                      {m.webhooks_rotate_secret_button()}
                     </Button>
                   </div>
                 )}
@@ -223,10 +233,10 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
                 onClick={() => onOpenChange(false)}
                 disabled={isPending}
               >
-                Cancel
+                {m.common_cancel()}
               </Button>
               <Button type="submit" disabled={isPending || !url || selectedEvents.length === 0}>
-                {isPending ? 'Saving...' : 'Save Changes'}
+                {isPending ? m.common_saving() : m.common_save_changes()}
               </Button>
             </DialogFooter>
           </form>
@@ -241,4 +251,62 @@ export function EditWebhookDialog({ webhook, open, onOpenChange }: EditWebhookDi
       />
     </>
   )
+}
+
+function getWebhookEventLabel(eventId: string) {
+  switch (eventId) {
+    case 'post.created':
+      return m.webhooks_event_post_created_label()
+    case 'post.status_changed':
+      return m.webhooks_event_post_status_changed_label()
+    case 'post.updated':
+      return m.webhooks_event_post_updated_label()
+    case 'post.deleted':
+      return m.webhooks_event_post_deleted_label()
+    case 'post.restored':
+      return m.webhooks_event_post_restored_label()
+    case 'post.merged':
+      return m.webhooks_event_post_merged_label()
+    case 'post.unmerged':
+      return m.webhooks_event_post_unmerged_label()
+    case 'comment.created':
+      return m.webhooks_event_comment_created_label()
+    case 'comment.updated':
+      return m.webhooks_event_comment_updated_label()
+    case 'comment.deleted':
+      return m.webhooks_event_comment_deleted_label()
+    case 'changelog.published':
+      return m.webhooks_event_changelog_published_label()
+    default:
+      return eventId
+  }
+}
+
+function getWebhookEventDescription(eventId: string) {
+  switch (eventId) {
+    case 'post.created':
+      return m.webhooks_event_post_created_description()
+    case 'post.status_changed':
+      return m.webhooks_event_post_status_changed_description()
+    case 'post.updated':
+      return m.webhooks_event_post_updated_description()
+    case 'post.deleted':
+      return m.webhooks_event_post_deleted_description()
+    case 'post.restored':
+      return m.webhooks_event_post_restored_description()
+    case 'post.merged':
+      return m.webhooks_event_post_merged_description()
+    case 'post.unmerged':
+      return m.webhooks_event_post_unmerged_description()
+    case 'comment.created':
+      return m.webhooks_event_comment_created_description()
+    case 'comment.updated':
+      return m.webhooks_event_comment_updated_description()
+    case 'comment.deleted':
+      return m.webhooks_event_comment_deleted_description()
+    case 'changelog.published':
+      return m.webhooks_event_changelog_published_description()
+    default:
+      return eventId
+  }
 }

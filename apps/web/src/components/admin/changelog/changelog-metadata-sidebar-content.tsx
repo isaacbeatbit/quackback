@@ -27,6 +27,7 @@ import {
 import { cn } from '@/lib/shared/utils'
 import type { PostId } from '@quackback/ids'
 import type { PublishState } from '@/lib/shared/schemas/changelog'
+import * as m from '@/paraglide/messages'
 
 interface ChangelogMetadataSidebarContentProps {
   publishState: PublishState
@@ -37,9 +38,9 @@ interface ChangelogMetadataSidebarContentProps {
 }
 
 const PUBLISH_STATUS_OPTIONS: readonly StatusOption[] = [
-  { value: 'draft', label: 'Draft', color: '#94a3b8' }, // slate-400
-  { value: 'scheduled', label: 'Scheduled', color: '#f59e0b' }, // amber-500
-  { value: 'published', label: 'Published', color: '#22c55e' }, // green-500
+  { value: 'draft', label: m.changelog_status_draft(), color: '#94a3b8' }, // slate-400
+  { value: 'scheduled', label: m.changelog_status_scheduled(), color: '#f59e0b' }, // amber-500
+  { value: 'published', label: m.changelog_status_published(), color: '#22c55e' }, // green-500
 ]
 
 export function ChangelogMetadataSidebarContent({
@@ -109,7 +110,7 @@ export function ChangelogMetadataSidebarContent({
     <div className="space-y-5">
       {/* Status - uses shared StatusSelect component */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">Status</span>
+        <span className="text-sm text-muted-foreground">{m.changelog_filter_status()}</span>
         <StatusSelect
           value={publishState.type}
           options={PUBLISH_STATUS_OPTIONS}
@@ -122,7 +123,7 @@ export function ChangelogMetadataSidebarContent({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <UserIcon className="h-4 w-4" />
-            <span>Author</span>
+            <span>{m.changelog_author_label()}</span>
           </div>
           <span className="text-sm font-medium text-foreground">{authorName}</span>
         </div>
@@ -131,7 +132,7 @@ export function ChangelogMetadataSidebarContent({
       {/* Schedule Date - only show when scheduled */}
       {publishState.type === 'scheduled' && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Schedule</span>
+          <span className="text-sm text-muted-foreground">{m.changelog_schedule_label()}</span>
           <DateTimePicker
             value={scheduledDateTime}
             onChange={handleDateTimeChange}
@@ -143,7 +144,10 @@ export function ChangelogMetadataSidebarContent({
 
       {/* Linked Posts - single unified section */}
       <div className="space-y-2">
-        <SidebarRow icon={<DocumentTextIcon className="h-4 w-4" />} label="Linked Posts">
+        <SidebarRow
+          icon={<DocumentTextIcon className="h-4 w-4" />}
+          label={m.changelog_linked_posts_label()}
+        >
           <Popover open={postsOpen} onOpenChange={setPostsOpen}>
             <PopoverTrigger asChild>
               <button
@@ -158,14 +162,14 @@ export function ChangelogMetadataSidebarContent({
                 )}
               >
                 <PlusIcon className="h-2.5 w-2.5" />
-                Add
+                {m.common_add()}
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-72 p-0" align="end" sideOffset={4}>
               <div className="flex items-center border-b px-3">
                 <MagnifyingGlassIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                 <input
-                  placeholder="Search shipped posts..."
+                  placeholder={m.changelog_search_shipped_posts_placeholder()}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="flex h-9 w-full border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-0"
@@ -174,10 +178,14 @@ export function ChangelogMetadataSidebarContent({
               <ScrollArea className="h-[250px]">
                 <div className="p-1">
                   {postsLoading ? (
-                    <div className="py-6 text-center text-sm text-muted-foreground">Loading...</div>
+                    <div className="py-6 text-center text-sm text-muted-foreground">
+                      {m.changelog_loading()}
+                    </div>
                   ) : posts.length === 0 ? (
                     <div className="py-6 text-center text-sm text-muted-foreground">
-                      {search ? 'No shipped posts found.' : 'No shipped posts yet.'}
+                      {search
+                        ? m.changelog_no_shipped_posts_found()
+                        : m.changelog_no_shipped_posts_yet()}
                     </div>
                   ) : (
                     posts.map((post) => {
@@ -225,21 +233,23 @@ export function ChangelogMetadataSidebarContent({
                 left={<VoteCount count={post.voteCount} />}
                 title={post.title}
                 meta={[
-                  <span key="author">{post.authorName || 'Anonymous'}</span>,
+                  <span key="author">{post.authorName || m.widget_anonymous_author()}</span>,
                   <TimeAgo key="date" date={post.createdAt} className="text-muted-foreground/70" />,
                   <span key="board">{post.boardSlug}</span>,
                 ]}
                 action={
                   <ListItemRemoveButton
                     onClick={() => handleRemovePost(post.id)}
-                    label={`Remove ${post.title}`}
+                    label={m.changelog_remove_post_label({ title: post.title })}
                   />
                 }
               />
             ))}
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground/60 italic pl-6">No posts linked yet</p>
+          <p className="text-xs text-muted-foreground/60 italic pl-6">
+            {m.changelog_no_linked_posts()}
+          </p>
         )}
       </div>
     </div>

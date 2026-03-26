@@ -1,6 +1,7 @@
 import { ListBulletIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/solid'
 import { cn } from '@/lib/shared/utils'
 import type { BoardWithStats } from '@/lib/server/domains/boards'
+import * as m from '@/paraglide/messages'
 
 interface FeedbackSidebarProps {
   boards: BoardWithStats[]
@@ -20,7 +21,7 @@ export function FeedbackSidebar({
       <div className="sticky top-24">
         <div className="bg-card border border-border/50 rounded-lg shadow-sm overflow-hidden">
           <h2 className="font-semibold text-xs uppercase tracking-wider text-muted-foreground px-4 pt-4 pb-3">
-            Boards
+            {m.common_boards()}
           </h2>
           <nav className="space-y-1 px-4 pb-4 max-h-[calc(100vh-16rem)] overflow-y-auto scrollbar-thin">
             {/* View all posts */}
@@ -35,7 +36,7 @@ export function FeedbackSidebar({
               )}
             >
               <ListBulletIcon className={cn('h-4 w-4 shrink-0', !currentBoard && 'text-primary')} />
-              <span className="truncate">View all posts</span>
+              <span className="truncate">{m.feedback_view_all_posts()}</span>
             </button>
 
             {/* Board list */}
@@ -80,7 +81,7 @@ export function FeedbackSidebar({
             target="_blank"
             className="group inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-all px-2.5 py-1 rounded-full bg-muted/50 hover:bg-muted border border-transparent hover:border-border/50"
           >
-            <span>Powered by</span>
+            <span>{m.widget_powered_by()}</span>
             <img
               src="/logo.png"
               alt=""
@@ -88,7 +89,6 @@ export function FeedbackSidebar({
               height={11}
               className="opacity-60 group-hover:opacity-100 transition-opacity"
             />
-            <span className="font-medium">Quackback</span>
           </a>
         </div>
       </div>

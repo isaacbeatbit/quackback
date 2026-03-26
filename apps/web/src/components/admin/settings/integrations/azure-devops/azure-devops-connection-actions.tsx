@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { connectAzureDevOpsFn } from '@/lib/server/integrations/azure-devops/functions'
 import { useDeleteIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface AzureDevOpsConnectionActionsProps {
   integrationId?: string
@@ -39,7 +40,7 @@ export function AzureDevOpsConnectionActions({
       const timer = setTimeout(() => setShowSuccess(false), 3000)
       return () => clearTimeout(timer)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to connect to Azure DevOps')
+      setError(err instanceof Error ? err.message : m.integration_azure_devops_connect_failed())
     } finally {
       setSaving(false)
     }
@@ -64,18 +65,18 @@ export function AzureDevOpsConnectionActions({
           {disconnecting ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Disconnecting...
+              {m.common_disconnecting()}
             </>
           ) : (
-            'Disconnect'
+            m.common_disconnect()
           )}
         </Button>
         <ConfirmDialog
           open={disconnectDialogOpen}
           onOpenChange={setDisconnectDialogOpen}
-          title="Disconnect Azure DevOps?"
-          description="This will remove the Azure DevOps integration and stop creating work items from feedback. You can reconnect at any time."
-          confirmLabel="Disconnect"
+          title={m.integration_disconnect_title({ provider: 'Azure DevOps' })}
+          description={m.integration_azure_devops_disconnect_description()}
+          confirmLabel={m.common_disconnect()}
           isPending={disconnecting}
           onConfirm={handleDisconnect}
         />
@@ -88,7 +89,7 @@ export function AzureDevOpsConnectionActions({
       {showSuccess && (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
           <CheckCircleIcon className="h-4 w-4" />
-          <span>Connected to Azure DevOps!</span>
+          <span>{m.integration_connected_success()}</span>
         </div>
       )}
 
@@ -102,12 +103,12 @@ export function AzureDevOpsConnectionActions({
       <div className="flex w-full max-w-md flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="org-url" className="text-sm">
-            Organization URL
+            {m.integration_azure_devops_org_url_label()}
           </Label>
           <Input
             id="org-url"
             type="url"
-            placeholder="https://dev.azure.com/your-org"
+            placeholder={m.integration_azure_devops_org_url_placeholder()}
             value={organizationUrl}
             onChange={(e) => setOrganizationUrl(e.target.value)}
             disabled={saving}
@@ -115,12 +116,12 @@ export function AzureDevOpsConnectionActions({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="pat" className="text-sm">
-            Personal Access Token
+            {m.integration_azure_devops_pat_label()}
           </Label>
           <Input
             id="pat"
             type="password"
-            placeholder="Enter your PAT"
+            placeholder={m.integration_azure_devops_pat_placeholder()}
             value={pat}
             onChange={(e) => setPat(e.target.value)}
             disabled={saving}
@@ -134,10 +135,10 @@ export function AzureDevOpsConnectionActions({
           {saving ? (
             <>
               <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-              Connecting...
+              {m.common_connecting()}
             </>
           ) : (
-            'Connect'
+            m.common_connect()
           )}
         </Button>
       </div>

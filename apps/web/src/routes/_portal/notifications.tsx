@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { BellIcon, InboxIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { EmptyState } from '@/components/shared/empty-state'
 import { Spinner } from '@/components/shared/spinner'
-import { formatDistanceToNow, isToday, isYesterday, format } from 'date-fns'
+import { isToday, isYesterday } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/shared/utils'
 import {
@@ -11,6 +11,8 @@ import {
 } from '@/lib/client/hooks/use-notifications-queries'
 import { useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '@/lib/client/mutations'
 import { getNotificationTypeConfig } from '@/components/notifications/notification-type-config'
+import * as m from '@/paraglide/messages'
+import { getLocale } from '@/paraglide/runtime'
 
 export const Route = createFileRoute('/_portal/notifications')({
   component: NotificationsPage,
@@ -34,9 +36,12 @@ function groupNotificationsByDate(notifications: SerializedNotification[]) {
     }
   }
 
-  if (today.length > 0) groups.push({ label: 'Today', notifications: today })
-  if (yesterday.length > 0) groups.push({ label: 'Yesterday', notifications: yesterday })
-  if (earlier.length > 0) groups.push({ label: 'Earlier', notifications: earlier })
+  if (today.length > 0) groups.push({ label: m.portal_notifications_today(), notifications: today })
+  if (yesterday.length > 0) {
+    groups.push({ label: m.portal_notifications_yesterday(), notifications: yesterday })
+  }
+  if (earlier.length > 0)
+    groups.push({ label: m.portal_notifications_earlier(), notifications: earlier })
 
   return groups
 }
@@ -61,7 +66,7 @@ function NotificationsPage() {
             </div>
             <div>
               <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-                Notifications
+                {m.admin_notifications_title()}
                 {unreadCount > 0 && (
                   <span className="ml-2.5 inline-flex items-center justify-center h-6 min-w-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
                     {unreadCount}
@@ -69,7 +74,7 @@ function NotificationsPage() {
                 )}
               </h1>
               <p className="text-sm text-muted-foreground mt-0.5">
-                Updates on posts you've subscribed to
+                {m.portal_notifications_page_description()}
               </p>
             </div>
           </div>
@@ -82,8 +87,8 @@ function NotificationsPage() {
               className="shrink-0 gap-1.5"
             >
               <CheckIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Mark all read</span>
-              <span className="sm:hidden">Read all</span>
+              <span className="hidden sm:inline">{m.portal_notifications_mark_all_read()}</span>
+              <span className="sm:hidden">{m.portal_notifications_read_all_short()}</span>
             </Button>
           )}
         </div>
@@ -129,8 +134,8 @@ function NotificationsPage() {
         >
           <EmptyState
             icon={InboxIcon}
-            title="All caught up!"
-            description="Vote or comment on posts to subscribe. You'll get notified when there are status changes or new activity."
+            title={m.portal_notifications_empty_title()}
+            description={m.portal_notifications_empty_description()}
             className="py-20 px-6"
           />
         </div>
@@ -150,6 +155,18 @@ function NotificationRow({ notification, onMarkAsRead, style }: NotificationRowP
   const Icon = config.icon
   const isUnread = !notification.readAt
   const createdAt = new Date(notification.createdAt)
+  const locale = getLocale() === 'es' ? 'es-ES' : 'en-US'
+  const timeLabel = isToday(createdAt)
+    ? new Intl.DateTimeFormat(locale, {
+        hour: 'numeric',
+        minute: '2-digit',
+      }).format(createdAt)
+    : new Intl.DateTimeFormat(locale, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      }).format(createdAt)
 
   function handleClick(): void {
     if (isUnread) {
@@ -208,9 +225,7 @@ function NotificationRow({ notification, onMarkAsRead, style }: NotificationRowP
             className="text-xs text-muted-foreground/70 whitespace-nowrap"
             dateTime={createdAt.toISOString()}
           >
-            {isToday(createdAt)
-              ? formatDistanceToNow(createdAt, { addSuffix: true })
-              : format(createdAt, 'MMM d, h:mm a')}
+            {timeLabel}
           </time>
         </div>
       </div>

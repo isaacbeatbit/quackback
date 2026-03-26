@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchLinearTeamsFn, type LinearTeam } from '@/lib/server/integrations/linear/functions'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
@@ -37,13 +38,13 @@ interface LinearConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'Create issue from new feedback',
-    description: 'Automatically create a Linear issue when new feedback is submitted',
+    label: m.integration_linear_event_create_label(),
+    description: m.integration_linear_event_create_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked issues when feedback status changes',
+    label: m.integration_linear_event_status_label(),
+    description: m.integration_linear_event_status_description(),
   },
 ]
 
@@ -76,7 +77,7 @@ export function LinearConfig({
       const result = await fetchLinearTeamsFn()
       setTeams(result)
     } catch {
-      setTeamError('Failed to load teams. Please try again.')
+      setTeamError(m.integration_linear_load_teams_failed())
     } finally {
       setLoadingTeams(false)
     }
@@ -125,10 +126,10 @@ export function LinearConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_linear_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Linear issue syncing
+            {m.integration_linear_enabled_description()}
           </p>
         </div>
         <Switch
@@ -141,7 +142,7 @@ export function LinearConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="team-select">Team</Label>
+          <Label htmlFor="team-select">{m.common_team()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -150,7 +151,7 @@ export function LinearConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingTeams ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {teamError ? (
@@ -165,10 +166,10 @@ export function LinearConfig({
               {loadingTeams ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading teams...</span>
+                  <span>{m.integration_linear_loading_teams()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a team" />
+                <SelectValue placeholder={m.integration_select_team_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -185,14 +186,12 @@ export function LinearConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback issues will be created in this team.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_linear_team_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger issue creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_linear_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -216,13 +215,13 @@ export function LinearConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

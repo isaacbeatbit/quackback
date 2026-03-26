@@ -3,6 +3,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 import { RoadmapBoard } from '@/components/public/roadmap-board'
 import { portalQueries } from '@/lib/client/queries/portal'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   roadmap: z.string().optional(),
@@ -35,8 +36,8 @@ export const Route = createFileRoute('/_portal/roadmap/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     const { workspaceName, baseUrl } = loaderData
-    const title = `Roadmap - ${workspaceName}`
-    const description = `See what ${workspaceName} is working on and what's coming next.`
+    const title = m.portal_roadmap_meta_title({ workspaceName })
+    const description = m.portal_roadmap_meta_description({ workspaceName })
     const canonicalUrl = baseUrl ? `${baseUrl}/roadmap` : ''
     return {
       meta: [
@@ -71,8 +72,8 @@ function RoadmapPage() {
   return (
     <div className="py-8">
       <div className="mb-6 animate-in fade-in duration-200 fill-mode-backwards">
-        <h1 className="text-3xl font-bold mb-2">Roadmap</h1>
-        <p className="text-muted-foreground">See what we're working on and what's coming next.</p>
+        <h1 className="text-3xl font-bold mb-2">{m.nav_roadmap()}</h1>
+        <p className="text-muted-foreground">{m.portal_roadmap_page_description()}</p>
       </div>
 
       <div

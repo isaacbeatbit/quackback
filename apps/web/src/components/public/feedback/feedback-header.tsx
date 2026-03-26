@@ -22,6 +22,7 @@ import { useEnsureAnonSession } from '@/lib/client/hooks/use-ensure-anon-session
 import { SimilarPostsCard } from '@/components/public/similar-posts-card'
 import { signOut } from '@/lib/server/auth/client'
 import type { JSONContent } from '@tiptap/react'
+import * as m from '@/paraglide/messages'
 
 interface BoardOption {
   id: string
@@ -108,19 +109,19 @@ export function FeedbackHeader({
     setError('')
 
     if (!selectedBoardId) {
-      setError('Please select a board')
+      setError(m.portal_feedback_select_board_error())
       return
     }
 
     if (!title.trim()) {
-      setError('Please add a title')
+      setError(m.portal_feedback_add_title_error())
       return
     }
 
     const plainText = contentJson ? richTextToPlainText(contentJson) : ''
 
     if (!effectiveUser && !anonymousPostingEnabled) {
-      setError('Please sign in to submit feedback')
+      setError(m.portal_feedback_sign_in_submit_error())
       return
     }
 
@@ -128,7 +129,7 @@ export function FeedbackHeader({
       if (!effectiveUser && anonymousPostingEnabled) {
         const ok = await ensureAnonSession()
         if (!ok) {
-          setError('Failed to create session')
+          setError(m.portal_feedback_session_failed())
           return
         }
       }
@@ -144,14 +145,14 @@ export function FeedbackHeader({
       setExpanded(false)
       onPostCreated?.(result.id, result.board.slug)
 
-      toast.success('Feedback submitted', {
+      toast.success(m.portal_feedback_submitted(), {
         action: {
-          label: 'View',
+          label: m.common_view(),
           onClick: () => router.navigate({ to: `/b/${result.board.slug}/posts/${result.id}` }),
         },
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit feedback')
+      setError(err instanceof Error ? err.message : m.portal_feedback_submit_failed())
     }
   }
 
@@ -192,13 +193,15 @@ export function FeedbackHeader({
             className="overflow-hidden"
           >
             <div className="flex items-center px-4 sm:px-5 pt-3 pb-1">
-              <span className="text-xs text-muted-foreground mr-1">Posting to</span>
+              <span className="text-xs text-muted-foreground mr-1">
+                {m.portal_feedback_posting_to()}
+              </span>
               <Select value={selectedBoardId} onValueChange={setSelectedBoardId}>
                 <SelectTrigger
                   size="xs"
                   className="border-0 bg-transparent shadow-none font-medium text-foreground hover:text-foreground/80 focus-visible:ring-0"
                 >
-                  <SelectValue placeholder="Select a board" />
+                  <SelectValue placeholder={m.portal_feedback_select_board()} />
                 </SelectTrigger>
                 <SelectContent align="start">
                   {boards.map((board) => (
@@ -234,7 +237,7 @@ export function FeedbackHeader({
         <motion.input
           ref={titleInputRef}
           type="text"
-          placeholder="What's your idea?"
+          placeholder={m.widget_title_placeholder()}
           value={title}
           onChange={(e) => {
             setTitle(e.target.value)
@@ -287,7 +290,7 @@ export function FeedbackHeader({
               <RichTextEditor
                 value={contentJson || ''}
                 onChange={handleContentChange}
-                placeholder="Add more details..."
+                placeholder={m.widget_details_placeholder()}
                 minHeight="150px"
                 borderless
               />
@@ -309,10 +312,7 @@ export function FeedbackHeader({
             >
               {effectiveUser ? (
                 <p className="text-xs text-muted-foreground">
-                  Posting as{' '}
-                  <span className="font-medium text-foreground">
-                    {effectiveUser.name || effectiveUser.email}
-                  </span>
+                  {m.widget_posting_as({ name: effectiveUser.name || effectiveUser.email })}
                   {' ('}
                   <button
                     type="button"
@@ -322,19 +322,19 @@ export function FeedbackHeader({
                       router.invalidate()
                     }}
                   >
-                    sign out
+                    {m.auth_sign_out()}
                   </button>
                   {')'}
                 </p>
               ) : canPostAnonymously ? (
-                <p className="text-xs text-muted-foreground">Posting anonymously</p>
+                <p className="text-xs text-muted-foreground">{m.widget_posting_anonymously()}</p>
               ) : (
                 <button
                   type="button"
                   onClick={() => openAuthPopover({ mode: 'login' })}
                   className="text-xs text-primary hover:underline font-medium"
                 >
-                  Sign in to post
+                  {m.portal_feedback_sign_in_to_post()}
                 </button>
               )}
               <div className="flex items-center gap-2">
@@ -345,16 +345,16 @@ export function FeedbackHeader({
                   onClick={handleCancel}
                   disabled={createPost.isPending}
                 >
-                  Cancel
+                  {m.common_cancel()}
                 </Button>
                 <Button
                   size="sm"
                   onClick={handleSubmit}
                   disabled={createPost.isPending || !canSubmit}
-                  title={!canSubmit ? 'Please sign in to submit feedback' : undefined}
+                  title={!canSubmit ? m.portal_feedback_sign_in_submit_error() : undefined}
                   className="portal-submit-button bg-[var(--portal-button-background)] text-[var(--portal-button-foreground)] hover:bg-[var(--portal-button-background)]/90"
                 >
-                  {createPost.isPending ? 'Submitting...' : 'Submit'}
+                  {createPost.isPending ? m.widget_submitting() : m.common_submit()}
                 </Button>
               </div>
             </motion.div>

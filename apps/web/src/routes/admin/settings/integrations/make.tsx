@@ -7,6 +7,7 @@ import { MakeConnectionActions } from '@/components/admin/settings/integrations/
 import { MakeConfig } from '@/components/admin/settings/integrations/make/make-config'
 import { MakeIcon } from '@/components/icons/integration-icons'
 import { makeCatalog } from '@/lib/server/integrations/make/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/make')({
   loader: async ({ context }) => {
@@ -51,21 +52,12 @@ function MakeIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<MakeIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Make"
-          description="Connect Make (formerly Integromat) to trigger automation scenarios when users submit feedback, when statuses change, and when comments are added."
+          title={m.integration_make_title()}
+          description={m.integration_make_description()}
           steps={[
-            <p key="1">
-              Create a new scenario in Make and add a{' '}
-              <span className="font-medium text-foreground">Webhooks</span> module as the trigger.
-            </p>,
-            <p key="2">
-              Copy the webhook URL and paste it below, then click{' '}
-              <span className="font-medium text-foreground">Save</span>. Quackback will send a test
-              payload.
-            </p>,
-            <p key="3">
-              Choose which events should trigger your scenario, then continue building in Make.
-            </p>,
+            <p key="1">{m.integration_make_setup_step_1()}</p>,
+            <p key="2">{m.integration_make_setup_step_2()}</p>,
+            <p key="3">{m.integration_make_setup_step_3()}</p>,
           ]}
           connectionForm={<MakeConnectionActions integrationId={undefined} isConnected={false} />}
         />

@@ -28,6 +28,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { useMergePost } from '@/lib/client/mutations/post-merge'
 import { findSimilarPostsFn, type SimilarPost } from '@/lib/server/functions/public-posts'
+import * as m from '@/paraglide/messages'
 import { mergeSuggestionQueries } from '@/lib/client/queries/signals'
 import { inboxKeys } from '@/lib/client/hooks/use-inbox-query'
 import type { PostId } from '@quackback/ids'
@@ -77,10 +78,10 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
         canonicalPostId: confirmTarget.id as PostId,
       })
       queryClient.invalidateQueries({ queryKey: ['merged-posts'] })
-      toast.success('Post merged successfully')
+      toast.success(m.feedback_merge_success())
       onOpenChange(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to merge post')
+      toast.error(err instanceof Error ? err.message : m.feedback_merge_failed())
     } finally {
       setMergingId(null)
       setConfirmTarget(null)
@@ -92,14 +93,14 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
       <Dialog open={open && !confirmTarget} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-lg p-0 gap-0">
           <DialogHeader className="px-5 pt-5 pb-3">
-            <DialogTitle className="text-base">Merge into another</DialogTitle>
-            <DialogDescription>Select the post to merge this feedback into.</DialogDescription>
+            <DialogTitle className="text-base">{m.feedback_merge_into_another_title()}</DialogTitle>
+            <DialogDescription>{m.feedback_merge_into_another_description()}</DialogDescription>
           </DialogHeader>
 
           <div className="px-5 pb-3">
             <Input
               type="text"
-              placeholder="Search for similar feedback..."
+              placeholder={m.feedback_merge_search_placeholder()}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
@@ -108,7 +109,9 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
 
           <div className="min-h-[200px] max-h-[400px] overflow-y-auto border-t border-border/50">
             {isLoading && searchQuery.length >= 3 && (
-              <p className="text-sm text-muted-foreground py-6 text-center">Searching...</p>
+              <p className="text-sm text-muted-foreground py-6 text-center">
+                {m.feedback_searching()}
+              </p>
             )}
 
             {suggestions && suggestions.length > 0 && (
@@ -145,10 +148,10 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className="text-muted-foreground/60">
                           {suggestion.matchStrength === 'strong'
-                            ? 'Strong match'
+                            ? m.feedback_merge_match_strong()
                             : suggestion.matchStrength === 'good'
-                              ? 'Good match'
-                              : 'Possible match'}
+                              ? m.feedback_merge_match_good()
+                              : m.feedback_merge_match_possible()}
                         </span>
                       </div>
                     </div>
@@ -159,13 +162,13 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
 
             {suggestions && suggestions.length === 0 && searchQuery.length >= 3 && !isLoading && (
               <p className="text-sm text-muted-foreground py-6 text-center">
-                No similar feedback found.
+                {m.feedback_merge_no_similar_found()}
               </p>
             )}
 
             {searchQuery.length < 3 && !isLoading && (
               <p className="text-sm text-muted-foreground py-6 text-center">
-                Type at least 3 characters to search.
+                {m.feedback_merge_type_minimum()}
               </p>
             )}
           </div>
@@ -176,10 +179,10 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
       <AlertDialog open={!!confirmTarget} onOpenChange={(o) => !o && setConfirmTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Merge this post?</AlertDialogTitle>
+            <AlertDialogTitle>{m.feedback_merge_confirm_title()}</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-3">
-                <p>This post will be merged into the selected post. Votes will be combined.</p>
+                <p>{m.feedback_merge_confirm_description()}</p>
                 <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-3 text-sm overflow-hidden">
                   <span className="truncate flex-1 min-w-0 font-medium text-foreground">
                     {postTitle}
@@ -193,9 +196,9 @@ export function MergeIntoDialog({ postId, postTitle, open, onOpenChange }: Merge
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={merge.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={merge.isPending}>{m.common_cancel()}</AlertDialogCancel>
             <AlertDialogAction onClick={handleMerge} disabled={merge.isPending}>
-              {mergingId ? 'Merging...' : 'Merge'}
+              {mergingId ? m.feedback_merging() : m.feedback_merge_button()}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -302,10 +305,14 @@ export function MergeOthersDialog({
       queryClient.invalidateQueries({ queryKey: ['merged-posts'] })
       queryClient.invalidateQueries({ queryKey: inboxKeys.lists() })
       queryClient.invalidateQueries({ queryKey: ['merge-suggestions'] })
-      toast.success(`Merged ${selectedIds.size} post${selectedIds.size > 1 ? 's' : ''}`)
+      toast.success(
+        selectedIds.size === 1
+          ? m.feedback_merge_selected_count_one({ count: '1' })
+          : m.feedback_merge_selected_count_other({ count: String(selectedIds.size) })
+      )
       onOpenChange(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to merge posts')
+      toast.error(err instanceof Error ? err.message : m.feedback_merge_failed())
     } finally {
       setIsMerging(false)
     }
@@ -318,17 +325,16 @@ export function MergeOthersDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 gap-0">
         <DialogHeader className="px-5 pt-5 pb-3">
-          <DialogTitle className="text-base">Merge into this</DialogTitle>
+          <DialogTitle className="text-base">{m.feedback_merge_into_this_title()}</DialogTitle>
           <DialogDescription>
-            Select posts to merge into &ldquo;{postTitle}&rdquo;. Votes and comments will be
-            combined.
+            {m.feedback_merge_into_this_description({ postTitle })}
           </DialogDescription>
         </DialogHeader>
 
         <div className="px-5 pb-3">
           <Input
             type="text"
-            placeholder="Search for similar feedback..."
+            placeholder={m.feedback_merge_search_placeholder()}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             autoFocus
@@ -340,7 +346,7 @@ export function MergeOthersDialog({
           {hasAiSuggestions && (
             <>
               <div className="px-4 py-2 text-xs font-medium text-muted-foreground/60 uppercase tracking-wider bg-muted/20">
-                AI Suggested
+                {m.feedback_merge_ai_suggested()}
               </div>
               <div className="divide-y divide-border/50">
                 {aiPosts.map((post) => (
@@ -361,14 +367,16 @@ export function MergeOthersDialog({
 
           {/* Search Results section */}
           {isLoading && searchQuery.length >= 3 && (
-            <p className="text-sm text-muted-foreground py-6 text-center">Searching...</p>
+            <p className="text-sm text-muted-foreground py-6 text-center">
+              {m.feedback_searching()}
+            </p>
           )}
 
           {hasSearchResults && (
             <>
               {(hasAiSuggestions || searchQuery.length >= 3) && (
                 <div className="px-4 py-2 text-xs font-medium text-muted-foreground/60 uppercase tracking-wider bg-muted/20">
-                  Search Results
+                  {m.feedback_merge_search_results()}
                 </div>
               )}
               <div className="divide-y divide-border/50">
@@ -380,10 +388,10 @@ export function MergeOthersDialog({
                     status={post.status}
                     subtitle={
                       post.matchStrength === 'strong'
-                        ? 'Strong match'
+                        ? m.feedback_merge_match_strong()
                         : post.matchStrength === 'good'
-                          ? 'Good match'
-                          : 'Possible match'
+                          ? m.feedback_merge_match_good()
+                          : m.feedback_merge_match_possible()
                     }
                     selected={selectedIds.has(post.id)}
                     disabled={isMerging}
@@ -396,13 +404,13 @@ export function MergeOthersDialog({
 
           {!hasAiSuggestions && !hasSearchResults && searchQuery.length >= 3 && !isLoading && (
             <p className="text-sm text-muted-foreground py-6 text-center">
-              No similar feedback found.
+              {m.feedback_merge_no_similar_found()}
             </p>
           )}
 
           {!hasAiSuggestions && searchQuery.length < 3 && !isLoading && (
             <p className="text-sm text-muted-foreground py-6 text-center">
-              Type at least 3 characters to search.
+              {m.feedback_merge_type_minimum()}
             </p>
           )}
         </div>
@@ -415,14 +423,16 @@ export function MergeOthersDialog({
             onClick={() => onOpenChange(false)}
             disabled={isMerging}
           >
-            Cancel
+            {m.common_cancel()}
           </Button>
           <Button size="sm" onClick={handleMerge} disabled={selectedIds.size === 0 || isMerging}>
             {isMerging
-              ? 'Merging...'
+              ? m.feedback_merging()
               : selectedIds.size === 0
-                ? 'Select posts to merge'
-                : `Merge ${selectedIds.size} post${selectedIds.size > 1 ? 's' : ''}`}
+                ? m.feedback_merge_select_posts()
+                : selectedIds.size === 1
+                  ? m.feedback_merge_selected_count_one({ count: '1' })
+                  : m.feedback_merge_selected_count_other({ count: String(selectedIds.size) })}
           </Button>
         </div>
       </DialogContent>
@@ -491,7 +501,7 @@ export function MergeInfoBanner({ mergeInfo, onNavigateToPost }: MergeInfoBanner
   return (
     <div className="mx-6 mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
       <p className="text-sm text-amber-800 dark:text-amber-200">
-        This feedback has been merged into{' '}
+        {m.feedback_merged_into_prefix()}{' '}
         <button
           type="button"
           onClick={() => onNavigateToPost?.(mergeInfo.canonicalPostId)}

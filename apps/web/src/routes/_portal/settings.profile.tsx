@@ -3,6 +3,7 @@ import { settingsQueries } from '@/lib/client/queries/settings'
 import { UserIcon } from '@heroicons/react/24/solid'
 import { PageHeader } from '@/components/shared/page-header'
 import { ProfileForm } from '@/components/settings/profile-form'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/_portal/settings/profile')({
   loader: async ({ context }) => {
@@ -30,8 +31,8 @@ function ProfilePage() {
     <div className="space-y-6">
       <PageHeader
         icon={UserIcon}
-        title="Profile"
-        description="Manage your personal information"
+        title={m.settings_profile()}
+        description={m.portal_profile_page_description()}
         animate
       />
 

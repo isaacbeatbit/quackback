@@ -35,6 +35,7 @@ import {
 } from '@/lib/client/mutations'
 import type { UserAttributeItem } from '@/lib/client/hooks/use-user-attributes-queries'
 import type { UserAttributeId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 const ATTRIBUTE_TYPES = [
   { value: 'string', label: 'Text' },
@@ -111,49 +112,51 @@ function AttributeFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit attribute' : 'New user attribute'}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? m.user_attributes_edit_title() : m.user_attributes_create_title()}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Key — only editable when creating */}
           <div className="space-y-1.5">
             <Label htmlFor="attr-key">
-              Key{' '}
+              {m.user_attributes_key_label()}{' '}
               <span className="text-muted-foreground font-normal text-xs">
-                (matches user.metadata field)
+                ({m.user_attributes_key_hint()})
               </span>
             </Label>
             <Input
               id="attr-key"
               value={key}
               onChange={(e) => setKey(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'))}
-              placeholder="mrr"
+              placeholder={m.user_attributes_key_placeholder()}
               disabled={isEditing}
               className={isEditing ? 'bg-muted text-muted-foreground' : ''}
               required
             />
             {!isEditing && (
               <p className="text-[11px] text-muted-foreground">
-                Lowercase letters, numbers, underscores only. Cannot be changed after creation.
+                {m.user_attributes_key_description()}
               </p>
             )}
           </div>
 
           {/* Label */}
           <div className="space-y-1.5">
-            <Label htmlFor="attr-label">Display label</Label>
+            <Label htmlFor="attr-label">{m.user_attributes_display_label()}</Label>
             <Input
               id="attr-label"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="Monthly Revenue"
+              placeholder={m.user_attributes_display_placeholder()}
               required
             />
           </div>
 
           {/* Type */}
           <div className="space-y-1.5">
-            <Label>Type</Label>
+            <Label>{m.user_attributes_type_label()}</Label>
             <Select value={type} onValueChange={(v) => setType(v as AttributeType)}>
               <SelectTrigger>
                 <SelectValue />
@@ -171,7 +174,7 @@ function AttributeFormDialog({
           {/* Currency code — only for currency type */}
           {type === 'currency' && (
             <div className="space-y-1.5">
-              <Label>Currency</Label>
+              <Label>{m.user_attributes_currency_label()}</Label>
               <Select value={currencyCode} onValueChange={setCurrencyCode}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue />
@@ -190,13 +193,14 @@ function AttributeFormDialog({
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="attr-desc">
-              Description <span className="text-muted-foreground font-normal">(optional)</span>
+              {m.common_description()}{' '}
+              <span className="text-muted-foreground font-normal">({m.common_optional()})</span>
             </Label>
             <Textarea
               id="attr-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Monthly recurring revenue in USD"
+              placeholder={m.user_attributes_description_placeholder()}
               rows={2}
               className="resize-none text-sm"
             />
@@ -205,18 +209,17 @@ function AttributeFormDialog({
           {/* External key — CDP attribute name mapping */}
           <div className="space-y-1.5">
             <Label htmlFor="attr-external-key">
-              CDP attribute name{' '}
+              {m.user_attributes_external_key_label()}{' '}
               <span className="text-muted-foreground font-normal text-xs">(optional)</span>
             </Label>
             <Input
               id="attr-external-key"
               value={externalKey}
               onChange={(e) => setExternalKey(e.target.value)}
-              placeholder="monthly_recurring_revenue"
+              placeholder={m.user_attributes_external_key_placeholder()}
             />
             <p className="text-[11px] text-muted-foreground">
-              Maps an external attribute name (e.g. from Segment) to this attribute&apos;s internal
-              key. Leave blank to use the key above.
+              {m.user_attributes_external_key_description()}
             </p>
           </div>
 
@@ -227,10 +230,14 @@ function AttributeFormDialog({
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button type="submit" disabled={!canSubmit || isPending}>
-              {isPending ? 'Saving...' : isEditing ? 'Save changes' : 'Create attribute'}
+              {isPending
+                ? m.common_saving()
+                : isEditing
+                  ? m.common_save_changes()
+                  : m.user_attributes_create_button()}
             </Button>
           </DialogFooter>
         </form>
@@ -279,7 +286,7 @@ function AttributeRow({
           size="sm"
           className="h-7 px-2 text-muted-foreground hover:text-foreground"
           onClick={onEdit}
-          title="Edit attribute"
+          title={m.user_attributes_edit_title()}
         >
           <PencilIcon className="h-3.5 w-3.5" />
         </Button>
@@ -288,7 +295,7 @@ function AttributeRow({
           size="sm"
           className="h-7 px-2 text-muted-foreground hover:text-destructive"
           onClick={onDelete}
-          title="Delete attribute"
+          title={m.user_attributes_delete_title()}
         >
           <TrashIcon className="h-3.5 w-3.5" />
         </Button>

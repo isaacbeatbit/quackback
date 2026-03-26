@@ -7,6 +7,7 @@ import { MondayConnectionActions } from '@/components/admin/settings/integration
 import { MondayConfig } from '@/components/admin/settings/integrations/monday/monday-config'
 import { MondayIcon } from '@/components/icons/integration-icons'
 import { mondayCatalog } from '@/lib/server/integrations/monday/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/monday')({
   loader: async ({ context }) => {
@@ -52,21 +53,12 @@ function MondayIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<MondayIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Monday.com"
-          description="Connect Monday.com to automatically create items from feedback and sync statuses between platforms."
+          title={m.integration_monday_title()}
+          description={m.integration_monday_description()}
           steps={[
-            <p key="1">
-              Configure your Monday.com{' '}
-              <span className="font-medium text-foreground">OAuth credentials</span> in the platform
-              settings.
-            </p>,
-            <p key="2">
-              Click <span className="font-medium text-foreground">Connect</span> to authorize
-              Quackback with your Monday.com workspace.
-            </p>,
-            <p key="3">
-              Select a board to create items in, then choose which events should trigger new items.
-            </p>,
+            <p key="1">{m.integration_monday_setup_step_1()}</p>,
+            <p key="2">{m.integration_monday_setup_step_2()}</p>,
+            <p key="3">{m.integration_monday_setup_step_3()}</p>,
           ]}
           connectionForm={<MondayConnectionActions integrationId={undefined} isConnected={false} />}
         />

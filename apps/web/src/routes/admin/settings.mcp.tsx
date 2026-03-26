@@ -7,6 +7,7 @@ import { SettingsCard } from '@/components/admin/settings/settings-card'
 import { McpServerSettings } from '@/components/admin/settings/mcp/mcp-server-settings'
 import { McpSetupGuide } from '@/components/admin/settings/mcp/mcp-setup-guide'
 import { settingsQueries } from '@/lib/client/queries/settings'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/mcp')({
   loader: async ({ context }) => {
@@ -33,17 +34,17 @@ function McpSettingsPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={CommandLineIcon}
-        title="MCP Server"
-        description="Allow AI tools to interact with your feedback data via the Model Context Protocol"
+        title={m.settings_mcp_page_title()}
+        description={m.settings_mcp_page_description()}
       />
 
       <SettingsCard
-        title="MCP Server"
-        description="Enable or disable the MCP endpoint for AI integrations"
+        title={m.settings_mcp_card_title()}
+        description={m.settings_mcp_card_description()}
       >
         <McpServerSettings initialEnabled={developerConfigQuery.data.mcpEnabled} />
       </SettingsCard>

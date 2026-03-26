@@ -10,6 +10,7 @@ import {
 } from '@/lib/client/hooks/use-roadmap-posts-query'
 import type { RoadmapId, StatusId } from '@quackback/ids'
 import type { RoadmapFilters } from '@/lib/shared/types'
+import * as m from '@/paraglide/messages'
 
 interface RoadmapColumnProps {
   roadmapId: RoadmapId
@@ -58,7 +59,7 @@ export function RoadmapColumn({ roadmapId, statusId, title, color, filters }: Ro
             </div>
           ) : posts.length === 0 ? (
             <div className="h-full flex items-center justify-center py-8 animate-in fade-in duration-200">
-              <p className="text-sm text-muted-foreground">No items yet</p>
+              <p className="text-sm text-muted-foreground">{m.roadmap_no_items()}</p>
             </div>
           ) : (
             <div className="space-y-2">

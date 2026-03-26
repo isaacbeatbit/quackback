@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import * as m from '@/paraglide/messages'
 
 interface PostActionsMenuProps {
   canEdit: boolean
@@ -41,7 +42,7 @@ export function PostActionsMenu({
           className="text-muted-foreground hover:text-foreground"
         >
           <EllipsisVerticalIcon className="size-5" />
-          <span className="sr-only">Post actions</span>
+          <span className="sr-only">{m.post_actions_sr()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
@@ -49,14 +50,14 @@ export function PostActionsMenu({
         {canEdit ? (
           <DropdownMenuItem onClick={onEdit}>
             <PencilIcon className="size-4" />
-            Edit
+            {m.common_edit()}
           </DropdownMenuItem>
         ) : editReason ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuItem disabled>
                 <PencilIcon className="size-4" />
-                Edit
+                {m.common_edit()}
               </DropdownMenuItem>
             </TooltipTrigger>
             <TooltipContent side="left">{editReason}</TooltipContent>
@@ -67,14 +68,14 @@ export function PostActionsMenu({
         {canDelete ? (
           <DropdownMenuItem variant="destructive" onClick={onDelete}>
             <TrashIcon className="size-4" />
-            Delete
+            {m.common_delete()}
           </DropdownMenuItem>
         ) : deleteReason ? (
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuItem disabled>
                 <TrashIcon className="size-4" />
-                Delete
+                {m.common_delete()}
               </DropdownMenuItem>
             </TooltipTrigger>
             <TooltipContent side="left">{deleteReason}</TooltipContent>

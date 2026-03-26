@@ -24,6 +24,7 @@ import { ChangelogMetadataSidebar } from './changelog-metadata-sidebar'
 import { ChangelogMetadataSidebarContent } from './changelog-metadata-sidebar-content'
 import { toPublishState, type PublishState } from '@/lib/shared/schemas/changelog'
 import { Route } from '@/routes/admin/changelog'
+import * as m from '@/paraglide/messages'
 import { type ChangelogId, type PostId } from '@quackback/ids'
 import type { JSONContent } from '@tiptap/react'
 
@@ -104,16 +105,9 @@ function ChangelogModalContent({ entryId, onClose }: ChangelogModalContentProps)
 
   const getSubmitButtonText = () => {
     if (updateChangelogMutation.isPending) {
-      return publishState.type === 'published' ? 'Publishing...' : 'Saving...'
+      return m.common_saving()
     }
-    switch (publishState.type) {
-      case 'draft':
-        return 'Save Draft'
-      case 'scheduled':
-        return 'Save Schedule'
-      case 'published':
-        return 'Update & Publish'
-    }
+    return m.common_save_changes()
   }
 
   if (isLoading) {
@@ -129,8 +123,8 @@ function ChangelogModalContent({ entryId, onClose }: ChangelogModalContentProps)
       <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col h-full">
         {/* Header */}
         <ModalHeader
-          section="Changelog"
-          title={entry?.title || 'Edit Entry'}
+          section={m.nav_changelog()}
+          title={entry?.title || m.changelog_edit_entry_title()}
           onClose={onClose}
           viewUrl={entry?.status === 'published' ? `/changelog/${entryId}` : null}
         />
@@ -170,12 +164,12 @@ function ChangelogModalContent({ entryId, onClose }: ChangelogModalContentProps)
             <SheetTrigger asChild>
               <Button type="button" variant="outline" size="sm" className="lg:hidden">
                 <Cog6ToothIcon className="h-4 w-4 mr-1.5" />
-                Settings
+                {m.nav_settings()}
               </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[70vh]">
               <SheetHeader>
-                <SheetTitle>Entry Settings</SheetTitle>
+                <SheetTitle>{m.nav_settings()}</SheetTitle>
               </SheetHeader>
               <div className="py-4 overflow-y-auto">
                 <ChangelogMetadataSidebarContent
@@ -208,7 +202,7 @@ export function ChangelogModal({ entryId: urlEntryId }: ChangelogModalProps) {
     <UrlModalShell
       open={open}
       onOpenChange={(o) => !o && close()}
-      srTitle="Edit changelog entry"
+      srTitle={m.changelog_edit_entry_title()}
       hasValidId={!!validatedId}
     >
       {validatedId && <ChangelogModalContent entryId={validatedId} onClose={close} />}

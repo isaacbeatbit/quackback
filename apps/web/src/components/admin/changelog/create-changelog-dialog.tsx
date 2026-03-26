@@ -18,6 +18,7 @@ import { ChangelogFormFields } from './changelog-form-fields'
 import { ChangelogMetadataSidebar } from './changelog-metadata-sidebar'
 import type { PublishState } from '@/lib/shared/schemas/changelog'
 import type { JSONContent } from '@tiptap/react'
+import * as m from '@/paraglide/messages'
 import type { PostId } from '@quackback/ids'
 
 // Mobile-only version of the sidebar content for the sheet
@@ -108,7 +109,7 @@ export function CreateChangelogDialog({ onChangelogCreated }: CreateChangelogDia
       <DialogTrigger asChild>
         <Button size="sm">
           <PlusIcon className="h-4 w-4 mr-1.5" />
-          New Entry
+          {m.changelog_create_entry_button()}
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -116,7 +117,7 @@ export function CreateChangelogDialog({ onChangelogCreated }: CreateChangelogDia
         onKeyDown={handleKeyDown}
         showCloseButton={false}
       >
-        <DialogTitle className="sr-only">Create changelog entry</DialogTitle>
+        <DialogTitle className="sr-only">{m.changelog_create_entry_title()}</DialogTitle>
 
         <Form {...form}>
           <form onSubmit={handleSubmit} className="flex flex-col h-full">

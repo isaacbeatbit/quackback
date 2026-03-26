@@ -10,6 +10,7 @@ import { useProxyVote } from '@/lib/client/mutations/posts'
 import { useCreatePortalUser } from '@/lib/client/mutations/users'
 import { cn } from '@/lib/shared/utils'
 import type { PostId, PrincipalId } from '@quackback/ids'
+import * as m from '@/paraglide/messages'
 
 interface VotersAvatarStackProps {
   postId: PostId
@@ -142,7 +143,7 @@ export function VotersAvatarStack({
           )}
         </button>
       ) : (
-        <span className="text-xs text-muted-foreground/50 italic">No voters yet</span>
+        <span className="text-xs text-muted-foreground/50 italic">{m.voters_empty()}</span>
       )}
 
       <VotersModal
@@ -165,7 +166,7 @@ export function VotersAvatarStack({
             )}
           >
             <PlusIcon className="h-3 w-3" />
-            <span>Add voter</span>
+            <span>{m.voters_add()}</span>
           </button>
         </PopoverTrigger>
         <PopoverContent className="w-64 p-0" align="end" sideOffset={4}>
@@ -178,7 +179,7 @@ export function VotersAvatarStack({
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search members..."
+                  placeholder={m.voters_search_members_placeholder()}
                   className="flex-1 text-xs bg-transparent border-0 outline-none placeholder:text-muted-foreground/50"
                 />
               </div>
@@ -188,7 +189,7 @@ export function VotersAvatarStack({
               >
                 {filteredSearchResults.length === 0 ? (
                   <p className="text-xs text-muted-foreground/60 text-center py-4">
-                    No members found
+                    {m.voters_no_members_found()}
                   </p>
                 ) : (
                   filteredSearchResults.map((member) => (

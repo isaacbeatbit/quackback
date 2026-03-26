@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog'
 import { createApiKeyFn } from '@/lib/server/functions/api-keys'
 import type { ApiKey } from '@/lib/server/domains/api-keys'
+import * as m from '@/paraglide/messages'
 
 interface CreateApiKeyDialogProps {
   open: boolean
@@ -35,7 +36,7 @@ export function CreateApiKeyDialog({ open, onOpenChange, onKeyCreated }: CreateA
     setError(null)
 
     if (!name.trim()) {
-      setError('Please enter a name for the API key')
+      setError(m.api_keys_create_name_required())
       return
     }
 
@@ -53,7 +54,7 @@ export function CreateApiKeyDialog({ open, onOpenChange, onKeyCreated }: CreateA
       onKeyCreated(result.apiKey, result.plainTextKey)
     } catch (err) {
       console.error('Failed to create API key:', err)
-      setError(err instanceof Error ? err.message : 'Failed to create API key')
+      setError(err instanceof Error ? err.message : m.api_keys_create_failed())
     }
   }
 
@@ -69,26 +70,22 @@ export function CreateApiKeyDialog({ open, onOpenChange, onKeyCreated }: CreateA
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create API Key</DialogTitle>
-          <DialogDescription>
-            Create a new API key to authenticate with the Quackback API.
-          </DialogDescription>
+          <DialogTitle>{m.api_keys_create_title()}</DialogTitle>
+          <DialogDescription>{m.api_keys_create_description()}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{m.api_keys_name_label()}</Label>
               <Input
                 id="name"
-                placeholder="e.g., Production API, Integration Bot"
+                placeholder={m.api_keys_name_placeholder()}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={isPending}
                 autoFocus
               />
-              <p className="text-xs text-muted-foreground">
-                Give your key a descriptive name so you can identify it later.
-              </p>
+              <p className="text-xs text-muted-foreground">{m.api_keys_name_help()}</p>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
@@ -99,10 +96,10 @@ export function CreateApiKeyDialog({ open, onOpenChange, onKeyCreated }: CreateA
               onClick={() => handleOpenChange(false)}
               disabled={isPending}
             >
-              Cancel
+              {m.common_cancel()}
             </Button>
             <Button type="submit" disabled={isPending || !name.trim()}>
-              {isPending ? 'Creating...' : 'Create Key'}
+              {isPending ? m.api_keys_creating() : m.api_keys_create_button()}
             </Button>
           </DialogFooter>
         </form>

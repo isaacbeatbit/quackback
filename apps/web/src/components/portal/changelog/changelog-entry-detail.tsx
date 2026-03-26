@@ -8,6 +8,8 @@ import { CalendarIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import type { ChangelogId, PostId } from '@quackback/ids'
 import type { JSONContent } from '@tiptap/react'
 import type { TiptapContent } from '@/lib/shared/db-types'
+import { getLocale } from '@/paraglide/runtime'
+import * as m from '@/paraglide/messages'
 
 interface LinkedPost {
   id: PostId
@@ -36,17 +38,20 @@ export function ChangelogEntryDetail({
   publishedAt,
   linkedPosts,
 }: ChangelogEntryDetailProps) {
-  const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  const formattedDate = new Date(publishedAt).toLocaleDateString(
+    getLocale() === 'es' ? 'es-ES' : 'en-US',
+    {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
+  )
 
   return (
     <article>
       {/* Back link */}
       <BackLink to="/changelog" className="mb-6">
-        Changelog
+        {m.nav_changelog()}
       </BackLink>
 
       {/* Header */}
@@ -73,7 +78,7 @@ export function ChangelogEntryDetail({
       {/* Linked posts section */}
       {linkedPosts.length > 0 && (
         <section className="border-t pt-8">
-          <h2 className="text-lg font-semibold mb-4">Shipped Features</h2>
+          <h2 className="text-lg font-semibold mb-4">{m.changelog_shipped_features()}</h2>
           <div className="grid gap-3">
             {linkedPosts.map((post) => (
               <Link

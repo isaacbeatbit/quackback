@@ -7,6 +7,7 @@ import { BackLink } from '@/components/ui/back-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { PortalAuthSettings } from '@/components/admin/settings/portal-auth/portal-auth-settings'
 import { SettingsCard } from '@/components/admin/settings/settings-card'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/portal-auth')({
   loader: async ({ context }) => {
@@ -34,18 +35,18 @@ function PortalAuthPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={LockClosedIcon}
-        title="Portal Authentication"
-        description="Configure how visitors can sign in to your public feedback portal"
+        title={m.settings_portal_auth_page_title()}
+        description={m.settings_portal_auth_page_description()}
       />
 
       {/* Authentication Methods */}
       <SettingsCard
-        title="Sign-in Methods"
-        description="Choose which authentication methods are available to portal users. Configure OAuth providers by adding your app credentials."
+        title={m.settings_portal_auth_methods_title()}
+        description={m.settings_portal_auth_methods_description()}
       >
         <PortalAuthSettings
           initialConfig={{ oauth: portalConfigQuery.data.oauth }}

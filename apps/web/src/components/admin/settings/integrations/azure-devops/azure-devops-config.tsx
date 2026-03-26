@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
+import * as m from '@/paraglide/messages'
 import {
   StatusSyncConfig,
   type ExternalStatus,
@@ -44,8 +45,8 @@ interface AzureDevOpsConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'Create work item from new feedback',
-    description: 'Automatically create an Azure DevOps work item when new feedback is submitted',
+    label: m.integration_azure_devops_event_create_label(),
+    description: m.integration_azure_devops_event_create_description(),
   },
 ]
 
@@ -97,7 +98,7 @@ export function AzureDevOpsConfig({
       const result = await fetchAzureDevOpsProjectsFn()
       setProjects(result)
     } catch {
-      setProjectError('Failed to load projects. Please try again.')
+      setProjectError(m.integration_azure_devops_load_projects_failed())
     } finally {
       setLoadingProjects(false)
     }
@@ -110,7 +111,7 @@ export function AzureDevOpsConfig({
       const result = await fetchAzureDevOpsWorkItemTypesFn({ data: { project } })
       setWorkItemTypes(result)
     } catch {
-      setWorkItemTypeError('Failed to load work item types. Please try again.')
+      setWorkItemTypeError(m.integration_azure_devops_load_work_item_types_failed())
     } finally {
       setLoadingWorkItemTypes(false)
     }
@@ -165,10 +166,10 @@ export function AzureDevOpsConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_azure_devops_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Azure DevOps work item creation
+            {m.integration_azure_devops_enabled_description()}
           </p>
         </div>
         <Switch
@@ -181,7 +182,7 @@ export function AzureDevOpsConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="project-select">Project</Label>
+          <Label htmlFor="project-select">{m.common_project()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -190,7 +191,7 @@ export function AzureDevOpsConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingProjects ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {projectError ? (
@@ -205,10 +206,10 @@ export function AzureDevOpsConfig({
               {loadingProjects ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading projects...</span>
+                  <span>{m.integration_azure_devops_loading_projects()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a project" />
+                <SelectValue placeholder={m.integration_select_project_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -223,13 +224,13 @@ export function AzureDevOpsConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New work items will be created in this project.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_azure_devops_project_help()}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="work-item-type-select">Work item type</Label>
+        <Label htmlFor="work-item-type-select">
+          {m.integration_azure_devops_work_item_type_label()}
+        </Label>
         {workItemTypeError ? (
           <p className="text-sm text-destructive">{workItemTypeError}</p>
         ) : (
@@ -242,12 +243,14 @@ export function AzureDevOpsConfig({
               {loadingWorkItemTypes ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading work item types...</span>
+                  <span>{m.integration_azure_devops_loading_work_item_types()}</span>
                 </div>
               ) : (
                 <SelectValue
                   placeholder={
-                    selectedProject ? 'Select a work item type' : 'Select a project first'
+                    selectedProject
+                      ? m.integration_azure_devops_select_work_item_type_placeholder()
+                      : m.integration_azure_devops_select_project_first()
                   }
                 />
               )}
@@ -262,15 +265,13 @@ export function AzureDevOpsConfig({
           </Select>
         )}
         <p className="text-xs text-muted-foreground">
-          The work item type used when creating items from feedback.
+          {m.integration_azure_devops_work_item_type_help()}
         </p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose which events trigger work item creation
-        </p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_azure_devops_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -294,13 +295,13 @@ export function AzureDevOpsConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

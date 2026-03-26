@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import * as m from '@/paraglide/messages'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
 import {
@@ -42,13 +43,13 @@ interface JiraConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'Create issue from new feedback',
-    description: 'Automatically create a Jira issue when new feedback is submitted',
+    label: m.integration_jira_event_create_label(),
+    description: m.integration_jira_event_create_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked issues when feedback status changes',
+    label: m.integration_jira_event_status_label(),
+    description: m.integration_jira_event_status_description(),
   },
 ]
 
@@ -100,7 +101,7 @@ export function JiraConfig({
       const result = await fetchJiraProjectsFn()
       setProjects(result)
     } catch {
-      setProjectError('Failed to load projects. Please try again.')
+      setProjectError(m.integration_jira_load_projects_failed())
     } finally {
       setLoadingProjects(false)
     }
@@ -113,7 +114,7 @@ export function JiraConfig({
       const result = await fetchJiraIssueTypesFn({ data: { projectId } })
       setIssueTypes(result.filter((t: JiraIssueType) => !t.subtask))
     } catch {
-      setIssueTypeError('Failed to load issue types. Please try again.')
+      setIssueTypeError(m.integration_jira_load_issue_types_failed())
     } finally {
       setLoadingIssueTypes(false)
     }
@@ -168,9 +169,11 @@ export function JiraConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_jira_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">Turn off to pause all Jira issue syncing</p>
+          <p className="text-sm text-muted-foreground">
+            {m.integration_jira_enabled_description()}
+          </p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -182,7 +185,7 @@ export function JiraConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="project-select">Project</Label>
+          <Label htmlFor="project-select">{m.common_project()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -191,7 +194,7 @@ export function JiraConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingProjects ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {projectError ? (
@@ -206,10 +209,10 @@ export function JiraConfig({
               {loadingProjects ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading projects...</span>
+                  <span>{m.integration_jira_loading_projects()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a project" />
+                <SelectValue placeholder={m.integration_select_project_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -226,13 +229,11 @@ export function JiraConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback issues will be created in this project.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_jira_project_help()}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="issue-type-select">Issue type</Label>
+        <Label htmlFor="issue-type-select">{m.common_issue_type()}</Label>
         {issueTypeError ? (
           <p className="text-sm text-destructive">{issueTypeError}</p>
         ) : (
@@ -245,11 +246,15 @@ export function JiraConfig({
               {loadingIssueTypes ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading issue types...</span>
+                  <span>{m.integration_jira_loading_issue_types()}</span>
                 </div>
               ) : (
                 <SelectValue
-                  placeholder={selectedProject ? 'Select an issue type' : 'Select a project first'}
+                  placeholder={
+                    selectedProject
+                      ? m.integration_jira_select_issue_type_placeholder()
+                      : m.integration_jira_select_project_first()
+                  }
                 />
               )}
             </SelectTrigger>
@@ -262,14 +267,12 @@ export function JiraConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          The issue type used when creating new issues from feedback.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_jira_issue_type_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger issue creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_jira_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -293,13 +296,13 @@ export function JiraConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

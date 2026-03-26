@@ -12,6 +12,7 @@ import { useWidgetAuth } from '@/components/widget/widget-auth-provider'
 import { portalQueries } from '@/lib/client/queries/portal'
 import { widgetQueryKeys, INITIAL_SESSION_VERSION } from '@/lib/client/hooks/use-widget-vote'
 import { generateOneTimeToken } from '@/lib/client/widget-auth'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   board: z.string().optional(),
@@ -199,8 +200,12 @@ function WidgetPage() {
                   <CheckCircleIcon className="w-4.5 h-4.5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Thanks for your feedback!</p>
-                  <p className="text-[11px] text-muted-foreground">Your idea has been submitted.</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {m.widget_success_title()}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {m.widget_success_description()}
+                  </p>
                 </div>
               </div>
 
@@ -262,7 +267,7 @@ function WidgetPage() {
                   }}
                   className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/70 hover:text-muted-foreground transition-colors"
                 >
-                  View on feedback board
+                  {m.widget_view_feedback_board()}
                   <ArrowTopRightOnSquareIcon className="h-3 w-3" />
                 </button>
               </div>
@@ -274,7 +279,7 @@ function WidgetPage() {
                   onClick={closeWidget}
                   className="text-[11px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
                 >
-                  Close widget
+                  {m.widget_close()}
                 </button>
               </div>
             </div>

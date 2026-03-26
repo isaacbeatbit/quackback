@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 import { OnDeleteConfig } from '@/components/admin/settings/integrations/on-delete-config'
 import {
   fetchTrelloBoardsFn,
@@ -35,8 +36,8 @@ interface TrelloConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Create a Trello card when a user submits new feedback',
+    label: m.integration_trello_event_post_created_label(),
+    description: m.integration_trello_event_post_created_description(),
   },
 ]
 
@@ -72,7 +73,7 @@ export function TrelloConfig({
       const result = await fetchTrelloBoardsFn()
       setBoards(result)
     } catch {
-      setBoardError('Failed to load boards. Please try again.')
+      setBoardError(m.integration_trello_load_boards_failed())
     } finally {
       setLoadingBoards(false)
     }
@@ -85,7 +86,7 @@ export function TrelloConfig({
       const result = await fetchTrelloListsFn({ data: { boardId } })
       setLists(result)
     } catch {
-      setListError('Failed to load lists. Please try again.')
+      setListError(m.integration_trello_load_lists_failed())
     } finally {
       setLoadingLists(false)
     }
@@ -142,9 +143,11 @@ export function TrelloConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_trello_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">Turn off to pause card creation in Trello</p>
+          <p className="text-sm text-muted-foreground">
+            {m.integration_trello_enabled_description()}
+          </p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -156,7 +159,7 @@ export function TrelloConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="board-select">Trello board</Label>
+          <Label htmlFor="board-select">{m.integration_trello_board_label()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -165,7 +168,7 @@ export function TrelloConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingBoards ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {boardError ? (
@@ -180,10 +183,10 @@ export function TrelloConfig({
               {loadingBoards ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading boards...</span>
+                  <span>{m.integration_trello_loading_boards()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a board" />
+                <SelectValue placeholder={m.integration_select_board_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -195,13 +198,11 @@ export function TrelloConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          Choose which Trello board cards should be created in
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_trello_board_help()}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="list-select">Trello list</Label>
+        <Label htmlFor="list-select">{m.integration_trello_list_label()}</Label>
         {listError ? (
           <p className="text-sm text-destructive">{listError}</p>
         ) : (
@@ -214,11 +215,15 @@ export function TrelloConfig({
               {loadingLists ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading lists...</span>
+                  <span>{m.integration_trello_loading_lists()}</span>
                 </div>
               ) : (
                 <SelectValue
-                  placeholder={selectedBoard ? 'Select a list' : 'Select a board first'}
+                  placeholder={
+                    selectedBoard
+                      ? m.integration_trello_select_list_placeholder()
+                      : m.integration_trello_select_board_first()
+                  }
                 />
               )}
             </SelectTrigger>
@@ -231,14 +236,12 @@ export function TrelloConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback cards will be created in this list
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_trello_list_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger card creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_trello_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -262,13 +265,13 @@ export function TrelloConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

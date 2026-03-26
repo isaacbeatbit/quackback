@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchGitHubReposFn, type GitHubRepo } from '@/lib/server/integrations/github/functions'
+import * as m from '@/paraglide/messages'
 import { StatusSyncConfig } from '@/components/admin/settings/integrations/status-sync-config'
 import { OnDeleteConfig } from '@/components/admin/settings/integrations/on-delete-config'
 
@@ -30,18 +31,7 @@ interface GitHubConfigProps {
   enabled: boolean
 }
 
-const EVENT_CONFIG = [
-  {
-    id: 'post.created' as const,
-    label: 'Create issue from new feedback',
-    description: 'Automatically create a GitHub issue when new feedback is submitted',
-  },
-  {
-    id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked issues when feedback status changes',
-  },
-]
+const EVENT_IDS = ['post.created', 'post.status_changed'] as const
 
 export function GitHubConfig({
   integrationId,
@@ -57,9 +47,9 @@ export function GitHubConfig({
   const [integrationEnabled, setIntegrationEnabled] = useState(enabled)
   const [eventSettings, setEventSettings] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
-      EVENT_CONFIG.map((event) => [
-        event.id,
-        initialEventMappings.find((m) => m.eventType === event.id)?.enabled ?? false,
+      EVENT_IDS.map((eventId) => [
+        eventId,
+        initialEventMappings.find((mapping) => mapping.eventType === eventId)?.enabled ?? false,
       ])
     )
   )
@@ -71,7 +61,7 @@ export function GitHubConfig({
       const result = await fetchGitHubReposFn()
       setRepos(result)
     } catch {
-      setRepoError('Failed to load repositories. Please try again.')
+      setRepoError(m.integration_github_load_repositories_failed())
     } finally {
       setLoadingRepos(false)
     }
@@ -104,16 +94,28 @@ export function GitHubConfig({
   }
 
   const saving = updateMutation.isPending
+  const eventConfig = [
+    {
+      id: 'post.created' as const,
+      label: m.integration_github_event_create_label(),
+      description: m.integration_github_event_create_description(),
+    },
+    {
+      id: 'post.status_changed' as const,
+      label: m.integration_github_event_status_label(),
+      description: m.integration_github_event_status_description(),
+    },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_github_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all GitHub issue syncing
+            {m.integration_github_enabled_description()}
           </p>
         </div>
         <Switch
@@ -126,7 +128,7 @@ export function GitHubConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="repo-select">Repository</Label>
+          <Label htmlFor="repo-select">{m.common_repository()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -135,7 +137,7 @@ export function GitHubConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingRepos ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {repoError ? (
@@ -150,10 +152,10 @@ export function GitHubConfig({
               {loadingRepos ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading repositories...</span>
+                  <span>{m.integration_github_loading_repositories()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a repository" />
+                <SelectValue placeholder={m.integration_select_repository_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -168,16 +170,14 @@ export function GitHubConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback issues will be created in this repository.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_github_repository_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger issue creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_github_events_help()}</p>
         <div className="space-y-3 pt-2">
-          {EVENT_CONFIG.map((event) => (
+          {eventConfig.map((event) => (
             <div
               key={event.id}
               className="flex items-center justify-between rounded-lg border border-border/50 p-3"
@@ -199,13 +199,13 @@ export function GitHubConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

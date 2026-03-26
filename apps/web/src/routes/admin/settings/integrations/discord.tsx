@@ -10,6 +10,7 @@ import { DiscordConfig } from '@/components/admin/settings/integrations/discord/
 import { Button } from '@/components/ui/button'
 import { DiscordIcon } from '@/components/icons/integration-icons'
 import { discordCatalog } from '@/lib/server/integrations/discord/catalog'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/integrations/discord')({
   loader: async ({ context }) => {
@@ -41,7 +42,7 @@ function DiscordIntegrationPage() {
             <div className="flex items-center gap-2">
               {platformCredentialFields.length > 0 && (
                 <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                  Configure credentials
+                  {m.integration_configure_credentials()}
                 </Button>
               )}
               <DiscordConnectionActions integrationId={integration?.id} isConnected={true} />
@@ -64,31 +65,24 @@ function DiscordIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<DiscordIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect your Discord server"
-          description="Connect Discord to receive notifications when users submit feedback, when statuses change, and when comments are added."
+          title={m.integration_discord_title()}
+          description={m.integration_discord_description()}
           steps={[
-            <p key="1">
-              Click <span className="font-medium text-foreground">Connect</span> to add the
-              Quackback bot to your Discord server.
-            </p>,
-            <p key="2">
-              Select which text channel notifications should be posted to. The bot needs access to
-              the channel.
-            </p>,
-            <p key="3">
-              Choose which events trigger notifications. You can enable or disable individual event
-              types at any time.
-            </p>,
+            <p key="1">{m.integration_discord_setup_step_1()}</p>,
+            <p key="2">{m.integration_discord_setup_step_2()}</p>,
+            <p key="3">{m.integration_discord_setup_step_3()}</p>,
           ]}
           connectionForm={
             <div className="flex flex-col items-end gap-2">
               {platformCredentialFields.length > 0 && !platformCredentialsConfigured && (
-                <Button onClick={() => setCredentialsOpen(true)}>Configure credentials</Button>
+                <Button onClick={() => setCredentialsOpen(true)}>
+                  {m.integration_configure_credentials()}
+                </Button>
               )}
               {platformCredentialsConfigured && (
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setCredentialsOpen(true)}>
-                    Configure credentials
+                    {m.integration_configure_credentials()}
                   </Button>
                   <DiscordConnectionActions integrationId={undefined} isConnected={false} />
                 </div>

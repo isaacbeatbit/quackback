@@ -3,6 +3,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/solid'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useUpdateIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 
 interface EventMapping {
   id: string
@@ -19,8 +20,8 @@ interface SalesforceConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'Enrich feedback with Salesforce CRM data when users submit new feedback',
+    label: m.integration_salesforce_event_post_created_label(),
+    description: m.integration_salesforce_event_post_created_description(),
   },
 ]
 
@@ -64,10 +65,10 @@ export function SalesforceConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_salesforce_enabled_label()}
           </Label>
           <p className="text-sm text-muted-foreground">
-            Turn off to pause all Salesforce CRM data enrichment
+            {m.integration_salesforce_enabled_description()}
           </p>
         </div>
         <Switch
@@ -79,10 +80,8 @@ export function SalesforceConfig({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">
-          Choose which events trigger Salesforce actions
-        </p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_salesforce_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -106,13 +105,13 @@ export function SalesforceConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@ import { useRouter } from '@tanstack/react-router'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { deleteWebhookFn } from '@/lib/server/functions/webhooks'
 import type { Webhook } from '@/lib/server/domains/webhooks'
+import * as m from '@/paraglide/messages'
 
 interface DeleteWebhookDialogProps {
   webhook: Webhook
@@ -32,7 +33,7 @@ export function DeleteWebhookDialog({ webhook, open, onOpenChange }: DeleteWebho
 
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete webhook')
+      setError(err instanceof Error ? err.message : m.webhooks_delete_failed())
     }
   }
 
@@ -40,19 +41,20 @@ export function DeleteWebhookDialog({ webhook, open, onOpenChange }: DeleteWebho
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete Webhook"
-      description="Are you sure you want to delete this webhook?"
+      title={m.webhooks_delete_title()}
+      description={m.webhooks_delete_description()}
       warning={{
-        title: 'This action cannot be undone',
+        title: m.webhooks_delete_warning_title(),
         description: (
           <>
-            The webhook to <code className="bg-muted px-1 rounded text-xs">{webhook.url}</code> will
-            be permanently deleted and will no longer receive events.
+            {m.webhooks_delete_warning_prefix()}{' '}
+            <code className="bg-muted px-1 rounded text-xs">{webhook.url}</code>{' '}
+            {m.webhooks_delete_warning_suffix()}
           </>
         ),
       }}
       variant="destructive"
-      confirmLabel={isPending ? 'Deleting...' : 'Delete Webhook'}
+      confirmLabel={isPending ? m.webhooks_deleting() : m.webhooks_delete_button()}
       isPending={isPending}
       onConfirm={handleDelete}
     >

@@ -7,6 +7,13 @@ import { AzureDevOpsConnectionActions } from '@/components/admin/settings/integr
 import { AzureDevOpsConfig } from '@/components/admin/settings/integrations/azure-devops/azure-devops-config'
 import { AzureDevOpsIcon } from '@/components/icons/integration-icons'
 import { azureDevOpsCatalog } from '@/lib/server/integrations/azure-devops/catalog'
+import { integration_azure_devops_description } from '@/paraglide/messages/integration_azure_devops_description.js'
+import { integration_azure_devops_pat_link_label } from '@/paraglide/messages/integration_azure_devops_pat_link_label.js'
+import { integration_azure_devops_setup_step_1_prefix } from '@/paraglide/messages/integration_azure_devops_setup_step_1_prefix.js'
+import { integration_azure_devops_setup_step_1_suffix } from '@/paraglide/messages/integration_azure_devops_setup_step_1_suffix.js'
+import { integration_azure_devops_setup_step_2 } from '@/paraglide/messages/integration_azure_devops_setup_step_2.js'
+import { integration_azure_devops_setup_step_3 } from '@/paraglide/messages/integration_azure_devops_setup_step_3.js'
+import { integration_azure_devops_title } from '@/paraglide/messages/integration_azure_devops_title.js'
 
 export const Route = createFileRoute('/admin/settings/integrations/azure-devops')({
   loader: async ({ context }) => {
@@ -54,31 +61,23 @@ function AzureDevOpsIntegrationPage() {
       {!integration && (
         <IntegrationSetupCard
           icon={<AzureDevOpsIcon className="h-6 w-6 text-muted-foreground" />}
-          title="Connect Azure DevOps"
-          description="Connect Azure DevOps to automatically create work items from feedback posts, keeping your team's workflow in sync."
+          title={integration_azure_devops_title()}
+          description={integration_azure_devops_description()}
           steps={[
             <p key="1">
-              Create a{' '}
+              {integration_azure_devops_setup_step_1_prefix()}{' '}
               <a
                 href="https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-primary underline underline-offset-2"
               >
-                Personal Access Token
+                {integration_azure_devops_pat_link_label()}
               </a>{' '}
-              in Azure DevOps with{' '}
-              <span className="font-medium text-foreground">Work Items (Read & Write)</span> scope.
+              {integration_azure_devops_setup_step_1_suffix()}
             </p>,
-            <p key="2">
-              Enter your organization URL and PAT below, then click{' '}
-              <span className="font-medium text-foreground">Connect</span>. Quackback will verify
-              access to your organization.
-            </p>,
-            <p key="3">
-              Select which project and work item type to use, then enable the events that should
-              trigger work item creation.
-            </p>,
+            <p key="2">{integration_azure_devops_setup_step_2()}</p>,
+            <p key="3">{integration_azure_devops_setup_step_3()}</p>,
           ]}
           connectionForm={
             <AzureDevOpsConnectionActions integrationId={undefined} isConnected={false} />

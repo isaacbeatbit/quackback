@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
 import { fetchExternalStatusesFn } from '@/lib/server/functions/external-statuses'
+import * as m from '@/paraglide/messages'
 import {
   StatusSyncConfig,
   type ExternalStatus,
@@ -37,13 +38,13 @@ interface AsanaConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'Create task from new feedback',
-    description: 'Automatically create an Asana task when new feedback is submitted',
+    label: m.integration_asana_event_create_label(),
+    description: m.integration_asana_event_create_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Sync status changes',
-    description: 'Update linked tasks when feedback status changes',
+    label: m.integration_asana_event_status_label(),
+    description: m.integration_asana_event_status_description(),
   },
 ]
 
@@ -76,7 +77,7 @@ export function AsanaConfig({
       const result = await fetchAsanaProjectsFn()
       setProjects(result)
     } catch {
-      setProjectError('Failed to load projects. Please try again.')
+      setProjectError(m.integration_asana_load_projects_failed())
     } finally {
       setLoadingProjects(false)
     }
@@ -118,9 +119,11 @@ export function AsanaConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Integration enabled
+            {m.integration_asana_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">Turn off to pause all Asana task syncing</p>
+          <p className="text-sm text-muted-foreground">
+            {m.integration_asana_enabled_description()}
+          </p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -132,7 +135,7 @@ export function AsanaConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="project-select">Project</Label>
+          <Label htmlFor="project-select">{m.common_project()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -141,7 +144,7 @@ export function AsanaConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingProjects ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {projectError ? (
@@ -156,10 +159,10 @@ export function AsanaConfig({
               {loadingProjects ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading projects...</span>
+                  <span>{m.integration_asana_loading_projects()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a project" />
+                <SelectValue placeholder={m.integration_select_project_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -174,14 +177,12 @@ export function AsanaConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          New feedback tasks will be created in this project.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_asana_project_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger task creation</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_asana_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -205,13 +206,13 @@ export function AsanaConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
 

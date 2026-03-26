@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Check, ExternalLink, Globe, ShieldCheck } from 'lucide-react'
+import * as m from '@/paraglide/messages'
 
 const searchSchema = z.object({
   client_id: z.string(),
@@ -43,24 +44,33 @@ function isSafeUrl(url: string): boolean {
 }
 
 const SCOPE_LABELS: Record<string, { label: string; description: string }> = {
-  openid: { label: 'User ID', description: 'Access your user identifier' },
-  profile: { label: 'Profile', description: 'View your name and avatar' },
-  email: { label: 'Email', description: 'View your email address' },
+  openid: {
+    label: m.oauth_consent_scope_openid_label(),
+    description: m.oauth_consent_scope_openid_description(),
+  },
+  profile: {
+    label: m.oauth_consent_scope_profile_label(),
+    description: m.oauth_consent_scope_profile_description(),
+  },
+  email: {
+    label: m.oauth_consent_scope_email_label(),
+    description: m.oauth_consent_scope_email_description(),
+  },
   'read:feedback': {
-    label: 'Read feedback',
-    description: 'Read posts, comments, boards, and roadmaps',
+    label: m.oauth_consent_scope_read_feedback_label(),
+    description: m.oauth_consent_scope_read_feedback_description(),
   },
   'write:feedback': {
-    label: 'Write feedback',
-    description: 'Create posts, add comments, and vote',
+    label: m.oauth_consent_scope_write_feedback_label(),
+    description: m.oauth_consent_scope_write_feedback_description(),
   },
   'write:changelog': {
-    label: 'Write changelogs',
-    description: 'Create and publish changelog entries',
+    label: m.oauth_consent_scope_write_changelog_label(),
+    description: m.oauth_consent_scope_write_changelog_description(),
   },
   offline_access: {
-    label: 'Offline access',
-    description: "Stay connected when you're not actively using it",
+    label: m.oauth_consent_scope_offline_access_label(),
+    description: m.oauth_consent_scope_offline_access_description(),
   },
 }
 
@@ -89,7 +99,7 @@ function ConsentPage() {
   const visibleScopes = allScopes.filter((s) => !HIDDEN_SCOPES.has(s))
   const [submitting, setSubmitting] = useState<'accept' | 'deny' | null>(null)
 
-  const clientName = client?.client_name || 'An application'
+  const clientName = client?.client_name || m.oauth_consent_unknown_application()
   const clientDomain = (() => {
     if (!client?.client_uri || !isSafeUrl(client.client_uri)) return null
     try {
@@ -164,7 +174,7 @@ function ConsentPage() {
 
           <CardTitle className="text-xl">{clientName}</CardTitle>
 
-          <p className="mt-1 text-sm text-muted-foreground">wants to access your account</p>
+          <p className="mt-1 text-sm text-muted-foreground">{m.oauth_consent_wants_access()}</p>
 
           {clientDomain && (
             <p className="mt-1 text-xs text-muted-foreground">
@@ -190,7 +200,9 @@ function ConsentPage() {
           {visibleScopes.length > 0 && (
             <div className="rounded-lg border p-4 space-y-3">
               <p className="text-sm font-medium text-muted-foreground">
-                This will allow {client.client_name || 'the application'} to:
+                {m.oauth_consent_permissions_intro({
+                  clientName: client.client_name || m.oauth_consent_the_application(),
+                })}
               </p>
               <ul className="space-y-2.5">
                 {visibleScopes.map((s) => {
@@ -214,7 +226,7 @@ function ConsentPage() {
           {/* Authorization notice */}
           <div className="flex items-start gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>You can revoke this access at any time from your account settings.</p>
+            <p>{m.oauth_consent_revocation_notice()}</p>
           </div>
 
           {/* Actions */}
@@ -225,14 +237,16 @@ function ConsentPage() {
               disabled={submitting !== null}
               onClick={() => handleConsent(false)}
             >
-              {submitting === 'deny' ? 'Denying...' : 'Deny'}
+              {submitting === 'deny' ? m.oauth_consent_denying() : m.oauth_consent_deny()}
             </Button>
             <Button
               className="flex-1"
               disabled={submitting !== null}
               onClick={() => handleConsent(true)}
             >
-              {submitting === 'accept' ? 'Authorizing...' : 'Authorize'}
+              {submitting === 'accept'
+                ? m.oauth_consent_authorizing()
+                : m.oauth_consent_authorize()}
             </Button>
           </div>
 
@@ -240,7 +254,7 @@ function ConsentPage() {
           {((client.tos_uri && isSafeUrl(client.tos_uri)) ||
             (client.policy_uri && isSafeUrl(client.policy_uri))) && (
             <p className="text-center text-xs text-muted-foreground">
-              {'By authorizing, you agree to '}
+              {m.oauth_consent_legal_prefix()}{' '}
               {client.tos_uri && isSafeUrl(client.tos_uri) && (
                 <a
                   href={client.tos_uri}
@@ -248,14 +262,14 @@ function ConsentPage() {
                   rel="noopener noreferrer"
                   className="underline hover:text-foreground"
                 >
-                  Terms of Service
+                  {m.oauth_consent_terms_of_service()}
                 </a>
               )}
               {client.tos_uri &&
                 isSafeUrl(client.tos_uri) &&
                 client.policy_uri &&
                 isSafeUrl(client.policy_uri) &&
-                ' and '}
+                ` ${m.oauth_consent_legal_and()} `}
               {client.policy_uri && isSafeUrl(client.policy_uri) && (
                 <a
                   href={client.policy_uri}
@@ -263,7 +277,7 @@ function ConsentPage() {
                   rel="noopener noreferrer"
                   className="underline hover:text-foreground"
                 >
-                  Privacy Policy
+                  {m.oauth_consent_privacy_policy()}
                 </a>
               )}
               .

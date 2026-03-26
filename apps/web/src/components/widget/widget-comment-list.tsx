@@ -17,6 +17,7 @@ import { getWidgetAuthHeaders } from '@/lib/client/widget-auth'
 import { getInitials, cn } from '@/lib/shared/utils'
 import type { PublicCommentView } from '@/lib/client/queries/portal-detail'
 import type { CommentReactionCount } from '@/lib/shared'
+import * as m from '@/paraglide/messages'
 
 const MAX_WIDGET_DEPTH = 2
 
@@ -44,7 +45,7 @@ export function WidgetCommentList({
   if (comments.length === 0) {
     return (
       <p className="text-xs text-muted-foreground/60 text-center py-4">
-        No comments yet. Be the first to share your thoughts!
+        {m.widget_no_comments_yet()} {m.widget_no_comments_description()}
       </p>
     )
   }
@@ -145,7 +146,7 @@ function WidgetCommentItem({
               <AvatarFallback className="text-[9px]">?</AvatarFallback>
             </Avatar>
             <span className="text-xs text-muted-foreground/60 italic">
-              {comment.isRemovedByTeam ? '[removed]' : '[deleted]'}
+              {comment.isRemovedByTeam ? m.widget_removed() : m.widget_deleted()}
             </span>
             <span className="text-muted-foreground/50 text-[10px]">&middot;</span>
             <TimeAgo date={comment.createdAt} className="text-[10px] text-muted-foreground/60" />
@@ -218,17 +219,17 @@ function WidgetCommentItem({
             </AvatarFallback>
           </Avatar>
           <span className="text-xs font-medium text-foreground truncate">
-            {comment.authorName || 'Anonymous'}
+            {comment.authorName || m.widget_anonymous_author()}
           </span>
           {comment.isTeamMember && (
             <span className="text-[9px] px-1 py-px rounded bg-primary/15 text-primary font-medium shrink-0">
-              Team
+              {m.widget_team_label()}
             </span>
           )}
           {isPinned && (
             <span className="text-[9px] px-1 py-px rounded bg-primary/15 text-primary font-medium shrink-0 inline-flex items-center gap-0.5">
               <MapPinIcon className="h-2.5 w-2.5" />
-              Pinned
+              {m.widget_pinned()}
             </span>
           )}
           <span className="text-muted-foreground/50 text-[10px]">&middot;</span>
@@ -313,7 +314,7 @@ function WidgetCommentItem({
               className="inline-flex items-center gap-0.5 h-5 px-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             >
               <ArrowUturnLeftIcon className="h-2.5 w-2.5" />
-              Reply
+              {m.widget_reply()}
             </button>
           )}
         </div>
@@ -332,7 +333,9 @@ function WidgetCommentItem({
                 <textarea
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  placeholder={`Reply to ${comment.authorName || 'Anonymous'}...`}
+                  placeholder={m.widget_reply_to({
+                    name: comment.authorName || m.widget_anonymous_author(),
+                  })}
                   rows={2}
                   disabled={isSubmitting}
                   autoFocus
@@ -350,7 +353,7 @@ function WidgetCommentItem({
                   disabled={isSubmitting || !replyText.trim()}
                   className="self-end px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 >
-                  {isSubmitting ? '...' : 'Post'}
+                  {isSubmitting ? '...' : m.widget_post()}
                 </button>
               </div>
               <button
@@ -361,7 +364,7 @@ function WidgetCommentItem({
                 }}
                 className="mt-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
               >
-                Cancel
+                {m.common_cancel()}
               </button>
             </div>
           </div>

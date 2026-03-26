@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import type { MergePreview } from './merge-preview'
+import * as m from '@/paraglide/messages'
 
 interface MergeConfirmDialogProps {
   open: boolean
@@ -30,10 +31,10 @@ export function MergeConfirmDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Merge this post?</AlertDialogTitle>
+          <AlertDialogTitle>{m.merge_confirm_title()}</AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-3">
-              <p>Votes and comments will be combined. Voters are only counted once.</p>
+              <p>{m.merge_confirm_description()}</p>
 
               {/* Merged result card */}
               <CompactPostCard
@@ -45,16 +46,14 @@ export function MergeConfirmDialog({
                 commentCount={preview.commentCount}
               />
 
-              <p className="text-xs text-muted-foreground">
-                The merged post will redirect here for existing voters. You can undo this anytime.
-              </p>
+              <p className="text-xs text-muted-foreground">{m.merge_confirm_note()}</p>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{m.common_cancel()}</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} disabled={isPending}>
-            {isPending ? 'Merging...' : 'Merge'}
+            {isPending ? m.merge_confirm_merging() : m.merge_confirm_button()}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

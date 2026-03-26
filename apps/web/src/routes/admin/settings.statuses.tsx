@@ -5,6 +5,7 @@ import { Cog6ToothIcon } from '@heroicons/react/24/solid'
 import { BackLink } from '@/components/ui/back-link'
 import { PageHeader } from '@/components/shared/page-header'
 import { StatusList } from '@/components/admin/settings/statuses/status-list'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/statuses')({
   loader: async ({ context }) => {
@@ -26,12 +27,12 @@ function StatusesPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={Cog6ToothIcon}
-        title="Public Statuses"
-        description="Customize the statuses available for feedback posts"
+        title={m.settings_statuses_page_title()}
+        description={m.settings_statuses_page_description()}
       />
 
       <StatusList initialStatuses={statusesQuery.data} />

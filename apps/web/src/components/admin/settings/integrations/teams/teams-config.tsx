@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { useUpdateIntegration } from '@/lib/client/mutations'
+import * as m from '@/paraglide/messages'
 import {
   fetchTeamsTeamsFn,
   fetchTeamsChannelsFn,
@@ -34,18 +35,18 @@ interface TeamsConfigProps {
 const EVENT_CONFIG = [
   {
     id: 'post.created' as const,
-    label: 'New feedback submitted',
-    description: 'When a user submits new feedback',
+    label: m.integration_discord_event_post_created_label(),
+    description: m.integration_discord_event_post_created_description(),
   },
   {
     id: 'post.status_changed' as const,
-    label: 'Feedback status changed',
-    description: 'When the status of a feedback post is updated',
+    label: m.integration_discord_event_status_changed_label(),
+    description: m.integration_discord_event_status_changed_description(),
   },
   {
     id: 'comment.created' as const,
-    label: 'New comment on feedback',
-    description: 'When someone comments on a feedback post',
+    label: m.integration_discord_event_comment_created_label(),
+    description: m.integration_discord_event_comment_created_description(),
   },
 ]
 
@@ -81,7 +82,7 @@ export function TeamsConfig({
       const result = await fetchTeamsTeamsFn()
       setTeams(result)
     } catch {
-      setTeamError('Failed to load teams. Please try again.')
+      setTeamError(m.integration_teams_load_teams_failed())
     } finally {
       setLoadingTeams(false)
     }
@@ -94,7 +95,7 @@ export function TeamsConfig({
       const result = await fetchTeamsChannelsFn({ data: { teamId } })
       setChannels(result)
     } catch {
-      setChannelError('Failed to load channels. Please try again.')
+      setChannelError(m.integration_teams_load_channels_failed())
     } finally {
       setLoadingChannels(false)
     }
@@ -152,9 +153,11 @@ export function TeamsConfig({
       <div className="flex items-center justify-between">
         <div>
           <Label htmlFor="enabled-toggle" className="text-base font-medium">
-            Notifications enabled
+            {m.integration_teams_enabled_label()}
           </Label>
-          <p className="text-sm text-muted-foreground">Turn off to pause all Teams notifications</p>
+          <p className="text-sm text-muted-foreground">
+            {m.integration_teams_enabled_description()}
+          </p>
         </div>
         <Switch
           id="enabled-toggle"
@@ -166,7 +169,7 @@ export function TeamsConfig({
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="team-select">Team</Label>
+          <Label htmlFor="team-select">{m.common_team()}</Label>
           <Button
             variant="ghost"
             size="sm"
@@ -175,7 +178,7 @@ export function TeamsConfig({
             className="h-8 gap-1.5 text-xs"
           >
             <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingTeams ? 'animate-spin' : ''}`} />
-            Refresh
+            {m.common_refresh()}
           </Button>
         </div>
         {teamError ? (
@@ -190,10 +193,10 @@ export function TeamsConfig({
               {loadingTeams ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading teams...</span>
+                  <span>{m.integration_teams_loading_teams()}</span>
                 </div>
               ) : (
-                <SelectValue placeholder="Select a team" />
+                <SelectValue placeholder={m.integration_select_team_placeholder()} />
               )}
             </SelectTrigger>
             <SelectContent>
@@ -205,14 +208,12 @@ export function TeamsConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          Select the Microsoft Teams team where notifications should be posted.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_teams_team_help()}</p>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="channel-select">Channel</Label>
+          <Label htmlFor="channel-select">{m.integration_teams_channel_label()}</Label>
           {selectedTeam && (
             <Button
               variant="ghost"
@@ -222,7 +223,7 @@ export function TeamsConfig({
               className="h-8 gap-1.5 text-xs"
             >
               <ArrowPathIcon className={`h-3.5 w-3.5 ${loadingChannels ? 'animate-spin' : ''}`} />
-              Refresh
+              {m.common_refresh()}
             </Button>
           )}
         </div>
@@ -238,11 +239,15 @@ export function TeamsConfig({
               {loadingChannels ? (
                 <div className="flex items-center gap-2">
                   <ArrowPathIcon className="h-4 w-4 animate-spin" />
-                  <span>Loading channels...</span>
+                  <span>{m.integration_teams_loading_channels()}</span>
                 </div>
               ) : (
                 <SelectValue
-                  placeholder={selectedTeam ? 'Select a channel' : 'Select a team first'}
+                  placeholder={
+                    selectedTeam
+                      ? m.integration_teams_select_channel_placeholder()
+                      : m.integration_teams_select_team_first()
+                  }
                 />
               )}
             </SelectTrigger>
@@ -258,15 +263,12 @@ export function TeamsConfig({
             </SelectContent>
           </Select>
         )}
-        <p className="text-xs text-muted-foreground">
-          The bot will post notifications to this channel. Make sure the bot has been added to your
-          team.
-        </p>
+        <p className="text-xs text-muted-foreground">{m.integration_teams_channel_help()}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base font-medium">Events</Label>
-        <p className="text-sm text-muted-foreground">Choose which events trigger notifications</p>
+        <Label className="text-base font-medium">{m.common_events()}</Label>
+        <p className="text-sm text-muted-foreground">{m.integration_teams_events_help()}</p>
         <div className="space-y-3 pt-2">
           {EVENT_CONFIG.map((event) => (
             <div
@@ -290,13 +292,13 @@ export function TeamsConfig({
       {saving && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <ArrowPathIcon className="h-4 w-4 animate-spin" />
-          <span>Saving...</span>
+          <span>{m.common_saving()}</span>
         </div>
       )}
 
       {updateMutation.isError && (
         <div className="text-sm text-destructive">
-          {updateMutation.error?.message || 'Failed to save changes'}
+          {updateMutation.error?.message || m.common_failed_save_changes()}
         </div>
       )}
     </div>

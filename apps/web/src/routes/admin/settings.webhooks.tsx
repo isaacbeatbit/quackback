@@ -7,6 +7,7 @@ import { adminQueries } from '@/lib/client/queries/admin'
 import { SettingsCard } from '@/components/admin/settings/settings-card'
 import { WebhooksSettings } from '@/components/admin/settings/webhooks/webhooks-settings'
 import { WebhookVerificationGuide } from '@/components/admin/settings/webhooks/webhook-verification-guide'
+import * as m from '@/paraglide/messages'
 
 export const Route = createFileRoute('/admin/settings/webhooks')({
   loader: async ({ context }) => {
@@ -27,17 +28,17 @@ function WebhooksPage() {
   return (
     <div className="space-y-6 max-w-5xl">
       <div className="lg:hidden">
-        <BackLink to="/admin/settings">Settings</BackLink>
+        <BackLink to="/admin/settings">{m.nav_settings()}</BackLink>
       </div>
       <PageHeader
         icon={BoltIcon}
-        title="Webhooks"
-        description="Send real-time notifications to external services when events occur"
+        title={m.settings_webhooks_page_title()}
+        description={m.settings_webhooks_page_description()}
       />
 
       <SettingsCard
-        title="Configured Webhooks"
-        description="Webhooks receive HTTP POST requests when events happen in your workspace"
+        title={m.settings_webhooks_configured_title()}
+        description={m.settings_webhooks_configured_description()}
       >
         <WebhooksSettings webhooks={webhooksQuery.data} />
       </SettingsCard>
